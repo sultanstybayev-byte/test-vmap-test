@@ -36,9 +36,9 @@ body { touch-action: none; -webkit-user-select: none; user-select: none; }
 body { background: var(--ink); color: var(--parchment); font-family: var(--font-body); font-size: 17px; -webkit-font-smoothing: antialiased; }
 
 /* ---------- Map camera ---------- */
-#stage { position: fixed; inset: 0; overflow: hidden; touch-action: none; cursor: grab; background: var(--ink); outline: none; }
+#stage { position: fixed; inset: 0; overflow: hidden; touch-action: none; cursor: grab; background: #cdb586; outline: none; }
 #stage.dragging { cursor: grabbing; }
-#map { position: absolute; left: 0; top: 0; width: 2576px; height: 1635px; transform-origin: 0 0; will-change: transform; opacity: 0; transition: opacity 1.1s var(--ease); }
+#map { position: absolute; left: 0; top: 0; width: 2576px; height: 1635px; transform-origin: 0 0; opacity: 0; transition: opacity 1.1s var(--ease); }
 #map.ready { opacity: 1; }
 #map img { display: block; width: 100%; height: 100%; max-width: none; user-select: none; -webkit-user-drag: none; pointer-events: none; }
 .vignette { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 60% 50%, transparent 55%, rgba(23,17,11,.55) 100%); }
@@ -123,7 +123,7 @@ body { background: var(--ink); color: var(--parchment); font-family: var(--font-
 .sheet { position: relative; height: 100%; display: flex; flex-direction: column; overflow: hidden; color: var(--text-ink); background-color: var(--parchment); background-image: var(--grain), radial-gradient(ellipse at 20% 0%, rgba(255,255,255,.4), transparent 55%), radial-gradient(ellipse at 100% 100%, rgba(120, 80, 30, .22), transparent 60%), linear-gradient(180deg, var(--parchment), var(--parchment-deep)); border: 1px solid var(--gold); border-radius: 5px; box-shadow: inset 0 0 0 5px var(--parchment), inset 0 0 0 6px rgba(111, 85, 50, .4), -18px 0 50px var(--shadow); }
 .grab { display: none; }
 .scroll { flex: 1; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--parchment-deep) transparent; }
-.hero { position: relative; height: 210px; margin: 10px 10px 0; border-radius: 3px; background: var(--ink) url("map.jpg") no-repeat; box-shadow: inset 0 0 0 1px rgba(52, 35, 15, .5), inset 0 -60px 50px -30px rgba(52, 35, 15, .45); transition: background-position .9s var(--ease), background-size .9s var(--ease); overflow: hidden; }
+.hero { position: relative; height: 210px; margin: 10px 10px 0; border-radius: 3px; background: #cdb586 no-repeat; box-shadow: inset 0 0 0 1px rgba(52, 35, 15, .5), inset 0 -60px 50px -30px rgba(52, 35, 15, .45); transition: background-position .9s var(--ease), background-size .9s var(--ease); overflow: hidden; }
 .hero::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 45%, rgba(40, 25, 10, .45)); pointer-events: none; }
 .close { position: absolute; z-index: 5; top: 18px; right: 18px; width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--gold); border-radius: 50%; background: var(--leather); cursor: pointer; box-shadow: 0 4px 12px var(--shadow); transition: transform .4s var(--ease), background .3s; }
 .close svg { width: 18px; height: 18px; stroke: var(--gold-hi); stroke-width: 2; fill: none; stroke-linecap: round; }
@@ -266,7 +266,7 @@ body { background: var(--ink); color: var(--parchment); font-family: var(--font-
 <body>
 <div id="stage" tabindex="0" aria-label="Карта. Перетаскивайте для перемещения, колесо или щипок для масштаба.">
   <div id="map">
-    <img src="map.jpg" alt="Карта земель" width="2576" height="1635" draggable="false">
+    <img alt="Карта земель" width="2576" height="1635" draggable="false" decoding="async">
     <svg id="arrows" aria-hidden="true"></svg>
   </div>
 </div>
@@ -536,12 +536,15 @@ const byId = Object.fromEntries(PLACES.map(p => [p.id, p]));
 const loreById = Object.fromEntries(LORE.map(t => [t.id, t]));
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const isNarrow = () => innerWidth <= 760;
+/* Телефоны и планшеты: лёгкая копия карты (map-mobile.jpg) и постоянный слой без перерисовки */
+const touchDevice = matchMedia("(pointer: coarse)").matches;
+const MAP_SRC = touchDevice ? "map-mobile.jpg" : "map.jpg";
 
 /* ---------- Camera ---------- */
 const cur = { s: 1, x: 0, y: 0 }, tgt = { s: 1, x: 0, y: 0 };
 let raf = 0, ease = .11;
 const minS = () => Math.max(innerWidth / W, innerHeight / H);
-const maxS = () => Math.max(minS() * 3.5, 1.3);
+const maxS = () => { const im = map.querySelector("img"), k = im && im.naturalWidth ? Math.max(1, im.naturalWidth / W) : 1; return Math.max(minS() * 3.5, 1.3 * k); };
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const panelPad = () => {
   const open = panel.classList.contains("open");
@@ -563,11 +566,12 @@ function tick() {
   const k = reduce ? 1 : ease;
   cur.s += (tgt.s - cur.s) * k; cur.x += (tgt.x - cur.x) * k; cur.y += (tgt.y - cur.y) * k;
   const done = Math.abs(tgt.s - cur.s) < 1e-4 && Math.abs(tgt.x - cur.x) < .3 && Math.abs(tgt.y - cur.y) < .3;
-  if (done) Object.assign(cur, tgt);
+  if (done) { Object.assign(cur, tgt); if (!touchDevice) { clearTimeout(crispT); crispT = setTimeout(() => { if (!raf) map.style.willChange = "auto"; }, 160); } }
   apply();
   raf = done ? 0 : requestAnimationFrame(tick);
 }
-function go(free) { if (!free) bound(tgt); if (!raf) raf = requestAnimationFrame(tick); }
+let crispT = 0;
+function go(free) { if (!free) bound(tgt); map.style.willChange = "transform"; if (!raf) raf = requestAnimationFrame(tick); }
 function zoomAt(px, py, ns) {
   const mx = (px - tgt.x) / tgt.s, my = (py - tgt.y) / tgt.s;
   ns = clamp(ns, minS(), maxS());
@@ -917,7 +921,10 @@ function boot() {
   setTimeout(() => byId[id] ? select(id) : loreById[id] ? showLore(id) : overview(), 250);
 }
 const img = map.querySelector("img");
-img.complete ? boot() : img.addEventListener("load", boot, { once: true });
+if (touchDevice) map.style.willChange = "transform";
+img.addEventListener("load", () => { hero.style.backgroundImage = `url("${img.currentSrc || img.src}")`; boot(); }, { once: true });
+img.addEventListener("error", () => { if (!img.src.endsWith("/map.jpg")) img.src = "map.jpg"; });
+img.src = MAP_SRC;
 </script>
 </body>
 </html>
