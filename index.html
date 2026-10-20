@@ -765,7 +765,9 @@ const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const isNarrow = () => innerWidth <= 760;
 /* Телефоны и планшеты: лёгкая копия карты (map-mobile.jpg) и постоянный слой без перерисовки */
 const touchDevice = matchMedia("(pointer: coarse)").matches;
-const MAP_SRC = touchDevice ? "map-mobile.jpg" : "map.jpg";
+/* MAP_VERSION: после замены картинки карты увеличьте число — тогда браузеры и ВК не покажут старую из кэша */
+const MAP_VERSION = 6;
+const MAP_SRC = (touchDevice ? "map-mobile.jpg" : "map.jpg") + "?v=" + MAP_VERSION;
 
 /* ---------- Camera ---------- */
 const cur = { s: 1, x: 0, y: 0 }, tgt = { s: 1, x: 0, y: 0 };
@@ -2156,7 +2158,7 @@ function boot() {
 const img = map.querySelector("img");
 if (touchDevice) map.style.willChange = "transform";
 img.addEventListener("load", () => { hero.style.backgroundImage = `url("${img.currentSrc || img.src}")`; boot(); }, { once: true });
-img.addEventListener("error", () => { if (!img.src.endsWith("/map.jpg")) img.src = "map.jpg"; });
+img.addEventListener("error", () => { if (!/\/map\.jpg(\?|$)/.test(img.src)) img.src = "map.jpg?v=" + MAP_VERSION; });
 img.src = MAP_SRC;
 </script>
 </body>
