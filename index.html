@@ -88,19 +88,55 @@ body { background: var(--ink); color: var(--parchment); font-family: var(--font-
 .date-short { display: none; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @keyframes twinkle { 50% { opacity: .2; } }
-.crest h1 { margin: 0; font: 700 22px/1 var(--font-display); color: var(--gold-hi); letter-spacing: .03em; white-space: nowrap; text-wrap: balance; }
+.crest h1 { margin: 0; font: 700 22px/1 var(--font-display); color: var(--gold-hi); letter-spacing: .03em; white-space: nowrap; }
 .crest p { margin: 6px 0 0; font: italic 500 14px/1.2 var(--font-body); color: var(--parchment-deep); }
 .mbtn { --i: 0; position: relative; display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 14px; border: 1px solid rgba(201, 162, 90, .75); border-radius: 4px; background: linear-gradient(180deg, var(--leather-hi), var(--leather)); color: var(--parchment); font: 700 18px/1 var(--font-display); letter-spacing: .05em; text-align: left; cursor: pointer; box-shadow: inset 0 0 0 3px var(--leather), inset 0 0 0 4px rgba(201, 162, 90, .25), 0 6px 16px var(--shadow); opacity: 0; transform: translateX(-24px); animation: slideIn .7s var(--ease) calc(.3s + var(--i) * .07s) forwards; transition: color .3s var(--ease), box-shadow .35s var(--ease), translate .35s var(--ease), border-color .3s; }
 .mbtn svg { flex: none; width: 22px; height: 22px; stroke: var(--gold); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: stroke .3s, transform .45s var(--ease); }
 .mbtn:hover, .mbtn:focus-visible { color: var(--gold-hi); border-color: var(--gold-hi); translate: 5px 0; box-shadow: inset 0 0 0 3px var(--leather), inset 0 0 0 4px rgba(240, 214, 150, .6), 0 0 22px rgba(240, 214, 150, .22), 0 8px 18px var(--shadow); outline: none; }
 .mbtn:hover svg, .mbtn:focus-visible svg { stroke: var(--gold-hi); transform: rotate(-8deg) scale(1.08); }
-.mbtn[aria-pressed="true"], .mbtn[aria-expanded="true"] { color: var(--gold-hi); border-color: var(--gold-hi); background: linear-gradient(180deg, #4a3119, var(--leather-hi)); }
-.mbtn[aria-pressed="true"]::after, .mbtn[aria-expanded="true"]::after { content: ""; position: absolute; right: 12px; top: 50%; width: 7px; height: 7px; margin-top: -3.5px; background: var(--gold-hi); transform: rotate(45deg); box-shadow: 0 0 10px var(--gold-hi); }
+.mbtn[aria-pressed="true"], .mbtn[aria-expanded="true"] { color: #2a1a0c; border-color: var(--gold-hi); background: linear-gradient(180deg, #f1d79a, #c99a4e); box-shadow: inset 0 0 0 3px rgba(255, 240, 200, .35), inset 0 0 0 4px rgba(90, 55, 20, .55), 0 0 18px rgba(240, 214, 150, .45), 0 6px 16px var(--shadow); }
+.mbtn[aria-pressed="true"] svg, .mbtn[aria-expanded="true"] svg { stroke: #3a2210; }
+.mbtn[aria-pressed="true"]:hover, .mbtn[aria-expanded="true"]:hover, .mbtn[aria-pressed="true"]:focus-visible, .mbtn[aria-expanded="true"]:focus-visible { color: #2a1a0c; }
+.mbtn[aria-pressed="true"]:hover svg, .mbtn[aria-expanded="true"]:hover svg { stroke: #3a2210; }
+.mbtn[aria-pressed="true"]::after, .mbtn[aria-expanded="true"]::after { content: ""; position: absolute; right: 12px; top: 50%; width: 7px; height: 7px; margin-top: -3.5px; background: #8e2f1c; transform: rotate(45deg); box-shadow: 0 0 6px rgba(142, 47, 28, .6); }
 .mbtn:active { translate: 5px 1px; }
 .zoombar { margin-top: auto; display: flex; gap: 8px; }
 .zoombar .mbtn { justify-content: center; padding: 10px 0; flex: 1; font-size: 22px; }
 .zoombar .mbtn svg { width: 20px; height: 20px; }
 @keyframes slideIn { to { opacity: 1; transform: none; } }
+
+/* Folding the menu into an icon rail: only widths and opacity animate, nothing re-wraps */
+#menu { transition: width .55s var(--ease); }
+.mbtn { overflow: hidden; }
+.mbtn .t { white-space: nowrap; transition: opacity .35s var(--ease), transform .5s var(--ease); }
+.crest { position: relative; overflow: hidden; gap: 0; height: 88px; padding: 0 16px; transition: none; }
+.crest-t { flex: none; width: 148px; margin-right: 12px; overflow: hidden; white-space: nowrap; transition: width .55s var(--ease), margin .55s var(--ease), opacity .3s var(--ease); }
+.crest-t p { white-space: nowrap; }
+.clock { flex: none; display: grid; grid-template-rows: 26px 12px 15px; grid-template-columns: minmax(0, 1fr); justify-items: center; align-content: center; row-gap: 3px; width: 86px; min-width: 0; overflow: hidden; white-space: nowrap; transition: width .55s var(--ease), padding .55s var(--ease), border-color .4s; }
+.clock > * { grid-column: 1; }
+.clock .sky { grid-row: 1; } .clock .season { grid-row: 2; align-self: center; } .clock .date { grid-row: 3; align-self: center; }
+.clock .season, .clock .date { transition: opacity .3s var(--ease); }
+.zoombar { flex-direction: column; align-items: flex-start; }
+.zoombar { gap: 8px; }
+#menu .zoombar .mbtn { flex: none; width: 60px; height: 44px; padding: 0; justify-content: center; translate: 0 0; }
+#menu .zoombar .mbtn svg { transform: none; }
+#b-fold { position: absolute; z-index: 2; top: 34px; right: -15px; width: 22px; height: 46px; display: grid; place-items: center; padding: 0; border: 1px solid var(--gold); border-left: 0; border-radius: 0 6px 6px 0; background: linear-gradient(90deg, var(--leather), var(--leather-hi)); cursor: pointer; box-shadow: 4px 4px 12px var(--shadow); opacity: 0; animation: slideIn .7s var(--ease) .8s forwards; transition: background .25s; }
+#b-fold svg { width: 14px; height: 14px; fill: none; stroke: var(--gold-hi); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; transition: transform .55s var(--ease); }
+#b-fold:hover, #b-fold:focus-visible { background: var(--leather-hi); outline: none; }
+body.fold:not(.peek) #menu { width: 60px; }
+body.fold:not(.peek) .mbtn { padding-left: 18px; }
+body.fold:not(.peek) .mbtn .t { opacity: 0; transform: translateX(-12px); }
+body.fold:not(.peek) .mbtn::after { opacity: 0; }
+body.fold:not(.peek) .mbtn:hover, body.fold:not(.peek) .mbtn:focus-visible { translate: 0 0; }
+body.fold:not(.peek) .crest-t { width: 0; margin-right: 0; opacity: 0; }
+body.fold:not(.peek) .clock { width: 26px; padding-left: 0; border-color: transparent; }
+body.fold:not(.peek) .clock .season, body.fold:not(.peek) .clock .date { opacity: 0; }
+.mini { grid-row: 2 / 4; align-self: center; display: flex; flex-direction: column; align-items: center; opacity: 0; transition: opacity .3s var(--ease); pointer-events: none; }
+.mini-d { font: 700 19px/1 var(--font-display); color: var(--gold-hi); }
+.mini-m { margin-top: 2px; font: 700 10px/1 var(--font-display); letter-spacing: .12em; text-transform: uppercase; color: var(--gold); }
+body.fold:not(.peek) .mini { opacity: 1; transition-delay: .2s; }
+body.fold #b-fold svg { transform: rotate(180deg); }
+body.fold:not(.peek) #flyout { left: calc(max(18px, calc(env(safe-area-inset-left, 0px) + 12px)) + 74px); }
 
 /* Flyout next to the menu */
 #flyout { position: fixed; z-index: 19; left: calc(max(18px, calc(env(safe-area-inset-left, 0px) + 12px)) + 292px); top: max(18px, calc(env(safe-area-inset-top, 0px) + 12px)); width: 290px; max-height: calc(100% - 36px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); overflow: auto; padding: 18px 18px 20px; color: var(--text-ink); background-color: var(--parchment); background-image: var(--grain), radial-gradient(ellipse at 30% 0%, rgba(255,255,255,.35), transparent 60%), linear-gradient(180deg, var(--parchment), var(--parchment-deep)); border: 1px solid var(--gold); border-radius: 4px; box-shadow: inset 0 0 0 4px var(--parchment), inset 0 0 0 5px rgba(111, 85, 50, .35), 0 16px 40px var(--shadow); opacity: 0; visibility: hidden; transform: translateX(-16px) scale(.98); transform-origin: left top; transition: opacity .4s var(--ease), transform .5s var(--ease), visibility 0s .5s; }
@@ -224,6 +260,8 @@ body { background: var(--ink); color: var(--parchment); font-family: var(--font-
 @media (max-width: 760px) {
   #menu { flex-direction: row; gap: 8px; width: auto; bottom: auto; right: max(12px, env(safe-area-inset-right, 0px)); left: max(12px, env(safe-area-inset-left, 0px)); top: max(12px, env(safe-area-inset-top, 0px)); }
   .zoombar { display: none; }
+  #b-fold { display: none; }
+  body.fold #menu, body.fold.peek #menu { width: auto; }
   #menu { gap: 6px; }
   .crest { order: 9; margin-left: auto; padding: 0 10px; height: 42px; animation-delay: .5s; }
   .crest-t { display: none; }
@@ -232,10 +270,16 @@ body { background: var(--ink); color: var(--parchment); font-family: var(--font-
   .clock .season { font-size: 9.5px; align-self: end; }
   .clock .date { font-size: 13px; align-self: start; }
   .date-full { display: none; }
+  .mini { display: none; }
   .date-short { display: inline; }
   #panel.wide { width: auto; }
   .tabs { margin-top: 0; }
   .tab { font-size: 14px; }
+  .zoombar .mbtn { width: 42px; }
+  .crest-t, .clock { width: auto; }
+  .crest { height: 42px; }
+  .clock { grid-template-rows: auto auto; grid-template-columns: auto auto; width: auto; row-gap: 2px; }
+  .clock .sky { grid-row: 1 / 3; grid-column: 1; } .clock .season, .clock .date { grid-column: 2; grid-row: auto; justify-self: start; }
   .mbtn { width: 42px; height: 42px; padding: 0; justify-content: center; transform: translateY(-16px); }
   .mbtn:hover, .mbtn:focus-visible, .mbtn:active { translate: 0 0; }
   .mbtn .t { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
@@ -274,9 +318,10 @@ body { background: var(--ink); color: var(--parchment); font-family: var(--font-
 <div id="tip" role="tooltip"></div>
 
 <nav id="menu" aria-label="Меню карты">
+  <button id="b-fold" type="button" aria-label="Свернуть меню" aria-expanded="true"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>
   <div class="crest">
     <div class="crest-t"><h1>Атлас земель</h1><p>Земли Империи Веларис</p></div>
-    <div class="clock" id="clock" role="img"><svg class="sky" viewBox="0 0 24 24"></svg><span class="season"></span><span class="date"><span class="date-full"></span><span class="date-short"></span></span></div>
+    <div class="clock" id="clock" role="img"><svg class="sky" viewBox="0 0 24 24"></svg><span class="mini"><b class="mini-d"></b><span class="mini-m"></span></span><span class="season"></span><span class="date"><span class="date-full"></span><span class="date-short"></span></span></div>
   </div>
   <button class="mbtn" style="--i:0" id="b-overview" type="button">
     <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="M14.5 9.5 10 11l-1 4.5 4.5-1.5z"/></svg><span class="t">Обзор</span></button>
@@ -585,7 +630,20 @@ function lookAt(fx, fy, s, open) {
   tgt.x = cx - fx / 100 * W * tgt.s; tgt.y = cy - fy / 100 * H * tgt.s;
   ease = .075; go();
 }
-const menuEdge = () => isNarrow() ? 0 : $("#menu").getBoundingClientRect().right + 12;
+const menuEdge = () => {
+  if (isNarrow()) return 0;
+  const m = $("#menu"), folded = document.body.classList.contains("fold") && !document.body.classList.contains("peek");
+  return m.offsetLeft + (folded ? 60 : 280) + 12;
+};
+/* Сворачивание меню: само при перетаскивании карты и при открытой карточке на небольшом экране */
+let peekT = 0;
+function fold(on) {
+  if (isNarrow()) return;
+  document.body.classList.toggle("fold", on);
+  document.body.classList.remove("peek");
+  const b = document.getElementById("b-fold");
+  if (b) { b.setAttribute("aria-expanded", String(!on)); b.setAttribute("aria-label", on ? "Развернуть меню" : "Свернуть меню"); }
+}
 const homeS = () => minS() * (isNarrow() ? 1.15 : 1.3);
 function overview() { lookAt(isNarrow() ? 66 : 58, 50, homeS(), false); }
 
@@ -595,7 +653,7 @@ PLACES.forEach(p => p.spots.forEach(r => {
   b.type = "button"; b.className = "spot";
   b.dataset.id = p.id; b.setAttribute("aria-label", p.kind ? `${p.name}, ${p.kind}` : p.name);
   Object.assign(b.style, { left: r[0] + "%", top: r[1] + "%", width: r[2] + "%", height: r[3] + "%" });
-  b.addEventListener("click", e => { if (moved) { e.preventDefault(); return; } select(p.id); });
+  b.addEventListener("click", e => { if (moved) { e.preventDefault(); return; } if (innerWidth < 1400) fold(true); select(p.id); });
   b.addEventListener("pointerenter", e => { if (e.pointerType !== "touch" && !dragging) showTip(b, p); });
   b.addEventListener("pointerleave", hideTip);
   b.addEventListener("focus", () => showTip(b, p));
@@ -832,6 +890,24 @@ const zoomBtn = f => { ease = .12; zoomAt(innerWidth / 2, innerHeight / 2, tgt.s
 $("#b-zin").addEventListener("click", () => zoomBtn(1.4));
 $("#b-zout").addEventListener("click", () => zoomBtn(1 / 1.4));
 
+$("#b-fold").addEventListener("click", e => { e.stopPropagation(); fold(!document.body.classList.contains("fold")); });
+const menuEl = $("#menu"), finePointer = matchMedia("(hover: hover) and (pointer: fine)").matches;
+/* Наведение мыши в область, где стоит открытое меню, разворачивает его */
+if (finePointer) {
+  addEventListener("pointermove", e => {
+    if (e.pointerType !== "mouse" || isNarrow() || !document.body.classList.contains("fold")) return;
+    if (e.buttons || dragging) { clearTimeout(peekT); return; }
+    const r = menuEl.getBoundingClientRect(), peeking = document.body.classList.contains("peek");
+    /* Раскрывается в зоне 4/5 ширины открытого меню (224px); открытое держится, пока курсор над ним */
+    const right = menuEl.offsetLeft + (peeking ? 280 + 16 : 224);
+    const inside = e.clientX <= right && e.clientY >= r.top - 10 && e.clientY <= r.bottom + 10;
+    clearTimeout(peekT);
+    if (inside && !peeking) peekT = setTimeout(() => document.body.classList.add("peek"), 120);
+    else if (!inside && peeking) peekT = setTimeout(() => document.body.classList.remove("peek"), 200);
+  });
+  document.addEventListener("pointerleave", () => { clearTimeout(peekT); document.body.classList.remove("peek"); });
+}
+
 /* ---------- Pointer: drag, pinch, wheel ---------- */
 const pts = new Map();
 let dragging = false, moved = false, start = null, pinch = null, samples = [];
@@ -857,7 +933,7 @@ stage.addEventListener("pointermove", e => {
   if (!start) return;
   const dx = e.clientX - start.x, dy = e.clientY - start.y;
   if (!moved && Math.hypot(dx, dy) > 6) {
-    moved = true; dragging = true; hideTip(); stage.classList.add("dragging");
+    moved = true; dragging = true; hideTip(); stage.classList.add("dragging"); fold(true);
     try { stage.setPointerCapture(e.pointerId); } catch (_) {}
   }
   if (dragging) {
@@ -907,6 +983,8 @@ function updateClock() {
   el.querySelector(".season").textContent = SEASONS[d.getMonth()];
   el.querySelector(".date-full").textContent = `${d.getDate()} ${MONTHS[d.getMonth()]}`;
   el.querySelector(".date-short").textContent = `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`;
+  el.querySelector(".mini-d").textContent = d.getDate();
+  el.querySelector(".mini-m").textContent = MONTHS_SHORT[d.getMonth()];
   el.setAttribute("aria-label", `${SEASONS[d.getMonth()]}, ${d.getDate()} ${MONTHS[d.getMonth()]}, ${day ? "день" : "ночь"}`);
 }
 updateClock(); setInterval(updateClock, 60000);
