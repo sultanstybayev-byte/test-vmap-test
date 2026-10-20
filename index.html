@@ -1,0 +1,923 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Атлас земель</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Cormorant+SC:wght@600;700&display=swap">
+<style>
+/* Layout: full-bleed map camera; game menu floats over the cloud bank on the left; parchment dossier slides in from the right (bottom sheet on phones). Single deliberate look: dark leather + gold + parchment. */
+:root {
+  --ink: #17110b;          /* frame / letterbox */
+  --leather: #2a1d12;      /* menu buttons */
+  --leather-hi: #3a2817;
+  --gold: #c9a25a;         /* trims, accents */
+  --gold-hi: #f0d696;
+  --parchment: #ecdcb6;    /* dossier */
+  --parchment-deep: #d6bd8c;
+  --text-ink: #34230f;
+  --text-muted: #6f5532;
+  --blood: #8e2f1c;        /* danger */
+  --shadow: rgba(10, 6, 2, .55);
+  --font-display: "Cormorant SC", "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-body: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --ease: cubic-bezier(.22, .8, .24, 1);
+  --panel-w: min(430px, 100vw);
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; }
+html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+body { touch-action: none; -webkit-user-select: none; user-select: none; }
+.sheet, #flyout { touch-action: pan-y; -webkit-user-select: text; user-select: text; }
+body { background: var(--ink); color: var(--parchment); font-family: var(--font-body); font-size: 17px; -webkit-font-smoothing: antialiased; }
+
+/* ---------- Map camera ---------- */
+#stage { position: fixed; inset: 0; overflow: hidden; touch-action: none; cursor: grab; background: var(--ink); outline: none; }
+#stage.dragging { cursor: grabbing; }
+#map { position: absolute; left: 0; top: 0; width: 2576px; height: 1635px; transform-origin: 0 0; will-change: transform; opacity: 0; transition: opacity 1.1s var(--ease); }
+#map.ready { opacity: 1; }
+#map img { display: block; width: 100%; height: 100%; max-width: none; user-select: none; -webkit-user-drag: none; pointer-events: none; }
+.vignette { position: fixed; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 60% 50%, transparent 55%, rgba(23,17,11,.55) 100%); }
+
+/* Hotspots live in map coordinates (percent of the image) */
+.spot { position: absolute; padding: 0; border: 0; background: transparent; cursor: pointer; border-radius: 22%; -webkit-tap-highlight-color: transparent; }
+.spot::before { content: ""; position: absolute; inset: -14%; border-radius: 50%; background: radial-gradient(closest-side, rgba(255, 228, 160, .55), rgba(255, 210, 120, .18) 60%, transparent 100%); opacity: 0; transform: scale(.85); transition: opacity .45s var(--ease), transform .6s var(--ease); pointer-events: none; mix-blend-mode: screen; }
+.spot::after { content: ""; position: absolute; inset: -2%; border-radius: 26%; border: 3px solid rgba(240, 214, 150, 0); transition: border-color .4s var(--ease), inset .5s var(--ease); pointer-events: none; }
+.spot:hover::before, .spot:focus-visible::before { opacity: 1; transform: scale(1); }
+.spot:hover::after, .spot:focus-visible::after { border-color: rgba(240, 214, 150, .55); inset: -6%; }
+.spot.active::before { opacity: 1; transform: scale(1.05); animation: breathe 2.6s ease-in-out infinite; }
+.spot.active::after { border-color: var(--gold-hi); inset: -6%; box-shadow: 0 0 22px rgba(240, 214, 150, .5); }
+.spot:focus { outline: none; }
+#map.show-regions .spot.region::before { opacity: .9; transform: scale(1); background: radial-gradient(closest-side, rgba(170, 60, 30, .5), rgba(170, 60, 30, .15) 60%, transparent); mix-blend-mode: multiply; animation: breathe 3s ease-in-out infinite; }
+#map.show-regions .spot.region::after { border-color: rgba(142, 47, 28, .7); border-style: dashed; inset: -8%; }
+@keyframes breathe { 50% { transform: scale(1.14); opacity: .75; } }
+
+/* Neighbour arrows (map space) */
+#arrows { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+#arrows .draw { transition: stroke-dashoffset 1.4s var(--ease); }
+#arrows .arrow.on .draw { stroke-dashoffset: 0 !important; }
+#arrows .line { stroke: #3a2614; stroke-width: 6; stroke-dasharray: 22 14; stroke-linecap: round; opacity: .62; }
+#arrows .halo { stroke: rgba(236, 220, 182, .55); stroke-width: 16; stroke-linecap: round; }
+#arrows .head { stroke: #3a2614; stroke-width: 7; stroke-linecap: round; stroke-linejoin: round; opacity: 0; transition: opacity .5s ease; }
+#arrows text { font: 700 46px var(--font-display); letter-spacing: 4px; fill: #3a2614; stroke: rgba(236, 220, 182, .8); stroke-width: 10px; paint-order: stroke; opacity: 0; transform: translateY(8px); transition: opacity .7s ease, transform .9s var(--ease); }
+#arrows .arrow.on .head { opacity: .65; transition-delay: 1.05s; }
+#arrows .arrow.on text { opacity: .75; transform: none; transition-delay: .9s; }
+
+/* Hover tooltip (screen space) */
+#tip { position: fixed; left: 0; top: 0; z-index: 30; pointer-events: none; padding: 5px 12px 6px; border-radius: 3px; background: var(--leather); border: 1px solid var(--gold); color: var(--gold-hi); font: 600 15px/1.2 var(--font-body); letter-spacing: .02em; white-space: nowrap; box-shadow: 0 6px 18px var(--shadow); opacity: 0; transform: translate(-50%, calc(-100% - 4px)); transition: opacity .25s var(--ease), transform .35s var(--ease); }
+#tip.on { opacity: 1; transform: translate(-50%, calc(-100% - 12px)); }
+#tip small { color: var(--parchment-deep); font-weight: 500; }
+
+/* ---------- Left game menu ---------- */
+#menu { position: fixed; z-index: 20; left: max(18px, calc(env(safe-area-inset-left, 0px) + 12px)); top: max(18px, calc(env(safe-area-inset-top, 0px) + 12px)); bottom: max(18px, calc(env(safe-area-inset-bottom, 0px) + 12px)); display: flex; flex-direction: column; gap: 10px; width: 280px; pointer-events: none; }
+#menu > * { pointer-events: auto; }
+.crest { padding: 14px 16px 12px; text-align: center; background: linear-gradient(180deg, var(--leather-hi), var(--leather)); border: 1px solid var(--gold); border-radius: 4px; box-shadow: inset 0 0 0 3px var(--leather), inset 0 0 0 4px rgba(201, 162, 90, .45), 0 10px 26px var(--shadow); opacity: 0; transform: translateX(-24px); animation: slideIn .8s var(--ease) .15s forwards; }
+.crest { display: flex; align-items: center; gap: 12px; text-align: left; }
+.crest-t { flex: 1; min-width: 0; }
+.clock { flex: none; display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 66px; padding-left: 11px; border-left: 1px solid rgba(201, 162, 90, .35); text-align: center; }
+.sky { width: 26px; height: 26px; fill: none; stroke: var(--gold-hi); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 6px rgba(240, 214, 150, .35)); }
+.sky .rays { transform-origin: 12px 12px; animation: spin 60s linear infinite; }
+.clock.night .sky { stroke: var(--parchment-deep); filter: drop-shadow(0 0 6px rgba(214, 189, 140, .3)); }
+.sky .star { animation: twinkle 3.5s ease-in-out infinite; }
+.season { font: 700 11px/1 var(--font-display); letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+.date { font: italic 600 14px/1.1 var(--font-body); color: var(--parchment); white-space: nowrap; }
+.date-short { display: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes twinkle { 50% { opacity: .2; } }
+.crest h1 { margin: 0; font: 700 22px/1 var(--font-display); color: var(--gold-hi); letter-spacing: .03em; white-space: nowrap; text-wrap: balance; }
+.crest p { margin: 6px 0 0; font: italic 500 14px/1.2 var(--font-body); color: var(--parchment-deep); }
+.mbtn { --i: 0; position: relative; display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 14px; border: 1px solid rgba(201, 162, 90, .75); border-radius: 4px; background: linear-gradient(180deg, var(--leather-hi), var(--leather)); color: var(--parchment); font: 700 18px/1 var(--font-display); letter-spacing: .05em; text-align: left; cursor: pointer; box-shadow: inset 0 0 0 3px var(--leather), inset 0 0 0 4px rgba(201, 162, 90, .25), 0 6px 16px var(--shadow); opacity: 0; transform: translateX(-24px); animation: slideIn .7s var(--ease) calc(.3s + var(--i) * .07s) forwards; transition: color .3s var(--ease), box-shadow .35s var(--ease), translate .35s var(--ease), border-color .3s; }
+.mbtn svg { flex: none; width: 22px; height: 22px; stroke: var(--gold); fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; transition: stroke .3s, transform .45s var(--ease); }
+.mbtn:hover, .mbtn:focus-visible { color: var(--gold-hi); border-color: var(--gold-hi); translate: 5px 0; box-shadow: inset 0 0 0 3px var(--leather), inset 0 0 0 4px rgba(240, 214, 150, .6), 0 0 22px rgba(240, 214, 150, .22), 0 8px 18px var(--shadow); outline: none; }
+.mbtn:hover svg, .mbtn:focus-visible svg { stroke: var(--gold-hi); transform: rotate(-8deg) scale(1.08); }
+.mbtn[aria-pressed="true"], .mbtn[aria-expanded="true"] { color: var(--gold-hi); border-color: var(--gold-hi); background: linear-gradient(180deg, #4a3119, var(--leather-hi)); }
+.mbtn[aria-pressed="true"]::after, .mbtn[aria-expanded="true"]::after { content: ""; position: absolute; right: 12px; top: 50%; width: 7px; height: 7px; margin-top: -3.5px; background: var(--gold-hi); transform: rotate(45deg); box-shadow: 0 0 10px var(--gold-hi); }
+.mbtn:active { translate: 5px 1px; }
+.zoombar { margin-top: auto; display: flex; gap: 8px; }
+.zoombar .mbtn { justify-content: center; padding: 10px 0; flex: 1; font-size: 22px; }
+.zoombar .mbtn svg { width: 20px; height: 20px; }
+@keyframes slideIn { to { opacity: 1; transform: none; } }
+
+/* Flyout next to the menu */
+#flyout { position: fixed; z-index: 19; left: calc(max(18px, calc(env(safe-area-inset-left, 0px) + 12px)) + 292px); top: max(18px, calc(env(safe-area-inset-top, 0px) + 12px)); width: 290px; max-height: calc(100% - 36px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); overflow: auto; padding: 18px 18px 20px; color: var(--text-ink); background-color: var(--parchment); background-image: var(--grain), radial-gradient(ellipse at 30% 0%, rgba(255,255,255,.35), transparent 60%), linear-gradient(180deg, var(--parchment), var(--parchment-deep)); border: 1px solid var(--gold); border-radius: 4px; box-shadow: inset 0 0 0 4px var(--parchment), inset 0 0 0 5px rgba(111, 85, 50, .35), 0 16px 40px var(--shadow); opacity: 0; visibility: hidden; transform: translateX(-16px) scale(.98); transform-origin: left top; transition: opacity .4s var(--ease), transform .5s var(--ease), visibility 0s .5s; }
+#flyout.open { opacity: 1; visibility: visible; transform: none; transition: opacity .4s var(--ease), transform .5s var(--ease), visibility 0s; }
+#flyout h2 { margin: 0 0 4px; font: 700 22px/1.1 var(--font-display); color: var(--text-ink); letter-spacing: .04em; }
+#flyout h3 { margin: 16px 0 6px; font: 700 13px/1 var(--font-display); letter-spacing: .14em; color: var(--text-muted); text-transform: uppercase; }
+#flyout p { margin: 6px 0; font-size: 16px; line-height: 1.45; }
+.list { display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.list button { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; width: 100%; padding: 7px 8px; border: 0; border-radius: 3px; background: transparent; color: var(--text-ink); font: 600 17px/1.15 var(--font-body); text-align: left; cursor: pointer; transition: background .25s, padding .3s var(--ease), color .25s; }
+.list button span { font-size: 13px; font-weight: 500; color: var(--text-muted); white-space: nowrap; }
+.list button:hover, .list button:focus-visible { background: rgba(111, 85, 50, .14); padding-left: 14px; outline: none; }
+.list button.current { color: var(--blood); }
+.keys { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; margin: 10px 0 0; font-size: 16px; }
+.keys dt { font-weight: 700; color: var(--text-muted); }
+.keys dd { margin: 0; }
+
+/* ---------- Dossier panel ---------- */
+#panel { position: fixed; z-index: 25; top: 0; right: 0; bottom: 0; width: var(--panel-w); padding: max(14px, env(safe-area-inset-top, 0px)) max(14px, env(safe-area-inset-right, 0px)) max(14px, env(safe-area-inset-bottom, 0px)) 0; transform: translateX(105%); transition: transform .7s var(--ease); pointer-events: none; }
+#panel.open { transform: none; pointer-events: auto; }
+.sheet { position: relative; height: 100%; display: flex; flex-direction: column; overflow: hidden; color: var(--text-ink); background-color: var(--parchment); background-image: var(--grain), radial-gradient(ellipse at 20% 0%, rgba(255,255,255,.4), transparent 55%), radial-gradient(ellipse at 100% 100%, rgba(120, 80, 30, .22), transparent 60%), linear-gradient(180deg, var(--parchment), var(--parchment-deep)); border: 1px solid var(--gold); border-radius: 5px; box-shadow: inset 0 0 0 5px var(--parchment), inset 0 0 0 6px rgba(111, 85, 50, .4), -18px 0 50px var(--shadow); }
+.grab { display: none; }
+.scroll { flex: 1; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--parchment-deep) transparent; }
+.hero { position: relative; height: 210px; margin: 10px 10px 0; border-radius: 3px; background: var(--ink) url("map.jpg") no-repeat; box-shadow: inset 0 0 0 1px rgba(52, 35, 15, .5), inset 0 -60px 50px -30px rgba(52, 35, 15, .45); transition: background-position .9s var(--ease), background-size .9s var(--ease); overflow: hidden; }
+.hero::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 45%, rgba(40, 25, 10, .45)); pointer-events: none; }
+.close { position: absolute; z-index: 5; top: 18px; right: 18px; width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--gold); border-radius: 50%; background: var(--leather); cursor: pointer; box-shadow: 0 4px 12px var(--shadow); transition: transform .4s var(--ease), background .3s; }
+.close svg { width: 18px; height: 18px; stroke: var(--gold-hi); stroke-width: 2; fill: none; stroke-linecap: round; }
+.close:hover, .close:focus-visible { transform: rotate(90deg); background: var(--leather-hi); outline: none; }
+.content { padding: 18px 26px 22px; }
+.content > * { animation: rise .6s var(--ease) both; animation-delay: calc(var(--d, 0) * 60ms + 120ms); }
+.swap .content > * { animation: none; opacity: 0; transform: translateY(6px); transition: opacity .18s, transform .18s; }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+.kind { margin: 0; font: 700 12.5px/1 var(--font-display); letter-spacing: .18em; text-transform: uppercase; color: var(--blood); }
+.content h2 { margin: 8px 0 4px; font: 700 34px/1.02 var(--font-display); letter-spacing: .02em; text-wrap: balance; }
+.motto { margin: 0 0 14px; font: italic 500 18px/1.3 var(--font-body); color: var(--text-muted); }
+.rule { height: 12px; margin: 4px 0 14px; background: radial-gradient(circle, var(--text-muted) 2.5px, transparent 3px) center / 12px 12px no-repeat, linear-gradient(var(--text-muted), var(--text-muted)) left center / calc(50% - 12px) 1px no-repeat, linear-gradient(var(--text-muted), var(--text-muted)) right center / calc(50% - 12px) 1px no-repeat; opacity: .6; }
+.desc p { margin: 0 0 10px; font-size: 18px; line-height: 1.5; max-width: 62ch; }
+.desc p:first-child::first-letter { float: left; margin: 4px 8px 0 0; font: 700 50px/.8 var(--font-display); color: var(--blood); }
+.stats { display: grid; grid-template-columns: auto 1fr; gap: 7px 14px; margin: 16px 0 6px; padding: 14px 0; border-top: 1px solid rgba(111, 85, 50, .35); border-bottom: 1px solid rgba(111, 85, 50, .35); font-size: 16.5px; }
+.stats dt { font: 700 13px/1.55 var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); }
+.stats dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; min-width: 0; }
+.danger { display: flex; align-items: center; gap: 10px; margin: 14px 0 4px; }
+.danger .lbl { font: 700 13px/1 var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); }
+.pips { display: flex; gap: 5px; }
+.pips i { width: 11px; height: 11px; transform: rotate(45deg) scale(.6); border: 1.5px solid var(--blood); opacity: .45; transition: transform .5s var(--ease), background .4s, opacity .4s; transition-delay: calc(var(--n) * 70ms + 300ms); }
+.pips i.on { background: var(--blood); opacity: 1; transform: rotate(45deg) scale(1); }
+.danger .word { font-weight: 700; color: var(--blood); font-size: 16px; }
+.content h3 { display: flex; align-items: center; gap: 10px; margin: 26px 0 10px; font: 700 15.5px/1.1 var(--font-display); letter-spacing: .13em; text-transform: uppercase; color: var(--text-ink); }
+.content h3::before { content: ""; flex: none; width: 7px; height: 7px; background: var(--blood); transform: rotate(45deg); }
+.content h3::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(111, 85, 50, .6), rgba(111, 85, 50, 0)); }
+.links { display: flex; flex-wrap: wrap; gap: 7px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px 7px; border: 1px solid rgba(111, 85, 50, .55); border-radius: 999px; background: rgba(255, 248, 228, .4); color: var(--text-ink); font: 600 15.5px/1 var(--font-body); cursor: pointer; transition: background .25s, border-color .25s, transform .3s var(--ease); }
+.chip::before { content: ""; width: 6px; height: 6px; transform: rotate(45deg); background: var(--gold); }
+.chip:hover, .chip:focus-visible { background: var(--leather); color: var(--gold-hi); border-color: var(--gold); transform: translateY(-2px); outline: none; }
+.pager { display: flex; gap: 8px; padding: 12px 14px 14px; border-top: 1px solid rgba(111, 85, 50, .3); }
+.pager button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; min-width: 0; padding: 10px 8px; border: 1px solid var(--gold); border-radius: 3px; background: var(--leather); color: var(--parchment); font: 700 15px/1 var(--font-display); letter-spacing: .06em; cursor: pointer; transition: color .25s, background .25s; }
+.pager button span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pager button svg { flex: none; width: 16px; height: 16px; stroke: var(--gold); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .35s var(--ease); }
+.pager button:hover, .pager button:focus-visible { color: var(--gold-hi); background: var(--leather-hi); outline: none; }
+.pager .prev:hover svg { transform: translateX(-3px); }
+.pager .next:hover svg { transform: translateX(3px); }
+
+
+/* Wide panel for the chronicle */
+#panel.wide { width: min(520px, 100vw); }
+.tabs { position: sticky; top: 0; z-index: 2; display: flex; gap: 2px; margin: 10px 10px 0; padding: 0 52px 0 6px; background: linear-gradient(var(--parchment), var(--parchment) 85%, transparent); border-bottom: 1px solid rgba(111, 85, 50, .35); }
+.tab { position: relative; flex: 1; padding: 12px 4px 11px; border: 0; background: none; color: var(--text-muted); font: 700 15px/1 var(--font-display); letter-spacing: .08em; cursor: pointer; transition: color .25s; }
+.tab::after { content: ""; position: absolute; left: 18%; right: 18%; bottom: -1px; height: 2px; background: var(--blood); transform: scaleX(0); transition: transform .45s var(--ease); }
+.tab:hover, .tab:focus-visible { color: var(--text-ink); outline: none; }
+.tab[aria-selected="true"] { color: var(--blood); }
+.tab[aria-selected="true"]::after { transform: none; }
+.lp { margin: 0 0 10px; font-size: 17.5px; line-height: 1.5; max-width: 62ch; }
+.note { margin: 14px 0 0; padding: 2px 0 2px 12px; border-left: 2px solid var(--gold); font: italic 500 16px/1.45 var(--font-body); color: var(--text-muted); }
+.content h4 { margin: 14px 0 6px; font: 700 12.5px/1 var(--font-display); letter-spacing: .14em; text-transform: uppercase; color: var(--blood); }
+.meter { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 14px 0 4px; }
+.meter .lbl { font: 700 13px/1 var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); }
+.meter .word { font-weight: 700; color: var(--blood); font-size: 16px; }
+.people { display: flex; flex-direction: column; gap: 9px; }
+.person { display: flex; gap: 13px; padding: 12px 14px; background: rgba(255, 248, 228, .38); border: 1px solid rgba(111, 85, 50, .28); border-radius: 4px; }
+.person > div { min-width: 0; }
+.mono { flex: none; width: 34px; height: 34px; display: grid; place-items: center; border: 1.5px solid var(--blood); border-radius: 50%; color: var(--blood); font: 700 17px/1 var(--font-display); }
+.person b { display: block; font: 700 20px/1.1 var(--font-display); }
+.person .role { display: block; margin-top: 3px; font-size: 14.5px; font-weight: 600; color: var(--blood); }
+.person p { margin: 5px 0 0; font-size: 16.5px; line-height: 1.45; }
+.tw { overflow-x: auto; margin: 4px 0 2px; }
+.t { width: 100%; border-collapse: collapse; font-size: 16px; font-variant-numeric: tabular-nums; }
+.t th { padding: 6px 6px 7px; text-align: left; font: 700 12px/1 var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid rgba(111, 85, 50, .45); }
+.t td { padding: 7px 6px; border-bottom: 1px dotted rgba(111, 85, 50, .4); vertical-align: top; }
+.t td:not(:first-child), .t th:not(:first-child) { text-align: right; white-space: nowrap; }
+.t:not(.rt) td:last-child { white-space: normal; width: 42%; }
+.rt tr.has-note td { border-bottom: 0; padding-bottom: 2px; }
+.rt tr.nt td { padding-top: 0; font: italic 500 14.5px/1.35 var(--font-body); color: var(--text-muted); text-align: left; white-space: normal; }
+.rt tr.sec td { padding-top: 14px; font: 700 12px/1 var(--font-display); letter-spacing: .12em; text-transform: uppercase; color: var(--blood); text-align: left; border-bottom: 0; }
+.lnk { padding: 0; border: 0; background: none; color: var(--text-ink); font: 700 16px/1.3 var(--font-body); cursor: pointer; text-decoration: underline; text-decoration-color: rgba(111, 85, 50, .4); text-underline-offset: 3px; transition: color .2s, text-decoration-color .2s; }
+.lnk:hover, .lnk:focus-visible { color: var(--blood); text-decoration-color: var(--blood); outline: none; }
+.routes { display: flex; flex-direction: column; gap: 6px; }
+.route { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; width: 100%; padding: 10px 12px; border: 1px solid rgba(111, 85, 50, .35); border-radius: 4px; background: rgba(255, 248, 228, .35); color: var(--text-ink); font-family: var(--font-body); text-align: left; cursor: pointer; transition: background .25s, border-color .25s, transform .3s var(--ease); }
+.route .to { font: 700 17px/1.2 var(--font-body); }
+.route .tm { font-size: 15px; font-weight: 600; color: var(--blood); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.route .rn { grid-column: 1 / -1; font: italic 500 15px/1.35 var(--font-body); color: var(--text-muted); }
+.route:hover, .route:focus-visible { background: rgba(255, 248, 228, .7); border-color: var(--gold); transform: translateX(3px); outline: none; }
+.accs { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+.acc { border: 1px solid rgba(111, 85, 50, .35); border-radius: 4px; background: rgba(255, 248, 228, .3); transition: background .3s; }
+.acc.open { background: rgba(255, 248, 228, .5); }
+.acc-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 12px 14px; border: 0; background: none; color: var(--text-ink); text-align: left; cursor: pointer; }
+.acc-head b { display: block; font: 700 21px/1.1 var(--font-display); }
+.acc-head small { display: block; margin-top: 3px; font: italic 600 15px/1.2 var(--font-body); color: var(--blood); }
+.acc-head svg { flex: none; width: 20px; height: 20px; stroke: var(--text-muted); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: transform .45s var(--ease); }
+.acc.open .acc-head svg { transform: rotate(180deg); }
+.acc-head:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+.acc-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .55s var(--ease); }
+.acc.open .acc-body { grid-template-rows: 1fr; }
+.acc-body > div { overflow: hidden; min-height: 0; }
+.acc-in { padding: 0 14px 12px; }
+.acc-in .stats { margin-top: 0; }
+.spot.unknown:hover::before { opacity: .55; }
+
+/* Grain texture shared by parchment surfaces */
+:root { --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35  0 0 0 0 .24  0 0 0 0 .1  0 0 0 .16 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>"); }
+
+/* ---------- Phones / narrow ---------- */
+@media (max-width: 760px) {
+  #menu { flex-direction: row; gap: 8px; width: auto; bottom: auto; right: max(12px, env(safe-area-inset-right, 0px)); left: max(12px, env(safe-area-inset-left, 0px)); top: max(12px, env(safe-area-inset-top, 0px)); }
+  .zoombar { display: none; }
+  #menu { gap: 6px; }
+  .crest { order: 9; margin-left: auto; padding: 0 10px; height: 42px; animation-delay: .5s; }
+  .crest-t { display: none; }
+  .clock { display: grid; grid-template-columns: auto auto; align-items: center; column-gap: 7px; row-gap: 2px; min-width: 0; padding: 0; border: 0; text-align: left; }
+  .clock .sky { grid-row: span 2; width: 20px; height: 20px; }
+  .clock .season { font-size: 9.5px; align-self: end; }
+  .clock .date { font-size: 13px; align-self: start; }
+  .date-full { display: none; }
+  .date-short { display: inline; }
+  #panel.wide { width: auto; }
+  .tabs { margin-top: 0; }
+  .tab { font-size: 14px; }
+  .mbtn { width: 42px; height: 42px; padding: 0; justify-content: center; transform: translateY(-16px); }
+  .mbtn:hover, .mbtn:focus-visible, .mbtn:active { translate: 0 0; }
+  .mbtn .t { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .mbtn[aria-pressed="true"]::after, .mbtn[aria-expanded="true"]::after { right: auto; left: 50%; top: auto; bottom: -5px; margin: 0 0 0 -3.5px; }
+  #flyout { left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); top: calc(max(12px, env(safe-area-inset-top, 0px)) + 54px); width: auto; max-height: 62%; transform: translateY(-12px) scale(.98); transform-origin: top center; }
+  #tip { display: none; }
+  #panel { top: auto; left: 0; width: auto; height: min(66%, 620px); padding: 0 max(6px, env(safe-area-inset-right, 0px)) 0 max(6px, env(safe-area-inset-left, 0px)); transform: translateY(105%); }
+  .sheet { border-bottom: 0; border-radius: 16px 16px 0 0; padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: inset 0 0 0 5px var(--parchment), inset 0 0 0 6px rgba(111, 85, 50, .4), 0 -14px 40px var(--shadow); }
+  .grab { display: block; flex: none; height: 26px; touch-action: none; cursor: grab; position: relative; }
+  .grab::after { content: ""; position: absolute; left: 50%; top: 11px; width: 46px; height: 5px; margin-left: -23px; border-radius: 3px; background: var(--text-muted); opacity: .55; }
+  .hero { height: 120px; margin-top: 0; touch-action: none; }
+  .content { padding: 14px 18px 18px; }
+  .content h2 { font-size: 28px; }
+  .desc p { font-size: 17px; }
+  .close { top: 30px; right: 16px; width: 36px; height: 36px; }
+  .pager { padding: 10px 10px 12px; }
+  .pager button { font-size: 14px; padding: 11px 6px; }
+}
+@media (max-width: 760px) and (max-height: 520px) {
+  #panel { height: 86%; }
+  .hero { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
+}
+</style>
+</head>
+<body>
+<div id="stage" tabindex="0" aria-label="Карта. Перетаскивайте для перемещения, колесо или щипок для масштаба.">
+  <div id="map">
+    <img src="map.jpg" alt="Карта земель" width="2576" height="1635" draggable="false">
+    <svg id="arrows" aria-hidden="true"></svg>
+  </div>
+</div>
+<div class="vignette"></div>
+<div id="tip" role="tooltip"></div>
+
+<nav id="menu" aria-label="Меню карты">
+  <div class="crest">
+    <div class="crest-t"><h1>Атлас земель</h1><p>Земли Империи Веларис</p></div>
+    <div class="clock" id="clock" role="img"><svg class="sky" viewBox="0 0 24 24"></svg><span class="season"></span><span class="date"><span class="date-full"></span><span class="date-short"></span></span></div>
+  </div>
+  <button class="mbtn" style="--i:0" id="b-overview" type="button">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><path d="M14.5 9.5 10 11l-1 4.5 4.5-1.5z"/></svg><span class="t">Обзор</span></button>
+  <button class="mbtn" style="--i:1" id="b-places" type="button" aria-expanded="false" aria-controls="flyout">
+    <svg viewBox="0 0 24 24"><path d="M4 20V9l4-3 4 3v11M12 20V5l4-2 4 2v15M2 20h20"/><path d="M7 13h2M15 9h2M15 13h2"/></svg><span class="t">Места</span></button>
+  <button class="mbtn" style="--i:2" data-lore="mir" type="button" aria-pressed="false">
+    <svg viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11M9 8h6"/></svg><span class="t">Мир</span></button>
+  <button class="mbtn" style="--i:3" data-lore="dvor" type="button" aria-pressed="false">
+    <svg viewBox="0 0 24 24"><path d="M4 18 3 8l5 4 4-7 4 7 5-4-1 10z"/><path d="M4 21h16"/></svg><span class="t">Двор</span></button>
+  <button class="mbtn" style="--i:4" data-lore="byt" type="button" aria-pressed="false">
+    <svg viewBox="0 0 24 24"><path d="M12 4v16M6 7h12M8 20h8"/><path d="M6 7 3 14a3 3 0 0 0 6 0zM18 7l-3 7a3 3 0 0 0 6 0z"/></svg><span class="t">Быт</span></button>
+  <button class="mbtn" style="--i:5" data-lore="sosedi" type="button" aria-pressed="false">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg><span class="t">Соседи</span></button>
+  <div class="zoombar">
+    <button class="mbtn" style="--i:7" id="b-zin" type="button" aria-label="Приблизить"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+    <button class="mbtn" style="--i:8" id="b-zout" type="button" aria-label="Отдалить"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+  </div>
+</nav>
+
+<div id="flyout" role="dialog" aria-label="Список"></div>
+
+<aside id="panel" aria-hidden="true" aria-label="Описание места">
+  <div class="sheet">
+    <div class="grab" id="grab" aria-hidden="true"></div>
+    <button class="close" id="b-close" type="button" aria-label="Закрыть"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <div class="scroll" id="scroll">
+      <div class="hero" id="hero" role="img" aria-label="Фрагмент карты"></div>
+      <div class="tabs" id="tabs" role="tablist" hidden></div>
+      <div class="content" id="content"></div>
+    </div>
+    <div class="pager">
+      <button class="prev" id="b-prev" type="button"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg><span></span></button>
+      <button class="next" id="b-next" type="button"><span></span><svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+  </div>
+</aside>
+
+<script>
+/* =====================================================================
+   ДАННЫЕ КАРТЫ ИМПЕРИИ ВЕЛАРИС
+   spots: зоны клика [x, y, ширина, высота] в % от картинки (их может быть несколько)
+   f:     точка, на которую наводится камера [x, y] в %
+   g:     группа в списке — city | land
+   kind, motto, desc можно оставить пустыми — карточка покажет заглушку
+   order: присутствие Ордена [0–4, подпись]
+   ===================================================================== */
+const BASE_NOTE = "В каждом городе есть таверна, лекарь, рыночная улочка, жилой квартал и другие обычные места. Они не прописаны отдельно: если понадобится, мастер игры опишет нужное здание или пришлёт фото или арт.";
+
+const PLACES = [
+  { id: "verkhniy-predel", name: "Верхний Предел", kind: "Столица империи", g: "city",
+    spots: [[47.25, 14.2, 11, 8.8]], f: [53, 17.7],
+    motto: "Город власти и смерти, где выживают только сильные или хитрые.",
+    desc: ["Столица империи, раскинувшаяся на скале и защищённая тремя кольцами стен. В центре возвышается Императорский дворец из белого камня, а внизу, у подножия, кипит жизнь Нижнего предела — самого опасного района города.",
+           "Главная площадь, Костровая, ежедневно принимает казни магов, а воздух пропитан дымом и страхом. Орден здесь всемогущ, и каждый шаг отслеживается доносчиками."],
+    facts: [["Власть", "Император Кассель, фактически — дом Лимерия"], ["Главное", "Императорский дворец, Костровая площадь, Нижний предел"]],
+    order: [4, "всемогущ"],
+    rule: "Формально власть принадлежит Императору Касселю и его приближённым. Реальным управлением городом занимается дом Лимерия — старая аристократическая семья, которая сохранила влияние благодаря связям при дворе. Они следят за порядком, налогами и лояльностью знати, но каждый их шаг контролируется людьми Императора. Столица — это город, где никто не правит по-настоящему, потому что за каждым стоит кто-то более могущественный." },
+
+  { id: "gniloy-udel", name: "Гнилой Удел", kind: "Единственный порт империи", g: "city",
+    spots: [[40.75, 29.2, 9.25, 7.9]], f: [45.5, 32.3],
+    motto: "Город, где можно купить всё, кроме безопасности.",
+    desc: ["Единственный порт империи, построенный на сваях среди болот, где вместо улиц — каналы, а вместо колёс — лодки. Город воняет рыбой, гнилью и отчаянием, но именно сюда стекаются товары, слухи и контрабанда из дальних земель.",
+           "Орден здесь почти не появляется, а портом правят контрабандисты и скупщики краденого. По ночам из воды выползают обескровленные, утаскивая замешкавшихся, поэтому жители не ходят у воды после заката."],
+    facts: [["Власть", "дом Спенсеров, глава — Джорах Спенсер"], ["Опасность", "после заката обескровленные выходят из воды"]],
+    order: [1, "почти не появляется"],
+    rule: "Городом правит дом Спенсеров. Глава семьи — Джорах Спенсер, старый и уставший человек. Орден готовит нового управленца для города, но пока не торопится — Спенсеры надёжно удерживают власть, а их связи с инквизицией крепки. Гнилой удел остаётся важным портом, и Орден не хочет терять контроль над ним." },
+
+  { id: "tenegrad", name: "Тенеград", kind: "Город в тумане", g: "city",
+    spots: [[41.5, 56.3, 9.5, 9.1]], f: [46.5, 59.9],
+    motto: "Город-призрак, медленно умирающий в собственной дымке.",
+    desc: ["Город, погружённый в серый туман, который поднимается от реки и не рассеивается даже днём. Половина кварталов стоит пустыми, а те, кто остался, прячутся в домах, боясь того, что может скрываться в дымке.",
+           "Туман приносит видения — путники видят мёртвых родственников, которые манят их в глубину, и многие не возвращаются. Торговля здесь идёт только ночью, а монету здесь ценят больше, чем жизнь.",
+           "Скверна начала своё распространение именно здесь."],
+    facts: [["Власть", "семья Верн, с согласия Императора"], ["Союзники", "«Тихая длань»"], ["Торговля", "только ночью"]],
+    order: [1, "почти не присутствует"],
+    rule: "В городе шум. Власть перешла к семье Верн с согласия самого Императора — слишком много негативной активности, которую старые правители не могли сдержать. Семья Верн активно сотрудничает с «Тихой дланью», и их влияние растёт. Орден здесь почти не присутствует — слишком много старожилов, которые помнят времена до прихода Касселя и не терпят чужаков. Тенеград становится всё более независимым, и это тревожит Императора." },
+
+  { id: "epira", name: "Эпира", kind: "Город знаний", g: "city",
+    spots: [[66.25, 32.7, 5.75, 8.3]], f: [69.25, 35.9],
+    motto: "Город тех, кто ищет правду, даже если за это сжигают.",
+    desc: ["Город знаний, где сохранились старейшие университеты и библиотеки империи, а учёные продолжают искать ответы на вопросы о скверне. Главная библиотека — башня в восемь ярусов, где на верхних этажах хранятся запрещённые Орденом книги, доступ к которым закрыт для всех, кроме избранных.",
+           "Здесь лечат скверну травами и молитвами, а под городом, по слухам, находятся подземные хранилища с записями о первых днях эпидемии. Эпира тиха и сосредоточена, здесь не шумят и не кричат — потому что каждый может оказаться доносчиком."],
+    facts: [["Власть", "Совет мудрецов — пять старейшин"], ["В совете", "Кассандра Валенстер, 25 лет"], ["Порядок", "главный инквизитор Корвин и его спецотряд"], ["Главное", "библиотека-башня в восемь ярусов"]],
+    order: [2, "следит за порядком"],
+    rule: "Городом правит Совет мудрецов — пять старейшин, которые управляли Эпирой ещё до прихода Касселя. Шестого члена никогда не было, и традиции здесь чтят. Однако среди них выделяется Кассандра Валенстер — 25-летняя девушка, самая молодая представительница совета. Ей доверена проверка характеристик артефактов, которые создаются в Эпире. Остальные члены совета — возрастные люди, и их власть держится на знаниях и уважении, а не на силе. В городе также присутствует главный инквизитор Корвин со своим спецотрядом, но его роль в Эпире скорее правоохранительная — он следит за порядком, а не за магами." },
+
+  { id: "torgovyy-forpost", name: "Торговый Форпост", kind: "Город на перекрёстке", g: "city",
+    spots: [[70, 38.6, 12.25, 7.5]], f: [76, 41.4],
+    motto: "Единственное место, где можно исчезнуть в толпе, если тебя ищут.",
+    desc: ["Торговый форпост — город на перекрёстке дорог, где встречаются купцы, авантюристы и беглецы со всех концов Велариса. Здесь нет ни дворцов, ни университетов — только рынок, где можно купить и продать что угодно, и никто не задаёт лишних вопросов.",
+           "Город живёт торговлей, и его главная достопримечательность — таверна «Три факела», где собираются наёмники, ищут работу и продают информацию. В Ночном ряду после заката торгуют запрещёнными товарами, а под городом, по слухам, есть сеть подземных ходов, ведущих в другие города.",
+           "Здесь ценят только монету и умение договариваться."],
+    facts: [["Основан", "15 лет назад, самый молодой город империи"], ["Власть", "гильдия «Плата и сталь» и сообщество торговцев"], ["Главное", "таверна «Три факела», Ночной ряд"]],
+    rule: "Этот город — самое молодое поселение в империи. Он был основан всего 15 лет назад легендарным авантюристом, который решил, что Веларису нужен перекрёсток, где купцы, наёмники и беглецы могли бы встретиться без страха. Официальной власти здесь нет — городом управляют гильдия «Плата и сталь» и сообщество торговцев, во главе которого стоит тот самый авантюрист-основатель. Они следят за торговыми отношениями настолько, насколько это возможно в мире, где каждый хочет обмануть другого. Но именно в этом хаосе Форпост остаётся единственным местом, где можно договориться с кем угодно." },
+
+  { id: "kalderon", name: "Кальдерон", kind: "Город руды и стали", g: "city",
+    spots: [[64.75, 56.3, 7.75, 9.1]], f: [68.5, 60.7],
+    motto: "Город, который держит в руках сталь, на которой держится вся империя.",
+    desc: ["Город у гор, где добывают руду и куют лучшее оружие во всей империи, пропитанный гарью и потом шахтёров и кузнецов. Воздух здесь тяжёлый от дыма, а звон молотов не стихает ни днём, ни ночью — кузницы работают круглосуточно.",
+           "Обескровленные редко приходят сюда из-за высоты, и жители привыкли полагаться на себя, а не на Орден. Здесь не говорят красиво — здесь работают, а слова дешевле удара молотом по наковальне.",
+           "Глубоко под городом, в старых шахтах, скрывается нечто, о чём молчат даже самые старые шахтёры."],
+    facts: [["Власть", "Тени Кальдерона, лидер — Костолом (Вильгельм Жестокий)"], ["Промысел", "руда, оружие, кузницы круглые сутки"]],
+    order: [0, "нет"],
+    rule: "Власть в Кальдероне захвачена Тенями Кальдерона. Лидер мародёров, Костолом (Вильгельм Жестокий), укрепил свою власть над городом и окрестностями. Он контролирует шахты, кузницы и торговлю оружием. Город без Ордена, живущий под гнётом вечной войны и битвы за власть. Костолом смог захватить Кальдерон, но надолго ли?.. Тени не терпят чужаков, а местные жители давно научились платить дань тем, кто сильнее." },
+
+  { id: "sarkoniya", name: "Саркония", kind: "Бывшая столица", g: "city",
+    spots: [[76.5, 59.5, 7.25, 7.9]], f: [80, 63],
+    motto: "Город, который помнит, кем был, но больше не знает, кем станет.",
+    desc: ["Бывшая столица, которая так и не смирилась с переносом двора в Верхний предел, теперь медленно умирает, застыв в величии прошлого. Широкие улицы пустуют, дома аристократов заколочены, а в Старом дворце теперь лишь наместник и горстка слуг.",
+           "Жизнь теплится только на Торговом ряду, где мелкие лавочники и крестьяне обмениваются товаром, и в Квартале ремесленников, где кузнецы всё ещё стучат молотами. Жители Сарконии немногословны и недоверчивы к чужакам — они носят в себе память о былом величии и горечь утраты."],
+    facts: [["Власть", "Орден Пылающего Сердца, резиденция Верховного инквизитора"], ["Главное", "Старый дворец, Торговый ряд, Квартал ремесленников"]],
+    order: [4, "оплот инквизиции"],
+    rule: "Город полностью принадлежит Ордену Пылающего Сердца. Здесь находится резиденция Верховного инквизитора, все решения принимаются через него. Местная знать давно потеряла влияние, а те, кто пытался его вернуть, либо сожжены, либо молчат. Саркония — это оплот инквизиции, где даже шёпот может стать доносом." },
+
+  { id: "les-strasti", name: "Лес Страсти", kind: "Лесной массив", g: "land",
+    spots: [[71.5, 11.8, 9, 2.6], [73, 15.4, 9.5, 6.7]], f: [77, 17],
+    motto: "Одно из немногих мест в Веларисе, где природа ещё жива, но эта жизнь пугает больше, чем смерть.",
+    desc: ["Огромный лесной массив с плодородной землёй и множеством озёр, расположенный между столицей и Кальдероном. Название пошло от легенды, что сама мать-природа создала этот уголок из мирской страсти к смертному мужчине, и местные жители до сих пор рассказывают истории о том, как лес может исполнять желания и забирать воспоминания.",
+           "Здесь действительно красиво: высокие деревья, прозрачная вода, дичь и грибы — но именно поэтому сюда приходят не только охотники, но и обескровленные. В последние годы лес стал опасным местом: в чаще пропадают люди, и те, кто возвращаются, говорят о странных голосах, шепчущих имена.",
+           "Небольшие деревни, разбросанные по лесу, всё ещё держатся, но их жители не выходят за пределы домов после заката и всегда носят с собой факелы."],
+    facts: [["Где", "между столицей и Кальдероном"], ["Жители", "лесные деревни, после заката — только с факелами"]],
+    see: ["krasnaya-marka"] },
+
+  { id: "krasnaya-marka", name: "Красная Марка", kind: "Земли Леса Страсти", g: "land",
+    spots: [[78, 27.7, 7, 4.2]], f: [81.5, 30.3],
+    motto: "Поселение на краю Леса Страсти.",
+    desc: ["Красная Марка относится к землям Леса Страсти. Подробнее о крае — в описании леса.",
+           "Дорога сюда от Торгового Форпоста идёт через степь, по открытой местности."],
+    see: ["les-strasti"] },
+
+  { id: "verkhniy-pereval", name: "Верхний Перевал", kind: "", g: "land",
+    spots: [[63.25, 10.6, 3.5, 4.7]], f: [65, 14.2], motto: "", desc: [] },
+  { id: "yasnaya-polyana", name: "Ясная Поляна", kind: "", g: "land",
+    spots: [[72, 53.6, 6.5, 4.3]], f: [75.25, 55.6], motto: "", desc: [] },
+  { id: "verkhniy-helgrad", name: "Верхний Хельград", kind: "", g: "city",
+    spots: [[49.5, 70.1, 11.75, 8.7]], f: [55, 73.3], motto: "", desc: [] },
+  { id: "nizhniy-helgrad", name: "Нижний Хельград", kind: "", g: "city",
+    spots: [[39.75, 83.5, 12.25, 6.7]], f: [46, 86.7], motto: "", desc: [] },
+  { id: "chernolesye", name: "Чернолесье", kind: "", g: "land",
+    spots: [[62.25, 74.9, 9.25, 2.8]], f: [67, 78.8], motto: "", desc: [] },
+  { id: "bagryanoe-zarevo", name: "Багряное Зарево", kind: "", g: "city",
+    spots: [[70, 76.8, 10.5, 7.9]], f: [75, 81.2], motto: "", desc: [] }
+];
+
+/* Время в пути: [откуда, куда, повозка, пешком, заметка, часть карты] — дороги работают в обе стороны */
+const ROUTES = [
+  ["verkhniy-predel", "gniloy-udel", "1,5 ч", "3 ч", "", "Западная часть"],
+  ["gniloy-udel", "tenegrad", "2 ч", "4 ч", "Топкие низины, повозка может завязнуть. Лучше ехать днём.", "Западная часть"],
+  ["verkhniy-predel", "tenegrad", "—", "—", "Прямой дороги нет. Нужно заезжать через Гнилой Удел. Или через горы, но это самоубийство.", "Западная часть"],
+  ["tenegrad", "epira", "4 ч", "—", "Через горный перевал.", "Восточная часть"],
+  ["epira", "torgovyy-forpost", "1,5 ч", "3 ч", "Хорошая дорога, есть постоялые дворы по пути.", "Восточная часть"],
+  ["torgovyy-forpost", "sarkoniya", "3 ч", "6 ч", "Оживлённый тракт, много обозов.", "Восточная часть"],
+  ["torgovyy-forpost", "kalderon", "3 ч", "6 ч", "Лесная дорога.", "Восточная часть"],
+  ["torgovyy-forpost", "krasnaya-marka", "3 ч", "6 ч", "Степь, открытая местность.", "Восточная часть"],
+  ["torgovyy-forpost", "les-strasti", "4 ч", "8 ч", "Дорога уходит в чащу.", "Восточная часть"],
+  ["sarkoniya", "verkhniy-predel", "≈ 12 ч", "сутки", "Самая дальняя точка. Через всю карту, с горным перевалом. Без привала не выдержит даже лошадь.", "Через всю карту"]
+];
+
+/* Летопись: разделы. Типы блоков: p, h, note, dl, people, table, routes, states */
+const LORE = [
+  { id: "mir", tab: "Мир", kind: "Летопись · Мир", name: "Империя Веларис", motto: "Империя умирает.", focus: [58, 50, 1], blocks: [
+    ["p", "Города охвачены страхом, улицы патрулируются факельщиками, а после заката жизнь замирает — потому что ночь принадлежит обескровленным."],
+    ["dl", [["Площадь", "≈ 1 200 000 км², примерно Франция и Германия вместе"], ["До скверны", "≈ 8–9 млн человек"], ["Сейчас", "≈ 3 млн человек"], ["Потери", "≈ 4 млн погибли, обратились или бежали в соседние государства"]]],
+    ["h", "Скверна"],
+    ["p", "Скверна как вирус, болезнь, проклятие существовала всегда — в далёких потайных местах. Ответить на вопрос, откуда она взялась, невозможно. Однако трагедия и само распространение по империи начались всего около 30 лет назад, практически с начала правления Касселя. Тогда же появился и закон о гонении магов."],
+    ["h", "Обескровленные"],
+    ["p", "Обескровленные — это бывшие люди. Кожа их превращается в пепельную корку, покрытую язвами и шрамами, похожими на ожоги. Они не помнят себя, помнят лишь обрывки прошлого, и движет ими только голод. Они агрессивны, жестоки и охотятся на живых. Единственное, чего они боятся, — это огня."],
+    ["p", "Большинство городов уже охвачены эпидемией, деревни вымирают целыми, а торговые пути перекрыты из-за того, что обескровленные бродят по дорогам."],
+    ["h", "Император Кассель"],
+    ["p", "Правящий Император Кассель находится на троне почти три десятилетия. Он не выглядит больным, не стареет и не прячется во дворце — он регулярно выходит к народу, раздаёт милостыню и посещает заражённые районы. Никто никогда не видел на его коже следов скверны, и народ считает его избранным, защищённым самой судьбой."],
+    ["h", "Орден Пылающего Сердца"],
+    ["p", "Главная сила в империи. Они носят алые рясы и железные маски, их символ — сердце, пронзённое факелом. Орден убеждён, что скверна появилась как кара за магию, и поэтому все маги должны быть уничтожены. На площадях горят костры, доносчики сдают соседей, и любой, кто хоть раз проявлял интерес к запретным знаниям, рискует быть схваченным."],
+    ["h", "Кем вы будете"],
+    ["p", "В этом мире можно быть кем угодно: бывшим солдатом, вором, лекарем, купцом, священником или просто беглым крестьянином. Вы можете прятаться, воевать с Орденом, торговать информацией и оружием, грабить мёртвые города, молиться в старых храмах, создавать свою торговую империю, сжигать других магов, чтобы спасти себя, или пытаться найти правду о происхождении скверны."],
+    ["note", "Император, народ и Орден утверждают, что виноваты маги. Но что, если всё не так? Что, если Император сам причастен к появлению болезни? Что, если Орден — лишь инструмент в его руках? И что, если вы — не случайный выживший, а часть чужого плана?"]
+  ]},
+  { id: "dvor", tab: "Двор", kind: "Летопись · Двор", name: "Императорская семья", motto: "Общедоступные сведения для погружения в мир.", focus: [53, 17.7, .24], blocks: [
+    ["people", [
+      { name: "Кассель Торнвуд I", role: "Император · Пепельный Король Велариса", text: "Мудрый, близкий к народу, прозванный им же Пепельным Королём." },
+      { name: "Роксана Торнвуд", role: "Императрица · мать Винсента и Оскара", text: "Единственная жена, мать двух достойных императорских отпрысков. Её роль — статус, но она чувствует холод мужа. О её прошлом говорят мало: когда-то давно её привезли в качестве подарка ещё юному Касселю." },
+      { name: "Изабелла Касвиль", role: "Фаворитка · мать Маргарет", text: "Из рода виноделов. Опасная страсть. Амбициозна, хочет возвысить свою дочь." },
+      { name: "Виктория", role: "Фаворитка · мать Альберта и Грегора", text: "Холодный ум. Расчётливая интриганка, играет в долгую игру. В прошлом — энтузиастка, живущая свободой и мечтающая о власти. Самая любимая из всех, ей всё можно. Именно детей от Виктории считают главными наследниками трона." }
+    ]],
+    ["h", "Дети по старшинству"],
+    ["people", [
+      { name: "Альберт", role: "Мать — Виктория", text: "Старший сын. Мечтает о власти и гордится первенством. Но начинает что-то подозревать." },
+      { name: "Феликс", role: "Мать — Виктория", text: "Второй сын, чьё отношение к императору и собственной семье невозможно описать так конкретно, как отношения других наследников." },
+      { name: "Винсент", role: "Мать — Роксана", text: "Воин, который сомневается. Не доверяет отцу." },
+      { name: "Грегор", role: "Мать — Виктория", text: "Жестокий, прямой. Используется отцом как пёс для грязной работы." },
+      { name: "Маргарет", role: "Мать — Изабелла", text: "Амбициозная, скрытная. Ждёт своего часа. Мечтает о власти и готова плести интриги." },
+      { name: "Оскар", role: "Мать — Роксана", text: "Хитрый, жестокий, разбалованный. Вылитый отец в молодости, но без его терпения." }
+    ], true]
+  ]},
+  { id: "byt", tab: "Быт", kind: "Летопись · Быт", name: "Быт и дороги", motto: "Деньги, цены, ремёсла и время в пути.", focus: [76, 41.4, .3], blocks: [
+    ["h", "Деньги"],
+    ["p", "Основная денежная единица — серебряная монета, грош. В ходу также золотые монеты: одна золотая равна 100 грошам. Курс постоянно меняется из-за экономического хаоса, и в некоторых регионах предпочитают бартер — зерно, оружие или информацию."],
+    ["table", ["Товар или услуга", "Цена"], [
+      ["Буханка хлеба", "2 гроша"], ["Кувшин воды", "1 грош"], ["Горячая похлёбка", "4 гроша"],
+      ["Лекарь в бедном квартале", "от 1 гроша"], ["Именитый врач в центре", "десятки и сотни грошей"],
+      ["Ночлег в общей комнате, на сеновале", "5 грошей"], ["Отдельная комната", "20 грошей"],
+      ["Простой кинжал", "30 грошей"], ["Короткий меч", "80 грошей"], ["Арбалет с болтами", "150 грошей"], ["Стальная кираса", "от 300 грошей"]
+    ]],
+    ["note", "Цены могут меняться в зависимости от региона, уровня опасности и жадности продавца."],
+    ["h", "Дороги и время в пути"],
+    ["routes"],
+    ["h", "Архитектура"],
+    ["p", "Города застроены тесными каменными домами с узкими улочками, которые не пропускают солнечный свет. Дворцы и храмы строят из тёмного камня с массивными колоннами и высокими шпилями, а простые жилища — из дерева и глины. В каждом районе есть хотя бы одна площадь с костровой ямой — местом публичных казней и сожжений обескровленных."],
+    ["h", "Техника и технологии"],
+    ["p", "Уровень технологий соответствует позднему средневековью: мечи, щиты, арбалеты, тараны, осадные башни. Кузнецы владеют плавкой стали и ковкой доспехов, но огнестрел ещё не изобретён. Медицина примитивна — основывается на травах, кровопускании и молитвах, а научные знания подавляются Орденом как «опасные для души»."],
+    ["h", "Языки"],
+    ["p", "В империи Веларис говорят на старинном веларисийском языке, который за столетия почти не изменился. Старшее поколение и жители отдалённых деревень используют древний диалект — он звучит грубее, с архаичными оборотами, которые горожане уже не понимают. Игрок может придумать для своего персонажа собственный язык или диалект."],
+    ["note", BASE_NOTE]
+  ]},
+  { id: "sosedi", tab: "Соседи", kind: "Летопись · Соседи", name: "Соседние государства", motto: "Границы Велариса закрыты. Раскройте государство, чтобы увидеть на карте, где оно лежит.", focus: [58, 50, 1], blocks: [
+    ["p", "Почти с самого начала эпидемии император выпустил указ о запрете на въезд и выезд из Велариса. На территории империи многие оказались взаперти."],
+    ["states", [
+      { name: "Азуран", dir: { a: [66, 12], c: [64.4, 8.6], b: [66.4, 5.2], t: [68, 9], anchor: "start" }, rel: "Нейтралитет, осторожность", dl: [["Площадь", "≈ 900 000 км²"], ["Численность", "≈ 1–1,5 млн"], ["Правитель", "Ксардрек Оссариум"]], p: [
+        "На данный момент страной управляет Ксардрек Оссариум. Император с сильным именем, длинным мечом, облачённый в неопалимые доспехи. Ксардрек вступил на трон совсем недавно, но ни для кого не тайна, как много ему пришлось оставить ради него. Неопалимый Оссариум лишился всего, включая собственной сущности, представ пред драконьей столицей безликим скелетом.",
+        "Государство занимает северные земли и отделено от Велариса самыми негостеприимными территориями в мире. Леса там настолько плотные, что солнечный свет не пробивается сквозь кроны, болота затягивают целые армии, а горные перевалы считаются смертельными для любого, кто не знает пути. Именно там, по слухам, до сих пор живут настоящие драконы — их никто не видел уже столетия, но время от времени в приграничных деревнях слышат рёв, от которого сотрясается земля.",
+        "§Чем отличается",
+        "Азуран — единственное государство, которое не может жить спокойно. Войны не кончаются здесь, передаются из поколения в поколение. Азуранцы не строят дорог, не пытаются идти на контакт, их жизнь — череда крови, смерти и огня."] },
+      { name: "Железные острова", dir: { a: [36.5, 46], c: [28, 42.5], b: [19, 46], t: [27.5, 40.4], anchor: "middle" }, rel: "Временное перемирие, скрытая враждебность", dl: [["Площадь", "≈ 350 000 км², архипелаг"], ["Численность", "≈ 1–1,2 млн, в основном на побережьях"], ["Правление", "выборная монархия, Император Маррис Хладнор — более 20 лет"]], p: [
+        "Государство, отделённое от Велариса морем, славится своим воинственным народом и флотом. Века назад железные островитяне постоянно совершали рейды на прибрежные города Велариса, сжигая деревни и уводя жителей в рабство. Войны длились десятилетиями, и кровь лилась реками, пока обе стороны не истощили ресурсы.",
+        "Сейчас между государствами заключено временное перемирие, но обе стороны готовятся к новой войне в любой момент. Железные островитяне презирают слабость, поклоняются морским богам и считают себя истинными хозяевами волн. Их корабли быстрее, а воины свирепее, и каждый знает — перемирие продлится ровно до тех пор, пока одна из сторон не посчитает себя достаточно сильной для удара.",
+        "§Чем отличается",
+        "Единственное государство, где женщины имеют равные права с мужчинами. Женщины здесь — капитаны, воины и вожди. Мужчины не смеют им перечить. А ещё островитяне не хоронят мёртвых в земле — они отдают их морю.",
+        "§Чем известно",
+        "Флотом и наёмниками. Железные островитяне — лучшие мореходы в мире. Их корабли не боятся ни штормов, ни морских чудовищ. Наёмники с островов ценятся на вес золота: они не задают вопросов и не оставляют свидетелей."] },
+      { name: "Лимерия", dir: { a: [85.5, 46], c: [90.5, 43], b: [95, 46.5], t: [90.2, 40.8], anchor: "middle" }, rel: "Мирное соседство, скорее даже никакое", dl: [["Площадь", "≈ 400 000 км²"], ["Численность", "≈ 2–2,5 млн, плотно в плодородных долинах"], ["Правление", "наследственная монархия, правит Талира Калеборн"]], p: [
+        "Государство на востоке, которое избежало ужасов скверны благодаря, как ни странно, высоким горам и строгому карантину на границах. Лимерия — зелёная, цветущая страна с мягким климатом, садами и виноградниками. Здесь не сжигают магов.",
+        "Лимерия закрыла границы, когда услышала о первых вспышках болезни, и с тех пор живёт в изоляции, торгуя лишь через специальные пропускные пункты. Местные жители считают себя счастливчиками, но многие подозревают, что их благополучие не продлится вечно. Скверна уже стучится в двери, и рано или поздно Лимерии придётся выбрать: впустить беженцев или остаться в одиночестве.",
+        "§Чем отличается",
+        "Государство, где магия не запрещена и высоко ценится. Здесь царит культ чистоты крови: чистые улицы, чистые дома, чистые помыслы. Грязь и болезнь считаются признаком слабости.",
+        "§Чем известно",
+        "Вином, шёлком и лекарствами. Лимерийские вина ценятся при дворах всех государств. Шёлк, который там производят, мягче и прочнее любого другого. А травы, которые растут в её долинах, лечат почти всё — кроме скверны."] },
+      { name: "Тир-Мор", dir: { a: [58, 87.5], c: [60.2, 91.2], b: [58.6, 95], t: [61.2, 93], anchor: "start" }, rel: "Ненависть, остро негативное", dl: [["Площадь", "≈ 500 000 км²"], ["Численность", "≈ 700–900 тыс., до скверны ≈ 3 млн"], ["Правление", "анархия, центральной власти нет"]], p: [
+        "Государство состоит из множества независимых сообществ — крепостей, деревень, лагерей выживших. Каждое сообщество управляется своим старейшиной или военным лидером. Между собой они почти не связаны: торговля слабая, границы размыты, единой армии нет.",
+        "Южное государство, которое первым столкнулось со скверной и до сих пор несёт на себе её основной удар. Вирус здесь мутировал быстрее, чем в других землях, — упыри Тир-Мора быстрее, хитрее и, по слухам, сохраняют часть разума. Государство пало. Жизнь здесь тяжела, но теплится, и именно в Тир-Море, по слухам, рождается больше всего иммунных — будто сам вирус испытывает на них свои новые формы. Многие считают Тир-Мор не проклятой землёй, а кузницей, где закаляются самые стойкие.",
+        "§Чем отличается",
+        "Единственное государство, которое не сдалось, даже когда скверна уничтожила его. Здесь каждый выживший — боец. Дети с рождения учатся держать факел и меч. Смерть здесь — не трагедия, а обыденность.",
+        "§Чем известно",
+        "Иммунными. Если в Веларисе иммунный — редкость, то в Тир-Море — почти норма. Именно отсюда родом большинство тех, кто обрёл Дар и не сошёл с ума. А ещё Тир-Мор славится упырями нового типа — быстрыми, умными, опасными. Те, кто выжил после встречи с ними, рассказывают, что твари будто понимают речь."] }
+    ]],
+    ["h", "Почему нельзя уплыть по океану"],
+    ["p", "Океан за пределами Гнилого удела таит в себе смерть, и лишь отчаянные или безумцы решаются уйти за горизонт. Воды кишат тварями, которых скверна исказила сильнее, чем обескровленных на суше, — огромные создания с щупальцами, способные потопить корабль за считанные мгновения."],
+    ["p", "Те, кто всё же возвращается из плавания, рассказывают о бескрайнем тумане, который не рассеивается даже днём, о кораблях-призраках с экипажами из обескровленных и о голосах, зовущих с глубины. Даже если пережить встречу с морскими тварями и не сойти с ума от одиночества, за пределами империи нет земель, где можно найти убежище: там нет ничего, кроме серой воды и пустоты. Так говорят легенды, и никто не решается проверить их на себе."]
+  ]}
+];
+
+const GROUPS = { city: "Города", land: "Земли" };
+
+/* ===================================================================== */
+const W = 2576, H = 1635;
+const $ = s => document.querySelector(s);
+const stage = $("#stage"), map = $("#map"), arrowsSvg = $("#arrows"), panel = $("#panel"), content = $("#content"), hero = $("#hero"), tip = $("#tip"), flyout = $("#flyout"), tabs = $("#tabs");
+const byId = Object.fromEntries(PLACES.map(p => [p.id, p]));
+const loreById = Object.fromEntries(LORE.map(t => [t.id, t]));
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const isNarrow = () => innerWidth <= 760;
+
+/* ---------- Camera ---------- */
+const cur = { s: 1, x: 0, y: 0 }, tgt = { s: 1, x: 0, y: 0 };
+let raf = 0, ease = .11;
+const minS = () => Math.max(innerWidth / W, innerHeight / H);
+const maxS = () => Math.max(minS() * 3.5, 1.3);
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const panelPad = () => {
+  const open = panel.classList.contains("open");
+  return { r: open && !isNarrow() ? panel.offsetWidth : 0, b: open && isNarrow() ? panel.offsetHeight : 0 };
+};
+function bound(c) {
+  const pad = panelPad();
+  c.s = clamp(c.s, minS(), maxS());
+  c.x = clamp(c.x, innerWidth - W * c.s - pad.r, 0);
+  c.y = clamp(c.y, innerHeight - H * c.s - pad.b, 0);
+}
+function rubber(c) {
+  const k = .35, pad = panelPad(), minX = innerWidth - W * c.s - pad.r, minY = innerHeight - H * c.s - pad.b;
+  const r = (v, lo, hi) => v > hi ? hi + (v - hi) * k : v < lo ? lo + (v - lo) * k : v;
+  c.x = r(c.x, minX, 0); c.y = r(c.y, minY, 0);
+}
+function apply() { map.style.transform = `translate3d(${cur.x}px,${cur.y}px,0) scale(${cur.s})`; }
+function tick() {
+  const k = reduce ? 1 : ease;
+  cur.s += (tgt.s - cur.s) * k; cur.x += (tgt.x - cur.x) * k; cur.y += (tgt.y - cur.y) * k;
+  const done = Math.abs(tgt.s - cur.s) < 1e-4 && Math.abs(tgt.x - cur.x) < .3 && Math.abs(tgt.y - cur.y) < .3;
+  if (done) Object.assign(cur, tgt);
+  apply();
+  raf = done ? 0 : requestAnimationFrame(tick);
+}
+function go(free) { if (!free) bound(tgt); if (!raf) raf = requestAnimationFrame(tick); }
+function zoomAt(px, py, ns) {
+  const mx = (px - tgt.x) / tgt.s, my = (py - tgt.y) / tgt.s;
+  ns = clamp(ns, minS(), maxS());
+  tgt.x = px - mx * ns; tgt.y = py - my * ns; tgt.s = ns; go();
+}
+function lookAt(fx, fy, s, open) {
+  tgt.s = clamp(s, minS(), maxS());
+  let cx = innerWidth / 2, cy = innerHeight / 2;
+  if (open && !isNarrow()) cx = (menuEdge() + innerWidth - panel.offsetWidth) / 2;
+  if (open && isNarrow()) cy = (innerHeight - panel.offsetHeight) / 2;
+  tgt.x = cx - fx / 100 * W * tgt.s; tgt.y = cy - fy / 100 * H * tgt.s;
+  ease = .075; go();
+}
+const menuEdge = () => isNarrow() ? 0 : $("#menu").getBoundingClientRect().right + 12;
+const homeS = () => minS() * (isNarrow() ? 1.15 : 1.3);
+function overview() { lookAt(isNarrow() ? 66 : 58, 50, homeS(), false); }
+
+/* ---------- Hotspots ---------- */
+PLACES.forEach(p => p.spots.forEach(r => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "spot";
+  b.dataset.id = p.id; b.setAttribute("aria-label", p.kind ? `${p.name}, ${p.kind}` : p.name);
+  Object.assign(b.style, { left: r[0] + "%", top: r[1] + "%", width: r[2] + "%", height: r[3] + "%" });
+  b.addEventListener("click", e => { if (moved) { e.preventDefault(); return; } select(p.id); });
+  b.addEventListener("pointerenter", e => { if (e.pointerType !== "touch" && !dragging) showTip(b, p); });
+  b.addEventListener("pointerleave", hideTip);
+  b.addEventListener("focus", () => showTip(b, p));
+  b.addEventListener("blur", hideTip);
+  map.appendChild(b);
+}));
+function showTip(el, p) {
+  const r = el.getBoundingClientRect();
+  tip.textContent = p.kind || p.name;
+  tip.style.left = clamp(r.left + r.width / 2, 90, innerWidth - 90) + "px";
+  tip.style.top = Math.max(r.top, 44) + "px";
+  tip.classList.add("on");
+}
+function hideTip() { tip.classList.remove("on"); }
+
+/* ---------- Rendering ---------- */
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const nameOf = id => byId[id] ? byId[id].name : id;
+const routesFor = id => ROUTES.filter(r => r[0] === id || r[1] === id).map(r => ({ to: r[0] === id ? r[1] : r[0], cart: r[2], foot: r[3], note: r[4] }));
+function timeText(r) {
+  if (r.cart === "—" && r.foot === "—") return "прямой дороги нет";
+  const a = [];
+  if (r.cart !== "—") a.push("повозка " + r.cart);
+  if (r.foot !== "—") a.push("пешком " + r.foot);
+  return a.join(" · ");
+}
+const meter = (n, word, label) =>
+  `<div class="meter"><span class="lbl">${label}</span><span class="pips">${[1, 2, 3, 4].map(i => `<i style="--n:${i}" data-on="${i <= n ? 1 : 0}"></i>`).join("")}</span><span class="word">${esc(word)}</span></div>`;
+const dl = items => `<dl class="stats">${items.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>`;
+const chev = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>`;
+
+function routesTable() {
+  let html = `<div class="tw"><table class="t rt"><thead><tr><th>Путь</th><th>Повозка</th><th>Пешком</th></tr></thead><tbody>`, part = "";
+  ROUTES.forEach(r => {
+    if (r[5] !== part) { part = r[5]; html += `<tr class="sec"><td colspan="3">${esc(part)}</td></tr>`; }
+    html += `<tr class="${r[4] ? "has-note" : ""}"><td><button class="lnk" type="button" data-go="${r[0]}">${esc(nameOf(r[0]))}</button> → <button class="lnk" type="button" data-go="${r[1]}">${esc(nameOf(r[1]))}</button></td><td>${esc(r[2])}</td><td>${esc(r[3])}</td></tr>`;
+    if (r[4]) html += `<tr class="nt"><td colspan="3">${esc(r[4])}</td></tr>`;
+  });
+  return html + `</tbody></table></div>`;
+}
+function stateHTML(s) {
+  return `<section class="acc"><button class="acc-head" type="button" aria-expanded="false"><span><b>${esc(s.name)}</b><small>${esc(s.rel)}</small></span>${chev}</button>
+    <div class="acc-body"><div><div class="acc-in">${dl(s.dl)}${s.p.map(t => t.startsWith("§") ? `<h4>${esc(t.slice(1))}</h4>` : `<p class="lp">${esc(t)}</p>`).join("")}</div></div></div></section>`;
+}
+function blockHTML([t, v, x]) {
+  switch (t) {
+    case "p": return `<p class="lp">${esc(v)}</p>`;
+    case "h": return `<h3>${esc(v)}</h3>`;
+    case "note": return `<p class="note">${esc(v)}</p>`;
+    case "dl": return dl(v);
+    case "people": return `<div class="people">${v.map((p, i) => `<article class="person"><span class="mono">${x ? i + 1 : esc(p.name[0])}</span><div><b>${esc(p.name)}</b><span class="role">${esc(p.role)}</span><p>${esc(p.text)}</p></div></article>`).join("")}</div>`;
+    case "table": return `<div class="tw"><table class="t"><thead><tr>${v.map(h => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${x.map(r => `<tr>${r.map(c => `<td>${esc(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+    case "routes": return routesTable();
+    case "states": return `<div class="accs">${v.map(stateHTML).join("")}</div>`;
+  }
+  return "";
+}
+const head = o => [o.kind && `<p class="kind">${esc(o.kind)}</p>`, `<h2>${esc(o.name)}</h2>`, o.motto && `<p class="motto">${esc(o.motto)}</p>`, `<div class="rule"></div>`];
+const stagger = parts => parts.filter(Boolean).map((h, i) => `<div class="blk" style="--d:${Math.min(i, 9)}">${h}</div>`).join("");
+
+function placeHTML(p) {
+  const rs = routesFor(p.id);
+  return stagger([
+    ...head(p),
+    p.desc.length ? `<div class="desc">${p.desc.map(t => `<p>${esc(t)}</p>`).join("")}</div>` : `<p class="note">Описание этого места появится позже.</p>`,
+    p.facts && dl(p.facts),
+    p.order && meter(p.order[0], p.order[1], "Орден"),
+    p.rule && `<h3>Кто правит</h3><p class="lp">${esc(p.rule)}</p>`,
+    rs.length && `<h3>Дороги</h3><div class="routes">${rs.map(r => `<button class="route" type="button" data-go="${r.to}"><span class="to">${esc(nameOf(r.to))}</span><span class="tm">${esc(timeText(r))}</span>${r.note ? `<span class="rn">${esc(r.note)}</span>` : ""}</button>`).join("")}</div>`,
+    p.see && `<h3>Смотрите также</h3><div class="links">${p.see.map(id => `<button class="chip" type="button" data-go="${id}">${esc(nameOf(id))}</button>`).join("")}</div>`,
+    p.g === "city" && `<p class="note">${esc(BASE_NOTE)}</p>`
+  ]);
+}
+const loreHTML = t => stagger([...head(t), ...t.blocks.map(blockHTML)]);
+
+/* ---------- Neighbour arrows ---------- */
+const STATES = LORE.find(t => t.id === "sosedi").blocks.find(b => b[0] === "states")[1];
+const P = ([x, y]) => [x / 100 * W, y / 100 * H];
+arrowsSvg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+arrowsSvg.innerHTML = STATES.map((st, i) => {
+  const d = st.dir, [ax, ay] = P(d.a), [cx, cy] = P(d.c), [bx, by] = P(d.b), [tx, ty] = P(d.t);
+  const ang = Math.atan2(by - cy, bx - cx), L = 38, sp = .5;
+  const h1 = [bx - L * Math.cos(ang - sp), by - L * Math.sin(ang - sp)], h2 = [bx - L * Math.cos(ang + sp), by - L * Math.sin(ang + sp)];
+  const path = `M${ax} ${ay} Q${cx} ${cy} ${bx} ${by}`;
+  return `<g class="arrow" data-state="${i}">
+    <mask id="am${i}" maskUnits="userSpaceOnUse" x="0" y="0" width="${W}" height="${H}"><path class="draw" d="${path}" fill="none" stroke="#fff" stroke-width="30" stroke-linecap="round"/></mask>
+    <path class="halo" d="${path}" fill="none" mask="url(#am${i})"/>
+    <path class="line" d="${path}" fill="none" mask="url(#am${i})"/>
+    <path class="head" d="M${h1[0]} ${h1[1]} L${bx} ${by} L${h2[0]} ${h2[1]}" fill="none"/>
+    <text x="${tx}" y="${ty}" text-anchor="${d.anchor}">${esc(st.name)}</text>
+  </g>`;
+}).join("");
+arrowsSvg.querySelectorAll(".draw").forEach(p => { const l = Math.ceil(p.getTotalLength()) + 2; p.style.strokeDasharray = l; p.style.strokeDashoffset = l; p.style.setProperty("--len", l); });
+function showArrows(list) {
+  arrowsSvg.querySelectorAll(".arrow").forEach(g => g.classList.toggle("on", list.includes(+g.dataset.state)));
+}
+function focusState(i) {
+  const d = STATES[i].dir;
+  requestAnimationFrame(() => {
+    const availW = (isNarrow() ? innerWidth : innerWidth - panel.offsetWidth - menuEdge()) * .8;
+    const availH = (isNarrow() ? innerHeight - panel.offsetHeight - 60 : innerHeight) * .8;
+    const spanX = Math.abs(d.a[0] - d.b[0]) / 100 * W + 300, spanY = Math.abs(d.a[1] - d.b[1]) / 100 * H + 160;
+    lookAt((d.a[0] + d.b[0]) / 2, (d.a[1] + d.b[1]) / 2, Math.min(homeS(), availW / spanX, availH / spanY), true);
+  });
+}
+
+/* ---------- Panel ---------- */
+let current = null, lore = null, swapT = 0;
+function setHero(fx, fy, zoom) {
+  const hw = hero.clientWidth || 400, hh = hero.clientHeight || 200;
+  const k = hw / (W * zoom), bw = W * k, bh = H * k;
+  const px = clamp(fx / 100 * bw - hw / 2, 0, Math.max(0, bw - hw)), py = clamp(fy / 100 * bh - hh / 2, 0, Math.max(0, bh - hh));
+  hero.style.backgroundSize = `${bw}px ${bh}px`;
+  hero.style.backgroundPosition = `${-px}px ${-py}px`;
+}
+let heroArgs = [58, 50, 1];
+function swapTo(html, focus) {
+  showArrows([]);
+  const wasOpen = panel.classList.contains("open");
+  panel.classList.add("open"); panel.setAttribute("aria-hidden", "false");
+  const put = () => {
+    content.innerHTML = html; $("#scroll").scrollTop = 0;
+    requestAnimationFrame(() => requestAnimationFrame(() => content.querySelectorAll('.pips i[data-on="1"]').forEach(i => i.classList.add("on"))));
+  };
+  clearTimeout(swapT);
+  if (wasOpen && !reduce) { panel.classList.add("swap"); swapT = setTimeout(() => { put(); panel.classList.remove("swap"); }, 190); }
+  else { panel.classList.remove("swap"); put(); }
+  heroArgs = focus;
+  requestAnimationFrame(() => setHero(...focus));
+}
+function markUI() {
+  document.querySelectorAll(".spot").forEach(s => s.classList.toggle("active", s.dataset.id === current));
+  document.querySelectorAll("[data-lore]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.lore === lore)));
+  tabs.querySelectorAll("[data-tab]").forEach(b => b.setAttribute("aria-selected", String(b.dataset.tab === lore)));
+}
+function setHash(h) { try { history.replaceState(null, "", h ? "#" + h : location.pathname + location.search); } catch (e) {} }
+
+function select(id) {
+  const p = byId[id]; if (!p) return;
+  current = id; lore = null; closeFly(); hideTip();
+  panel.classList.remove("wide"); tabs.hidden = true; markUI();
+  swapTo(placeHTML(p), [p.f[0], p.f[1], p.g === "land" ? .34 : .24]);
+  const i = PLACES.indexOf(p), prev = PLACES[(i - 1 + PLACES.length) % PLACES.length], next = PLACES[(i + 1) % PLACES.length];
+  $("#b-prev span").textContent = prev.name; $("#b-prev").dataset.go = prev.id;
+  $("#b-next span").textContent = next.name; $("#b-next").dataset.go = next.id;
+  $(".pager").hidden = false;
+  requestAnimationFrame(() => {
+    const availW = isNarrow() ? innerWidth : innerWidth - panel.offsetWidth;
+    const span = p.g === "land" ? .5 : .38;
+    lookAt(p.f[0], p.f[1], Math.max(minS() * 1.15, availW / (W * span)), true);
+  });
+  setHash(id);
+}
+function showLore(id) {
+  const t = loreById[id] || LORE[0];
+  const sameMode = lore !== null;
+  current = null; lore = t.id; closeFly(); hideTip();
+  panel.classList.add("wide"); tabs.hidden = false; markUI();
+  swapTo(loreHTML(t), t.focus);
+  $(".pager").hidden = true;
+  requestAnimationFrame(() => lookAt(t.focus[0], t.focus[1], t.focus[2] < 1 ? Math.max(homeS(), minS() * 1.6) : homeS(), true));
+  if (!sameMode) $("#scroll").scrollTop = 0;
+  setHash(t.id);
+}
+function closePanel() {
+  showArrows([]);
+  panel.classList.remove("open", "wide"); panel.setAttribute("aria-hidden", "true");
+  const p = current && byId[current];
+  current = null; lore = null; markUI();
+  if (p) lookAt(p.f[0], p.f[1], tgt.s, false); else go();
+  setHash("");
+}
+tabs.innerHTML = LORE.map(t => `<button class="tab" type="button" role="tab" data-tab="${t.id}" aria-selected="false">${esc(t.tab)}</button>`).join("");
+panel.addEventListener("click", e => {
+  const tab = e.target.closest("[data-tab]"); if (tab) return showLore(tab.dataset.tab);
+  const g = e.target.closest("[data-go]"); if (g) return select(g.dataset.go);
+  const acc = e.target.closest(".acc-head");
+  if (acc) {
+    const sec = acc.parentElement, open = sec.classList.toggle("open");
+    acc.setAttribute("aria-expanded", String(open));
+    const all = [...content.querySelectorAll(".acc")];
+    showArrows(all.map((el, i) => el.classList.contains("open") ? i : -1).filter(i => i >= 0));
+    if (open) focusState(all.indexOf(sec));
+  }
+});
+$("#b-close").addEventListener("click", closePanel);
+
+/* Swipe the sheet down to close (phones) */
+(() => {
+  const sheet = panel.querySelector(".sheet"), sc = $("#scroll");
+  let y0 = null, dy = 0;
+  sheet.addEventListener("pointerdown", e => {
+    if (!isNarrow() || e.target.closest("button")) return;
+    if (!(e.target.closest("#grab") || (e.target.closest("#hero") && sc.scrollTop === 0))) return;
+    y0 = e.clientY; dy = 0; sheet.style.transition = "none";
+    try { sheet.setPointerCapture(e.pointerId); } catch (_) {}
+  });
+  sheet.addEventListener("pointermove", e => {
+    if (y0 === null) return;
+    dy = Math.max(0, e.clientY - y0); sheet.style.transform = `translateY(${dy}px)`;
+  });
+  const end = () => {
+    if (y0 === null) return;
+    y0 = null; sheet.style.transition = "transform .45s var(--ease)"; sheet.style.transform = "";
+    if (dy > 90) closePanel();
+  };
+  sheet.addEventListener("pointerup", end); sheet.addEventListener("pointercancel", end);
+})();
+
+/* ---------- Menu ---------- */
+let flyMode = null;
+function closeFly() {
+  flyout.classList.remove("open"); flyMode = null;
+  $("#b-places").setAttribute("aria-expanded", "false");
+}
+function openFly(mode) {
+  if (flyMode === mode) return closeFly();
+  flyMode = mode;
+  $("#b-places").setAttribute("aria-expanded", "true");
+  {
+    flyout.innerHTML = `<h2>Места</h2>` + Object.entries(GROUPS).map(([g, title]) =>
+      `<h3>${title}</h3><ul class="list">${PLACES.filter(p => p.g === g).map(p =>
+        `<li><button type="button" data-go="${p.id}" class="${p.id === current ? "current" : ""}">${esc(p.name)}<span>${esc(p.kind)}</span></button></li>`).join("")}</ul>`).join("");
+  }
+  flyout.classList.add("open");
+}
+flyout.addEventListener("click", e => { const t = e.target.closest("[data-go]"); if (t) select(t.dataset.go); });
+$("#b-places").addEventListener("click", () => openFly("places"));
+document.querySelectorAll("[data-lore]").forEach(b => b.addEventListener("click", () => {
+  if (lore === b.dataset.lore) closePanel(); else showLore(b.dataset.lore);
+}));
+$("#b-overview").addEventListener("click", () => { closeFly(); if (panel.classList.contains("open")) closePanel(); overview(); });
+const zoomBtn = f => { ease = .12; zoomAt(innerWidth / 2, innerHeight / 2, tgt.s * f); };
+$("#b-zin").addEventListener("click", () => zoomBtn(1.4));
+$("#b-zout").addEventListener("click", () => zoomBtn(1 / 1.4));
+
+/* ---------- Pointer: drag, pinch, wheel ---------- */
+const pts = new Map();
+let dragging = false, moved = false, start = null, pinch = null, samples = [];
+stage.addEventListener("pointerdown", e => {
+  if (e.button !== 0 && e.pointerType === "mouse") return;
+  pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  moved = false; closeFly();
+  if (pts.size === 1) { start = { x: e.clientX, y: e.clientY, tx: tgt.x, ty: tgt.y, id: e.pointerId }; samples = []; }
+  if (pts.size === 2) {
+    const [a, b] = [...pts.values()];
+    pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), s: tgt.s };
+    moved = true;
+  }
+});
+stage.addEventListener("pointermove", e => {
+  if (!pts.has(e.pointerId)) return;
+  pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pts.size === 2 && pinch) {
+    const [a, b] = [...pts.values()];
+    ease = .35; zoomAt((a.x + b.x) / 2, (a.y + b.y) / 2, pinch.s * Math.hypot(a.x - b.x, a.y - b.y) / pinch.d);
+    return;
+  }
+  if (!start) return;
+  const dx = e.clientX - start.x, dy = e.clientY - start.y;
+  if (!moved && Math.hypot(dx, dy) > 6) {
+    moved = true; dragging = true; hideTip(); stage.classList.add("dragging");
+    try { stage.setPointerCapture(e.pointerId); } catch (_) {}
+  }
+  if (dragging) {
+    ease = .35; tgt.x = start.tx + dx; tgt.y = start.ty + dy; rubber(tgt); go(true);
+    const now = performance.now(); samples.push({ x: e.clientX, y: e.clientY, t: now });
+    while (samples.length > 2 && now - samples[0].t > 90) samples.shift();
+  }
+});
+function endPtr(e) {
+  pts.delete(e.pointerId);
+  if (pts.size < 2) pinch = null;
+  if (pts.size === 0) {
+    if (dragging && samples.length > 1 && !reduce) {
+      const a = samples[0], b = samples[samples.length - 1], dt = Math.max(16, b.t - a.t);
+      if (performance.now() - b.t < 80) { tgt.x += (b.x - a.x) / dt * 260; tgt.y += (b.y - a.y) / dt * 260; }
+    }
+    if (dragging) { ease = .085; go(); }
+    dragging = false; start = null; stage.classList.remove("dragging"); setTimeout(() => moved = false, 0);
+  } else if (pts.size === 1) { const [id, p] = [...pts.entries()][0]; start = { x: p.x, y: p.y, tx: tgt.x, ty: tgt.y, id }; samples = []; }
+}
+stage.addEventListener("pointerup", endPtr);
+stage.addEventListener("pointercancel", endPtr);
+stage.addEventListener("wheel", e => {
+  e.preventDefault(); hideTip(); ease = .14;
+  zoomAt(e.clientX, e.clientY, tgt.s * Math.exp(-e.deltaY * (e.ctrlKey ? .01 : .0016)));
+}, { passive: false });
+["gesturestart", "gesturechange"].forEach(t => document.addEventListener(t, e => e.preventDefault()));
+
+addEventListener("keydown", e => {
+  if (e.key === "Escape") { if (flyMode) closeFly(); else if (panel.classList.contains("open")) closePanel(); }
+  else if ((e.key === "ArrowRight" || e.key === "ArrowLeft") && current) select($(e.key === "ArrowRight" ? "#b-next" : "#b-prev").dataset.go);
+  else if (e.key === "+" || e.key === "=") zoomBtn(1.3);
+  else if (e.key === "-") zoomBtn(1 / 1.3);
+});
+addEventListener("resize", () => { bound(tgt); Object.assign(cur, tgt); apply(); if (panel.classList.contains("open")) setHero(...heroArgs); });
+
+/* ---------- Clock: real date, sun by day, moon by night ---------- */
+const MONTHS = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+const MONTHS_SHORT = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
+const SEASONS = ["Зима", "Зима", "Весна", "Весна", "Весна", "Лето", "Лето", "Лето", "Осень", "Осень", "Осень", "Зима"];
+const SUN = `<circle cx="12" cy="12" r="4.2"/><g class="rays"><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></g>`;
+const MOON = `<path d="M15.8 3.6a8.6 8.6 0 1 0 4.6 14.6A7.2 7.2 0 0 1 15.8 3.6z"/><path class="star" d="M19 5.2v1.6M18.2 6h1.6"/>`;
+function updateClock() {
+  const d = new Date(), h = d.getHours(), day = h >= 6 && h < 19, el = $("#clock");
+  el.querySelector(".sky").innerHTML = day ? SUN : MOON;
+  el.classList.toggle("night", !day);
+  el.querySelector(".season").textContent = SEASONS[d.getMonth()];
+  el.querySelector(".date-full").textContent = `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+  el.querySelector(".date-short").textContent = `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`;
+  el.setAttribute("aria-label", `${SEASONS[d.getMonth()]}, ${d.getDate()} ${MONTHS[d.getMonth()]}, ${day ? "день" : "ночь"}`);
+}
+updateClock(); setInterval(updateClock, 60000);
+
+/* ---------- Intro ---------- */
+function boot() {
+  const fx = isNarrow() ? 66 : 58;
+  tgt.s = homeS() * 1.12; tgt.x = innerWidth / 2 - fx / 100 * W * tgt.s; tgt.y = innerHeight / 2 - .5 * H * tgt.s;
+  bound(tgt); Object.assign(cur, tgt); apply();
+  map.classList.add("ready");
+  const id = decodeURIComponent(location.hash.slice(1));
+  setTimeout(() => byId[id] ? select(id) : loreById[id] ? showLore(id) : overview(), 250);
+}
+const img = map.querySelector("img");
+img.complete ? boot() : img.addEventListener("load", boot, { once: true });
+</script>
+</body>
+</html>
