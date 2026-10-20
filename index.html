@@ -911,6 +911,19 @@ function updateClock() {
 }
 updateClock(); setInterval(updateClock, 60000);
 
+/* ---------- VK Mini App: сообщаем ВКонтакте, что страница загрузилась ---------- */
+(() => {
+  if (!/(^|[?&])vk_/.test(location.search)) return;
+  const send = (method, params = {}) => {
+    try {
+      if (window.AndroidBridge && window.AndroidBridge[method]) window.AndroidBridge[method](JSON.stringify(params));
+      else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers[method]) window.webkit.messageHandlers[method].postMessage(params);
+      else if (window.parent !== window) window.parent.postMessage({ handler: method, params, type: "vk-connect" }, "*");
+    } catch (e) {}
+  };
+  send("VKWebAppInit");
+})();
+
 /* ---------- Intro ---------- */
 function boot() {
   const fx = isNarrow() ? 66 : 58;
