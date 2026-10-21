@@ -152,9 +152,11 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--gold); outl
 .bk.single .sface > .face { position: absolute; inset: 0; overflow: hidden; box-shadow: 0 12px 30px rgba(0,0,0,.45); }
 .bk.single .sface.gone { transform: perspective(2200px) rotateY(-100deg); opacity: 0; pointer-events: none; }
 .face.cover { background-color: var(--lea); background-image: var(--grain), radial-gradient(ellipse at 35% 25%, rgba(255,235,200,.13), transparent 60%), radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.5)); }
-.cv-frame { position: absolute; inset: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 40px 34px; text-align: center; border: 2px solid #c9a25a; outline: 1px solid rgba(201,162,90,.55); outline-offset: -9px; }
-.cv-c { position: absolute; width: 58px; height: 58px; background: no-repeat center / contain; }
-.cv-c.tl { top: 4px; left: 4px; } .cv-c.tr { top: 4px; right: 4px; transform: scaleX(-1); } .cv-c.bl { bottom: 4px; left: 4px; transform: scaleY(-1); } .cv-c.br { bottom: 4px; right: 4px; transform: scale(-1); }
+.cv-art { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; filter: drop-shadow(0 1px 0 rgba(0,0,0,.55)); }
+.cv-frame { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 70px 64px; text-align: center; }
+.cv-img { width: 150px; height: 150px; object-fit: cover; border-radius: 50%; border: 3px solid #d9b56a; box-shadow: 0 0 0 5px rgba(0,0,0,.35), 0 0 0 6px rgba(217,181,106,.6), 0 6px 18px rgba(0,0,0,.5); }
+.cv-img.rect { width: 170px; height: 210px; border-radius: 4px; }
+.face.cover.blind h2 { color: #b89a5c; text-shadow: 1px 1px 0 rgba(0,0,0,.6); } .face.cover.blind p { color: #a8905c; } .face.cover.blind .cv-em { stroke: #b89a5c; }
 .cv-em { width: 86px; height: 86px; stroke: #d9b56a; fill: none; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 1px 0 rgba(0,0,0,.6)); }
 .face.cover h2 { margin: 0; font: 400 40px/1.15 "Ruslan Display", "Cormorant SC", Georgia, serif; color: #ebc978; text-shadow: 0 1px 0 rgba(0,0,0,.7), 0 0 14px rgba(240,200,110,.22); text-wrap: balance; }
 .face.cover p { margin: 0; font: italic 500 21px/1.3 var(--font-body); color: #d9b56a; }
@@ -249,6 +251,18 @@ html.shared #app, html.shared .bg { display: none; }
 .dbtns button:hover { background: var(--leather); color: var(--gold-hi); }
 .dbtns .danger, .btn.danger { color: var(--blood); border-color: rgba(142,47,28,.5); }
 .dbtns .danger:hover { background: var(--blood); color: #f6e7c2; }
+.cv-pick { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.cv-pick button { position: relative; aspect-ratio: 44 / 62; padding: 0; border: 2px solid transparent; border-radius: 3px; background: var(--lea); background-image: radial-gradient(ellipse at 35% 25%, rgba(255,235,200,.15), transparent 60%); cursor: pointer; overflow: hidden; }
+.cv-pick button .cv-art { filter: none; }
+.cv-pick button span { position: absolute; right: 3px; bottom: 2px; font: 700 10px/1 var(--font-body); color: rgba(240,214,150,.75); }
+.cv-pick button[aria-pressed="true"] { border-color: var(--blood); outline: 2px solid var(--gold); outline-offset: 1px; }
+.fld > small { display: block; margin-top: 4px; font: italic 500 14.5px/1.35 var(--font-body); color: var(--text-muted); }
+.ic-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 5px; }
+.ic-pick button { height: 38px; display: grid; place-items: center; padding: 0; border: 1px solid rgba(111,85,50,.45); border-radius: 4px; background: var(--leather); color: #d9b56a; font: 400 20px/1 var(--font-body); cursor: pointer; }
+.ic-pick button svg { width: 24px; height: 24px; stroke: #d9b56a; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.ic-pick button[aria-pressed="true"] { background: linear-gradient(180deg, #f1d79a, #c99a4e); border-color: var(--gold-hi); } .ic-pick button[aria-pressed="true"] svg { stroke: #2a1a0c; } .ic-pick button[aria-pressed="true"] { color: #2a1a0c; }
+.cv-own { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; } .cv-own img { width: 56px; height: 56px; object-fit: cover; border-radius: 50%; border: 2px solid var(--gold); }
+.cv-own .btn { padding: 8px 12px; font-size: 14.5px; }
 </style>
 </head>
 <body>
@@ -487,6 +501,29 @@ async function dbDelete(no) {
     if (!r.ok && r.status !== 404) throw new Error(ghErr(r.status));
   }
   await dbUpdate(docs => { const d = docs.find(x => x.no === no); if (d) { Object.keys(d).forEach(k => { if (k !== "no") delete d[k]; }); d.deleted = true; } else docs.push({ no, deleted: true }); }, `Документ №${no}: удалён из списка`);
+}
+/* Своё окно подтверждения вместо системного: внутри приложения ВК системные окна
+   (confirm) часто не показываются вовсе — и кнопка «молча» не срабатывала бы */
+function askYes(text, yes = "Да", no = "Отмена", danger = false) {
+  if (!document.getElementById("ask-css")) {
+    const st = document.createElement("style"); st.id = "ask-css";
+    st.textContent = `#ask{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:16px;background:rgba(10,6,2,.72)}
+#ask .ask-box{width:min(420px,100%);padding:22px 22px 18px;border:1px solid var(--gold);border-radius:6px;background:var(--parchment);background-image:var(--grain),linear-gradient(180deg,var(--parchment),var(--parchment-deep));color:var(--text-ink);box-shadow:0 20px 60px rgba(0,0,0,.6);font:500 18px/1.45 var(--font-body)}
+#ask p{margin:0 0 16px}#ask .ask-b{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+#ask button{padding:10px 16px;border:1px solid var(--gold);border-radius:3px;font:700 16px/1 var(--font-display);cursor:pointer;background:rgba(255,248,228,.6);color:var(--text-ink)}
+#ask button.y{background:linear-gradient(180deg,#f1d79a,#c99a4e);color:#2a1a0c}#ask button.y.d{background:var(--blood);border-color:var(--blood);color:#f6e7c2}`;
+    document.head.appendChild(st);
+  }
+  return new Promise(res => {
+    const w = document.createElement("div"); w.id = "ask"; w.setAttribute("role", "dialog"); w.setAttribute("aria-modal", "true");
+    w.innerHTML = `<div class="ask-box"><p></p><div class="ask-b"><button type="button" class="n"></button><button type="button" class="y${danger ? " d" : ""}"></button></div></div>`;
+    w.querySelector("p").textContent = text; w.querySelector(".n").textContent = no; w.querySelector(".y").textContent = yes;
+    const done = v => { w.remove(); removeEventListener("keydown", key, true); res(v); };
+    const key = e => { if (e.key === "Escape") { e.stopPropagation(); done(false); } if (e.key === "Enter") { e.preventDefault(); done(true); } };
+    w.addEventListener("click", e => { if (e.target === w || e.target.closest(".n")) done(false); else if (e.target.closest(".y")) done(true); });
+    addEventListener("keydown", key, true);
+    document.body.appendChild(w); w.querySelector(".y").focus();
+  });
 }
 
 
@@ -979,6 +1016,110 @@ function lwSeal(c, op, wax, I, L, rnd) {
 
 
 /* =====================================================================
+   ОБЛОЖКИ КНИГ: 20 узоров тиснения и набор знаков для обложки.
+   Узор рисуется золотом поверх кожи (viewBox 440×620), знак — отдельно.
+   ===================================================================== */
+const CV_G = "#d9b56a";
+const cvR = (i, d) => { const s = Math.sin(i * 12.9898 + d * 78.233) * 43758.5453; return s - Math.floor(s); };
+const cvRect = (m, sw = 1.5, extra = "") => `<rect x="${m}" y="${m}" width="${440 - 2 * m}" height="${620 - 2 * m}" fill="none" stroke-width="${sw}" ${extra}/>`;
+const cvAround = (m, step, fn) => { /* точки по периметру прямоугольника с отступом m */
+  let o = ""; const W = 440 - 2 * m, H = 620 - 2 * m;
+  for (let x = 0; x <= W + .1; x += W / Math.round(W / step)) { o += fn(m + x, m) + fn(m + x, 620 - m); }
+  for (let y = H / Math.round(H / step); y < H - .1; y += H / Math.round(H / step)) { o += fn(m, m + y) + fn(440 - m, m + y); }
+  return o;
+};
+const cvCorners = (g, inset = 0) => [[inset, inset, 1, 1], [440 - inset, inset, -1, 1], [inset, 620 - inset, 1, -1], [440 - inset, 620 - inset, -1, -1]].map(([x, y, sx, sy]) => `<g transform="translate(${x} ${y}) scale(${sx} ${sy})">${g}</g>`).join("");
+const CV_FLOURISH = `<g fill="none" stroke-width="1.6" stroke-linecap="round"><path d="M4 76V20C4 10 10 4 20 4h56"/><path d="M10 76V26c0-9 7-16 16-16h50"/><path d="M20 24c6-8 18-8 20 2s-10 14-14 6 6-12 10-4"/><path d="M24 20c-8-6-8-16 0-16"/><path d="M20 24c-6 8-16 8-16 0"/><path d="M40 26c8 2 14-2 18-8"/><path d="M26 40c2 8-2 14-8 18"/></g><circle cx="20" cy="24" r="3" stroke="none"/>`;
+const CV_FLEUR = `<g transform="scale(1.5)"><path d="M0-14c-4 4-4 10 0 14 4-4 4-10 0-14z"/><path d="M0 0c-6-6-14-4-12 2 2 4 8 2 12-2zM0 0c6-6 14-4 12 2-2 4-8 2-12-2z"/><path d="M-7 4h14M0 4v8" fill="none"/></g>`;
+const cvPlate = (y = 196, h = 228) => `<rect x="62" y="${y}" width="316" height="${h}" rx="10" fill="rgba(0,0,0,.42)" stroke-width="1.5"/><rect x="70" y="${y + 8}" width="300" height="${h - 16}" rx="7" fill="none" stroke-width=".8" opacity=".7"/>`;
+const cvStar = (x, y, r) => { const f = v => (+v).toFixed(1); x = +x; y = +y; r = +r; return `<path d="M${f(x)} ${f(y - r)}L${f(x + r * .28)} ${f(y - r * .28)} ${f(x + r)} ${f(y)} ${f(x + r * .28)} ${f(y + r * .28)} ${f(x)} ${f(y + r)} ${f(x - r * .28)} ${f(y + r * .28)} ${f(x - r)} ${f(y)} ${f(x - r * .28)} ${f(y - r * .28)}z" stroke="none"/>`; };
+
+/* [название, рисунок, отступы для надписи: верх, низ] */
+const BK_STYLES = [
+  ["Классика", () => cvRect(24, 2) + cvRect(33, 1, 'opacity=".6"') + cvCorners(`<g transform="translate(26 26) scale(.72)">${CV_FLOURISH}</g>`), 70, 70],
+  ["Ромбы", () => cvRect(28, 4) + cvRect(40, 1) + cvCorners(`<rect x="18" y="18" width="20" height="20" transform="rotate(45 28 28)" stroke="none"/>`) +
+    [[220, 28], [220, 592], [28, 310], [412, 310]].map(([x, y]) => `<rect x="${x - 8}" y="${y - 8}" width="16" height="16" transform="rotate(45 ${x} ${y})" stroke="none"/>`).join(""), 70, 70],
+  ["Готическая арка", () => cvRect(22, 1.5) + `<path d="M58 588V236C58 146 148 84 220 58C292 84 382 146 382 236V588Z" fill="none" stroke-width="2.2"/><path d="M70 576V240C70 160 152 104 220 80C288 104 370 160 370 240V576Z" fill="none" stroke-width="1" opacity=".7"/>` +
+    `<g transform="translate(220 128)" fill="none" stroke-width="1.4"><circle r="9"/><circle cx="-12" cy="10" r="9"/><circle cx="12" cy="10" r="9"/></g>`, 150, 60],
+  ["Цепь", () => cvRect(18, 1) + cvAround(32, 22, (x, y) => `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="6.5" fill="none" stroke-width="1.6"/>`) + cvRect(46, 1, 'opacity=".7"'), 72, 72],
+  ["Заклёпки", () => cvRect(22, 1.5) + cvAround(22, 30, (x, y) => `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3.6" stroke="none"/>`) +
+    cvCorners(`<path d="M10 10h66v14H24v52H10z" stroke="none" opacity=".9"/><circle cx="17" cy="17" r="3" fill="rgba(0,0,0,.45)" stroke="none"/><circle cx="62" cy="17" r="2.4" fill="rgba(0,0,0,.45)" stroke="none"/><circle cx="17" cy="62" r="2.4" fill="rgba(0,0,0,.45)" stroke="none"/>`), 72, 72],
+  ["Медальон", () => cvRect(24, 1.5) + cvRect(32, .8, 'opacity=".6"') + `<circle cx="220" cy="300" r="146" fill="none" stroke-width="2"/><circle cx="220" cy="300" r="136" fill="none" stroke-width=".9" stroke-dasharray="3 5"/>` +
+    Array.from({ length: 36 }, (_, i) => { const a = i / 36 * Math.PI * 2, r1 = 150, r2 = i % 3 ? 160 : 172; return `<path d="M${(220 + Math.cos(a) * r1).toFixed(1)} ${(300 + Math.sin(a) * r1).toFixed(1)}L${(220 + Math.cos(a) * r2).toFixed(1)} ${(300 + Math.sin(a) * r2).toFixed(1)}" stroke-width="1.4"/>`; }).join(""), 70, 90],
+  ["Стёжка", () => { let o = ""; for (let k = -620; k < 440; k += 40) { o += `<path d="M${k} 0L${k + 620} 620M${k + 620} 0L${k} 620" stroke-width=".8" opacity=".4"/>`; } return o + cvRect(16, 2) + cvPlate(); }, 80, 80],
+  ["Лоза", () => {
+    const wave = (x1, y1, x2, y2) => { const n = Math.round(Math.hypot(x2 - x1, y2 - y1) / 40), dx = (x2 - x1) / n, dy = (y2 - y1) / n, nx = -dy / Math.hypot(dx, dy), ny = dx / Math.hypot(dx, dy); let p = `M${x1} ${y1}`, lv = "";
+      for (let i = 0; i < n; i++) { const s = i % 2 ? -1 : 1, cx = x1 + dx * (i + .5) + nx * 9 * s, cy = y1 + dy * (i + .5) + ny * 9 * s; p += `Q${cx.toFixed(1)} ${cy.toFixed(1)} ${(x1 + dx * (i + 1)).toFixed(1)} ${(y1 + dy * (i + 1)).toFixed(1)}`;
+        lv += `<ellipse cx="${(cx + nx * 6 * s).toFixed(1)}" cy="${(cy + ny * 6 * s).toFixed(1)}" rx="5" ry="2.4" transform="rotate(${(Math.atan2(dy, dx) * 57.3 + 35 * s).toFixed(0)} ${(cx + nx * 6 * s).toFixed(1)} ${(cy + ny * 6 * s).toFixed(1)})" stroke="none"/>`; }
+      return `<path d="${p}" fill="none" stroke-width="1.5"/>` + lv; };
+    return cvRect(20, 1) + wave(46, 40, 394, 40) + wave(46, 580, 394, 580) + wave(40, 60, 40, 560) + wave(400, 60, 400, 560) + cvCorners(`<circle cx="42" cy="42" r="5" stroke="none"/>`) + cvRect(58, .8, 'opacity=".6"'); }, 80, 80],
+  ["Модерн", () => `<path d="M64 26H376Q376 64 414 64V556Q376 556 376 594H64Q64 556 26 556V64Q64 64 64 26Z" fill="none" stroke-width="2"/><path d="M72 36H368Q370 70 404 72V548Q370 550 368 584H72Q70 550 36 548V72Q70 70 72 36Z" fill="none" stroke-width=".9" opacity=".7"/>` +
+    `<path d="M150 96Q220 60 290 96M150 524Q220 560 290 524" fill="none" stroke-width="1.5"/><circle cx="220" cy="78" r="4" stroke="none"/><circle cx="220" cy="542" r="4" stroke="none"/>`, 110, 110],
+  ["Корешковые бинты", () => [64, 76, 544, 556].map(y => `<path d="M0 ${y}H440" stroke-width="${y === 64 || y === 556 ? 3 : 1.2}"/>`).join("") + [[70], [550]].map(([y]) => Array.from({ length: 9 }, (_, i) => `<circle cx="${40 + i * 45}" cy="${y}" r="2.6" stroke="none"/>`).join("")).join("") +
+    `<path d="M30 100V520M410 100V520" stroke-width="1.2"/><path d="M38 100V520M402 100V520" stroke-width=".7" opacity=".6"/>`, 110, 110],
+  ["Окованные углы", () => cvRect(26, 1) + cvCorners(`<path d="M0 0H110L0 110Z" stroke="none" opacity=".88"/><path d="M12 12H82L12 82Z" fill="none" stroke="rgba(0,0,0,.45)" stroke-width="1.4"/><circle cx="26" cy="26" r="4" fill="rgba(0,0,0,.45)" stroke="none"/>`) +
+    `<rect x="408" y="270" width="32" height="80" rx="4" stroke="none" opacity=".9"/><rect x="414" y="296" width="18" height="28" rx="3" fill="rgba(0,0,0,.45)" stroke="none"/>`, 80, 80],
+  ["Звёздная ночь", () => { let o = cvRect(22, 1); for (let i = 0; i < 60; i++) { const x = 40 + cvR(i, 1) * 360, y = 40 + cvR(i, 2) * 540; if (x > 90 && x < 350 && y > 170 && y < 450) continue; o += cvStar(x, y, 2 + cvR(i, 3) * 5); }
+    return o + `<path d="M232 66a26 26 0 1 0 12 46 21 21 0 0 1-12-46z" stroke="none"/>`; }, 130, 80],
+  ["Витой шнур", () => { let o = ""; const m = 30, W = 440 - 2 * m, H = 620 - 2 * m;
+    for (let x = 0; x < W; x += 7) o += `<path d="M${m + x} ${m - 5}l5 10M${m + x} ${620 - m - 5}l5 10" stroke-width="1.6"/>`;
+    for (let y = 7; y < H; y += 7) o += `<path d="M${m - 5} ${m + y}l10 5M${440 - m - 5} ${m + y}l10 5" stroke-width="1.6"/>`;
+    return o + cvRect(m - 8, .8) + cvRect(m + 8, .8) + cvCorners(`<circle cx="30" cy="30" r="7" stroke="none"/>`); }, 76, 76],
+  ["Меандр", () => { let o = "";
+    const hk = (x, y, d) => `<path d="M${x} ${y + 8 * d}v${-8 * d}h14v${10 * d}h-8v${-5 * d}h3" fill="none" stroke-width="1.5"/>`;
+    const vk = (x, y, d) => `<path d="M${x + 8 * d} ${y}h${-8 * d}v14h${10 * d}v-8h${-5 * d}v3" fill="none" stroke-width="1.5"/>`;
+    for (let x = 34; x <= 392; x += 18) { o += hk(x, 32, 1) + hk(x, 588, -1); }
+    for (let y = 52; y <= 552; y += 18) { o += vk(32, y, 1) + vk(408, y, -1); }
+    return o + cvRect(24, 1) + cvRect(50, 1); }, 84, 84],
+  ["Чешуя", () => { let o = ""; for (let r = 0, y = 10; y < 640; y += 18, r++) for (let x = (r % 2) * 18 - 18; x < 460; x += 36) o += `<path d="M${x} ${y}a18 18 0 0 0 36 0" fill="none" stroke-width=".9" opacity=".38"/>`;
+    return o + cvRect(16, 2) + cvPlate(); }, 80, 80],
+  ["Картуш", () => cvRect(22, 1.5) + `<ellipse cx="220" cy="304" rx="160" ry="214" fill="none" stroke-width="2"/><ellipse cx="220" cy="304" rx="150" ry="204" fill="none" stroke-width=".8" opacity=".7"/>` +
+    `<g transform="translate(220 86)">${CV_FLEUR}</g><g transform="translate(220 522) rotate(180)">${CV_FLEUR}</g><circle cx="60" cy="304" r="4" stroke="none"/><circle cx="380" cy="304" r="4" stroke="none"/>`, 100, 100],
+  ["Строгая", () => cvRect(18, 1) + cvRect(26, 3.5) + cvRect(36, 1) + cvRect(46, .9, 'stroke-dasharray="2 5" opacity=".8"'), 80, 80],
+  ["Лилии", () => cvRect(30, 1.4) + cvRect(38, .7, 'opacity=".6"') + [[60, 62, 135], [380, 62, 225], [60, 558, 45], [380, 558, 315]].map(([x, y, a]) => `<g transform="translate(${x} ${y}) rotate(${a - 90})">${CV_FLEUR}</g>`).join("") +
+    [[220, 52, 0], [220, 568, 180]].map(([x, y, a]) => `<g transform="translate(${x} ${y}) rotate(${a})">${CV_FLEUR}</g>`).join(""), 100, 100],
+  ["Тайный круг", () => { let o = cvRect(22, 1) + `<circle cx="220" cy="300" r="158" fill="none" stroke-width="1.8"/><circle cx="220" cy="300" r="140" fill="none" stroke-width="1"/>`;
+    for (let i = 0; i < 40; i++) { const a = i / 40 * Math.PI * 2, l = 4 + cvR(i, 5) * 10, x = 220 + Math.cos(a) * 149, y = 300 + Math.sin(a) * 149; o += `<path d="M${(x - Math.cos(a) * l / 2).toFixed(1)} ${(y - Math.sin(a) * l / 2).toFixed(1)}l${(Math.cos(a) * l).toFixed(1)} ${(Math.sin(a) * l).toFixed(1)}${i % 5 === 0 ? `m${(-Math.sin(a) * 4).toFixed(1)} ${(Math.cos(a) * 4).toFixed(1)}l${(Math.sin(a) * 8).toFixed(1)} ${(-Math.cos(a) * 8).toFixed(1)}` : ""}" stroke-width="1.3"/>`; }
+    for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2; o += `<circle cx="${(220 + Math.cos(a) * 172).toFixed(1)}" cy="${(300 + Math.sin(a) * 172).toFixed(1)}" r="3.5" stroke="none"/>`; }
+    return o; }, 70, 90],
+  ["Тиснение без золота", () => `<g stroke="rgba(0,0,0,.5)" fill="rgba(0,0,0,.5)">${cvRect(26, 2.4) + cvRect(36, 1) + cvCorners(`<g transform="translate(28 28) scale(.7)">${CV_FLOURISH}</g>`)}</g><g transform="translate(1 1)" stroke="rgba(255,240,210,.12)" fill="rgba(255,240,210,.12)">${cvRect(26, 2.4) + cvRect(36, 1)}</g>`, 70, 70, true]
+];
+function coverArt(style, gold = CV_G) {
+  const s = BK_STYLES[(style || 1) - 1] || BK_STYLES[0];
+  return `<svg class="cv-art" viewBox="0 0 440 620" preserveAspectRatio="none" aria-hidden="true"><g fill="${gold}" stroke="${gold}" stroke-linecap="round" stroke-linejoin="round">${s[1]()}</g></svg>`;
+}
+/* Знаки для обложки: гербы фракций + общие рисунки (контур 24×24) */
+const BK_ICONS = {
+  sword: ["Меч", `<path d="M12 2.5l1.8 2.6V15h-3.6V5.1z"/><path d="M7.5 15h9M12 15v4.5M10.4 21h3.2"/>`],
+  swords: ["Скрещённые мечи", `<path d="M4 4l11 11M20 4L9 15"/><path d="M4 4h3v3M20 4h-3v3"/><path d="M13 17l4 4M11 17l-4 4M14.5 13.5l2.5 2.5M9.5 13.5L7 16"/>`],
+  shield: ["Щит", `<path d="M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6z"/><path d="M12 3v18M5.5 10h13"/>`],
+  skull: ["Череп", `<path d="M6 11a6 6 0 1 1 12 0v3l-2 1.2V19H8v-3.8L6 14z"/><circle cx="9.5" cy="11.5" r="1.4"/><circle cx="14.5" cy="11.5" r="1.4"/><path d="M11 15.5h2M10 19v-2M12 19v-2M14 19v-2"/>`],
+  rose: ["Роза", `<path d="M12 4c3 0 5 2 5 4.5S15 13 12 13s-5-2-5-4.5S9 4 12 4z"/><path d="M12 7c1.5 0 2.3 1 2 2.2M10 8.5c.3-1 1.2-1.6 2-1.5"/><path d="M12 13v8M12 17c-2-2-4.5-1.5-5-1 1.5 2 3.5 2 5 1zM12 16c1.5-1.8 4-1.5 4.5-1-1.2 1.8-3 2-4.5 1"/>`],
+  moon: ["Луна", `<path d="M15.5 3.5a8.5 8.5 0 1 0 5 13.5 7 7 0 0 1-5-13.5z"/>`],
+  sun: ["Солнце", `<circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/>`],
+  star: ["Звезда", `<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>`],
+  key: ["Ключ", `<circle cx="7.5" cy="12" r="3.8"/><path d="M11.3 12H21M18 12v3.5M15 12v2.5"/>`],
+  eye: ["Око", `<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r=".9"/>`],
+  tree: ["Древо", `<path d="M12 21v-9M12 15l-3-2.5M12 13.5l3-2.5"/><path d="M12 3a5 5 0 0 1 4.6 3 4 4 0 0 1 .4 7.5H7a4 4 0 0 1 .4-7.5A5 5 0 0 1 12 3z"/><path d="M8 21h8"/>`],
+  raven: ["Ворон", `<path d="M3 13c3.5-.3 5.5-4 9-4 2.5 0 3.6 1.2 4.5 2.4L21 10.5l-3.6 3c0 3.8-3.7 6.5-8.4 6.5l-3.5 2 1.3-3.6C4.9 17.5 3.6 15.5 3 13z"/><circle cx="15" cy="11.4" r=".8"/>`],
+  castle: ["Замок", `<path d="M4 21V9h3V6h2v3h2V5h2v4h2V6h2v3h3v12z"/><path d="M10 21v-4a2 2 0 0 1 4 0v4M7 13h1M16 13h1"/>`],
+  candle: ["Свеча", `<path d="M9 10h6v11H9z"/><path d="M12 10V8M12 2.8c1.6 1.8 2 3.3 0 5-2-1.7-1.6-3.2 0-5z"/><path d="M7 21h10"/>`],
+  chalice: ["Чаша", `<path d="M6 4h12c0 5-2.5 8-6 8s-6-3-6-8z"/><path d="M12 12v6M8.5 21h7M9.5 18h5"/>`],
+  book: ["Книга", `<path d="M3 5c3-1.3 6-1.3 9 .5 3-1.8 6-1.8 9-.5v14c-3-1.3-6-1.3-9 .5-3-1.8-6-1.8-9-.5z"/><path d="M12 5.5v14"/>`],
+  quill: ["Перо", `<path d="M20 3C12 4 7 9 6 17l-2 4"/><path d="M20 3c0 6-4.5 11-11 12M9 11.5l3.5 1M11 8.5l4 .5"/>`],
+  flame: ["Пламя", `<path d="M12 3c1.8 3.6 6 5.8 6 10.7A6 6 0 0 1 6 13.7c0-3 2-5 3-7 .9 1.8 1.9 2.9 3 3.3.1-2.5-.3-4.8 0-7z"/><path d="M12 20a2.5 2.5 0 0 1-2.5-2.5c0-1.6 1.3-2.4 2.5-4 1.2 1.6 2.5 2.4 2.5 4A2.5 2.5 0 0 1 12 20z"/>`],
+  anchor: ["Якорь", `<circle cx="12" cy="5" r="2.2"/><path d="M12 7.2V21M8 10.5h8M4.5 14.5c0 3.5 3.4 6.5 7.5 6.5s7.5-3 7.5-6.5M4.5 14.5l-1.5 1.5M19.5 14.5l1.5 1.5"/>`],
+  potion: ["Зелье", `<path d="M10 3h4M10.5 3v5.2L6 15.5A3.5 3.5 0 0 0 9 21h6a3.5 3.5 0 0 0 3-5.5l-4.5-7.3V3"/><path d="M7.5 15h9"/><circle cx="11" cy="17.5" r=".8"/><circle cx="13.6" cy="16.6" r=".6"/>`],
+  coin: ["Монета", `<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="6.3"/><path d="M12 8.5v7M10 10c0-1 4-1 4 .5S10 12 10 13.5s4 1.5 4 .5"/>`],
+  compass: ["Роза ветров", `<circle cx="12" cy="12" r="9"/><path d="M12 3.5l2 8.5-2 8.5-2-8.5zM3.5 12l8.5-2 8.5 2-8.5 2z"/>`],
+  wolf: ["Волк", `<path d="M5 4l3 5h8l3-5 1 8-3 4-5 4-5-4-3-4z"/><path d="M9.5 12.5l1 .8M14.5 12.5l-1 .8M11 16.5h2l-1 1.2z"/>`],
+  spider: ["Паук", `<circle cx="12" cy="13" r="3.2"/><circle cx="12" cy="8.5" r="1.8"/><path d="M9 11.5L4 8 3 4M15 11.5L20 8l1-4M8.8 13.5H3.5L2 16M15.2 13.5h5.3L22 16M9.5 15.5l-3.5 4-.5 2.5M14.5 15.5l3.5 4 .5 2.5"/>`],
+  hand: ["Длань", `<path d="M7 13V6.5a1.5 1.5 0 0 1 3 0V11V4.5a1.5 1.5 0 0 1 3 0V11V5.5a1.5 1.5 0 0 1 3 0V12V8.5a1.5 1.5 0 0 1 3 0V15c0 3.5-2.5 6-6 6h-1.5c-2.3 0-3.8-1-5-2.8L4 14.5c-.8-1.2.9-2.5 2-1.5z"/>`]
+};
+const bkIconSvg = id => (EMBLEMS[id] || (BK_ICONS[id] && BK_ICONS[id][1]) || "");
+const bkIconList = () => FACTIONS.filter(f => EMBLEMS[f.id]).map(f => [f.id, f.name]).concat(Object.entries(BK_ICONS).map(([k, v]) => [k, v[0]]));
+
+/* =====================================================================
    КНИГА и СТОПКА БУМАГ — листаются мышью, пальцем и стрелками.
    Готовое можно отдать игрокам ссылкой: всё содержимое зашито в саму ссылку.
    ===================================================================== */
@@ -1070,11 +1211,12 @@ function bkFaceHTML(face, B, side) {
   const P = LW_PAPERS[B.paper] || LW_PAPERS.parch, H = LW_HANDS[B.hand] || LW_HANDS.marck;
   let ink = (LW_INKS[B.ink] || LW_INKS.black)[1]; if (P.dark && ["black", "sepia", "blue", "red"].includes(B.ink)) ink = LW_INKS.silver[1];
   const lea = (BK_COVERS[B.cover] || BK_COVERS.brown)[1];
-  const em = B.emblem && EMBLEMS[B.emblem] ? `<svg class="cv-em" viewBox="0 0 24 24" aria-hidden="true">${EMBLEMS[B.emblem]}</svg>` : "";
+  const st = BK_STYLES[(B.coverStyle || 1) - 1] || BK_STYLES[0];
+  const em = B.coverImg ? `<img class="cv-img ${B.imgShape === "rect" ? "rect" : ""}" src="${esc(B.coverImg)}" alt="">` : bkIconSvg(B.emblem) ? `<svg class="cv-em" viewBox="0 0 24 24" aria-hidden="true">${bkIconSvg(B.emblem)}</svg>` : "";
+  const emBack = bkIconSvg(B.emblem) ? `<svg class="cv-em" viewBox="0 0 24 24" aria-hidden="true">${bkIconSvg(B.emblem)}</svg>` : "";
   const paper = `--pt:${P.top};--pb:${P.bot};--pv:${P.vign};--ink:${ink}`;
-  const cc = svgUrl(LW_SVG.corner("#d9b56a"));
-  if (face[0] === "cover") return `<div class="face cover ${side}" style="--lea:${lea}"><div class="cv-frame">${["tl", "tr", "bl", "br"].map(c => `<i class="cv-c ${c}" style="background-image:${cc}"></i>`).join("")}${em}<h2>${esc(B.title || "")}</h2>${B.sub ? `<p>${esc(B.sub)}</p>` : ""}</div></div>`;
-  if (face[0] === "back") return `<div class="face cover backc ${side}" style="--lea:${lea}"><div class="cv-frame">${em}</div></div>`;
+  if (face[0] === "cover") return `<div class="face cover ${side}${st[4] ? " blind" : ""}" style="--lea:${lea}">${coverArt(B.coverStyle)}<div class="cv-frame" style="padding-top:${st[2]}px;padding-bottom:${st[3]}px;${["Медальон", "Тайный круг", "Картуш"].includes(st[0]) ? "padding-left:104px;padding-right:104px" : ""}">${em}<h2>${esc(B.title || "")}</h2>${B.sub ? `<p>${esc(B.sub)}</p>` : ""}</div></div>`;
+  if (face[0] === "back") return `<div class="face cover backc ${side}" style="--lea:${lea}">${coverArt(B.coverStyle)}<div class="cv-frame">${emBack}</div></div>`;
   if (face[0] === "endp") return `<div class="face endp ${side}" style="--lea:${lea}"></div>`;
   if (face[0] === "blank") return `<div class="face pg ${side}${P.burnt ? " burnt" : ""}" style="${paper}"></div>`;
   const i = face[1], p = B.pages[i] || { h: "", t: "" };
@@ -1199,7 +1341,9 @@ function bookHTML() {
     <h3>Обложка</h3>
     ${inp("title", "Название")}${inp("sub", "Подзаголовок или автор")}
     <div class="fld"><label>Цвет кожи</label><div class="lw-wax">${Object.entries(BK_COVERS).map(([k, c]) => `<button type="button" data-bkc="${k}" aria-pressed="${k === BK.cover}" title="${c[0]}" aria-label="${c[0]}" style="--w:${c[1]};--h:${c[1]}"></button>`).join("")}</div></div>
-    <div class="fld"><label for="bk-emblem">Знак на обложке</label><select id="bk-emblem" data-bk="emblem">${ems.map(([k, t]) => `<option value="${k}"${k === BK.emblem ? " selected" : ""}>${esc(t)}</option>`).join("")}</select></div>
+    <div class="fld"><label>Узор обложки</label><div class="cv-pick">${BK_STYLES.map((st, i) => `<button type="button" data-bkst="${i + 1}" aria-pressed="${(BK.coverStyle || 1) === i + 1}" title="${esc(st[0])}" aria-label="${esc(st[0])}" style="--lea:${(BK_COVERS[BK.cover] || BK_COVERS.brown)[1]}">${coverArt(i + 1)}<span>${i + 1}</span></button>`).join("")}</div><small>${esc((BK_STYLES[(BK.coverStyle || 1) - 1] || BK_STYLES[0])[0])}</small></div>
+    <div class="fld"><label>Знак на обложке</label><div class="ic-pick"><button type="button" data-bkic="none" aria-pressed="${!BK.coverImg && (!BK.emblem || BK.emblem === "none")}" title="Без знака">∅</button>${bkIconList().map(([k, t]) => `<button type="button" data-bkic="${k}" aria-pressed="${!BK.coverImg && BK.emblem === k}" title="${esc(t)}" aria-label="${esc(t)}"><svg viewBox="0 0 24 24">${bkIconSvg(k)}</svg></button>`).join("")}</div></div>
+    <div class="fld"><label>Свой рисунок вместо знака</label><div class="cv-own">${BK.coverImg ? `<img src="${esc(BK.coverImg)}" alt="">` : ""}<label class="btn ghost" for="bk-img">${BK.coverImg ? "Заменить рисунок" : "Загрузить рисунок"}</label><input type="file" id="bk-img" accept="image/*" hidden>${BK.coverImg ? `<div class="lw-seg">${[["round", "Круг"], ["rect", "Прямоугольник"]].map(([k, t]) => `<button type="button" data-bkshape="${k}" aria-pressed="${(BK.imgShape || "round") === k}">${t}</button>`).join("")}</div><button type="button" class="btn ghost" data-bkimgdel>Убрать рисунок</button>` : ""}</div><small>Картинка (герб, портрет, печать) уменьшится и встанет в центр обложки в золотой рамке.</small></div>
     <h3>Страницы</h3>
     <div class="lw-2">
       <div class="fld"><label for="bk-paper">Бумага</label><select id="bk-paper" data-bk="paper">${opt(LW_PAPERS, BK.paper)}</select></div>
@@ -1241,23 +1385,42 @@ document.addEventListener("change", e => {
   const t = e.target;
   if (t.id === "bk-preset" && t.value) { BK = Object.assign(JSON.parse(JSON.stringify(t.value === "sample" ? BK_SAMPLE : BK_EMPTY)), { pubNo: BK.pubNo, docTitle: BK.docTitle, note: BK.note, isPublic: BK.isPublic }); bkFocus = 0; bkSave(); bookRefresh(); return; }
   if (t.dataset && t.dataset.bkk) { BK[t.dataset.bkk] = t.checked; bkUpdate(); }
+  if (t.id === "bk-img" && t.files && t.files[0]) {
+    /* уменьшаем до 360 px, чтобы документ оставался лёгким */
+    const f = t.files[0], url = URL.createObjectURL(f), im = new Image();
+    im.onload = () => {
+      const k = Math.min(1, 360 / Math.max(im.width, im.height)), c = document.createElement("canvas");
+      c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+      let d = c.toDataURL("image/webp", .85); if (!d.startsWith("data:image/webp")) d = c.toDataURL("image/jpeg", .85);
+      URL.revokeObjectURL(url); BK.coverImg = d; bkSave(); bookRefresh(); bkFocus = -1; bkPrev && bkPrev.showPage(-1); toast("Рисунок на обложке.");
+    };
+    im.onerror = () => toast("Не получилось открыть картинку.");
+    im.src = url;
+  }
 });
 document.addEventListener("click", e => {
-  const b = e.target.closest && e.target.closest("[data-bkc],[data-bks],[data-bkop],#bk-add,#bk-full");
+  const b = e.target.closest && e.target.closest("[data-bkc],[data-bkst],[data-bkic],[data-bkshape],[data-bkimgdel],[data-bks],[data-bkop],#bk-add,#bk-full");
   if (!b) return;
-  if (b.dataset.bkc) { BK.cover = b.dataset.bkc; b.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); bkUpdate(-1); return; }
+  if (b.dataset.bkc) { BK.cover = b.dataset.bkc; bkSave(); bookRefresh(); bkFocus = -1; bkPrev && bkPrev.showPage(-1); return; }
+  if (b.dataset.bkst) { BK.coverStyle = +b.dataset.bkst; bkSave(); bookRefresh(); bkFocus = -1; bkPrev && bkPrev.showPage(-1); return; }
+  if (b.dataset.bkic) { BK.emblem = b.dataset.bkic; delete BK.coverImg; bkSave(); bookRefresh(); bkFocus = -1; bkPrev && bkPrev.showPage(-1); return; }
+  if (b.dataset.bkshape) { BK.imgShape = b.dataset.bkshape; bkSave(); bookRefresh(); bkFocus = -1; bkPrev && bkPrev.showPage(-1); return; }
+  if (b.hasAttribute("data-bkimgdel")) { delete BK.coverImg; bkSave(); bookRefresh(); bkFocus = -1; bkPrev && bkPrev.showPage(-1); return; }
   if (b.dataset.bks) { BK.size = +b.dataset.bks; b.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); bkUpdate(); return; }
   if (b.dataset.bkop) {
     const i = +b.dataset.i, P = BK.pages;
     if (b.dataset.bkop === "up" && i > 0) { [P[i - 1], P[i]] = [P[i], P[i - 1]]; bkFocus = i - 1; }
     if (b.dataset.bkop === "down" && i < P.length - 1) { [P[i + 1], P[i]] = [P[i], P[i + 1]]; bkFocus = i + 1; }
-    if (b.dataset.bkop === "del" && P.length > 1 && confirmDel(i)) { P.splice(i, 1); bkFocus = Math.max(0, i - 1); }
+    if (b.dataset.bkop === "del" && P.length > 1) {
+      const p = P[i];
+      (p.h || p.t ? askYes("Удалить страницу " + (i + 1) + "?", "Удалить", "Отмена", true) : Promise.resolve(true)).then(ok => { if (!ok) return; P.splice(i, 1); bkFocus = Math.max(0, i - 1); bkSave(); bookRefresh(); });
+      return;
+    }
     bkSave(); bookRefresh(); return;
   }
   if (b.id === "bk-add" && BK.pages.length < BK_MAX) { BK.pages.push({ h: "", t: "" }); bkFocus = BK.pages.length - 1; bkSave(); bookRefresh(); const ta = document.querySelectorAll(".bk-page textarea"); ta[ta.length - 1].focus(); return; }
   if (b.id === "bk-full") { const v = wsViewer(BK.title || "Книга", true); const a = bookView(v, BK, { full: true }); a.showPage(bkFocus); return; }
 });
-const confirmDel = i => { const p = BK.pages[i]; return !(p.h || p.t) || window.confirm("Удалить страницу " + (i + 1) + "?"); };
 
 /* =====================================================================
    СТОПКА БУМАГ — несколько писем, которые перекладывают по одному
@@ -1292,7 +1455,7 @@ document.addEventListener("click", e => {
     const i = STK.cur, S = STK.sheets;
     if (b.dataset.stop === "left" && i > 0) { [S[i - 1], S[i]] = [S[i], S[i - 1]]; return go(i - 1); }
     if (b.dataset.stop === "right" && i < S.length - 1) { [S[i + 1], S[i]] = [S[i], S[i + 1]]; return go(i + 1); }
-    if (b.dataset.stop === "del" && S.length > 1 && window.confirm("Убрать лист " + (i + 1) + " из стопки?")) { S.splice(i, 1); return go(Math.max(0, i - 1)); }
+    if (b.dataset.stop === "del" && S.length > 1) { askYes("Убрать лист " + (i + 1) + " из стопки?", "Убрать", "Отмена", true).then(ok => { if (ok) { S.splice(i, 1); go(Math.max(0, i - 1)); } }); return; }
     return;
   }
   if (b.id === "st-view") { stackView(wsViewer(STK.title || "Стопка бумаг", true), STK.sheets); return; }
@@ -1459,10 +1622,10 @@ document.addEventListener("click", e => {
   if (b.hasAttribute("data-pubtoggle")) return pubToggle(tool, b);
   if (b.hasAttribute("data-pubdel")) {
     const h = PUB[tool]().holder, no = h.pubNo;
-    if (!window.confirm(`Удалить документ №${no} «${docTitleOf(PUB[tool]())}»? Он пропадёт у игроков, ссылка перестанет работать. Текст останется здесь как черновик.`)) return;
+    askYes(`Удалить документ №${no} «${docTitleOf(PUB[tool]())}»? Он пропадёт у игроков, ссылка перестанет работать. Текст останется здесь как черновик.`, "Удалить", "Отмена", true).then(ok => { if (!ok) return;
     b.disabled = true;
     dbDelete(no).then(() => { delete h.pubNo; h.isPublic = false; pubSave(tool); pubRedraw(tool, false); toast(`Документ №${no} удалён. Текст остался черновиком — его можно создать заново под новым номером.`); })
-      .catch(err => { b.disabled = false; pubSay(box, null, "Не получилось удалить: " + err.message); });
+      .catch(err => { b.disabled = false; pubSay(box, null, "Не получилось удалить: " + err.message); }); });
     return;
   }
   if (b.dataset.pubshow) { pubSay(box, shortUrl(b.dataset.pubshow), PUB[tool]().holder.isPublic ? "Ссылку можно отправлять игрокам." : "Документ скрыт: по ссылке его увидят только администраторы."); return; }
@@ -1512,20 +1675,28 @@ function newDocState(tool) {
   if (tool === "kniga") { BK = JSON.parse(JSON.stringify(BK_EMPTY)); bkFocus = 0; bkSave(); }
   if (tool === "stopka") { STK = { title: "", cur: 0, sheets: [blankLetter()] }; stSave(); }
 }
-const draftDirty = tool => { const h = PUB[tool]().holder; if (h.pubNo) return false; if (tool === "pisma") return !!(LW.body || "").trim(); if (tool === "kniga") return BK.pages.some(p => (p.t || "").trim()); return STK.sheets.some(s => (s.body || "").trim()); };
+/* черновик «настоящий», только если в нём свой текст, а не образец */
+const SAMPLE_BODIES = new Set(Object.values(LW_PRESETS).map(p => (p.s.body || "").trim()));
+const ownText = t => { t = (t || "").trim(); return !!t && !SAMPLE_BODIES.has(t); };
+const draftDirty = tool => {
+  const h = PUB[tool]().holder; if (h.pubNo) return false;
+  if (tool === "pisma") return ownText(LW.body);
+  if (tool === "kniga") return BK.pages.some(p => (p.t || "").trim()) && JSON.stringify(BK.pages) !== JSON.stringify(BK_SAMPLE.pages);
+  return STK.sheets.some(s => ownText(s.body));
+};
 document.addEventListener("click", async e => {
   const b = e.target.closest && e.target.closest("[data-newdoc],[data-newkind],[data-dopen],[data-dedit],[data-dtoggle],[data-dlink],[data-ddel]");
   if (!b) return;
   if (b.hasAttribute("data-newdoc")) { const k = b.parentElement.querySelector(".dl-kinds"); k.hidden = !k.hidden; return; }
   if (b.dataset.newkind) {
     const tool = b.dataset.newkind;
-    if (draftDirty(tool) && !window.confirm("Несохранённый черновик в этом редакторе будет заменён новым документом. Продолжить?")) return;
+    if (draftDirty(tool) && !(await askYes("Несохранённый черновик в этом редакторе будет заменён новым документом. Продолжить?", "Продолжить"))) return;
     newDocState(tool); location.hash = tool; return;
   }
   const no = +(b.dataset.dopen || b.dataset.dedit || b.dataset.dtoggle || b.dataset.dlink || b.dataset.ddel);
   if (b.dataset.ddel) {
     const d = DOCS.find(x => x.no === no);
-    if (!window.confirm(`Удалить документ №${no} «${d ? d.title : ""}»? Он пропадёт у игроков, ссылка перестанет работать. Это нельзя отменить.`)) return;
+    if (!(await askYes(`Удалить документ №${no} «${d ? d.title : ""}»? Он пропадёт у игроков, ссылка перестанет работать. Это нельзя отменить.`, "Удалить", "Отмена", true))) return;
     b.disabled = true;
     try { await dbDelete(no); DOCS = DOCS.filter(x => x.no !== no); docsDraw(); toast(`Документ №${no} удалён.`);
       ["pisma", "kniga", "stopka"].forEach(t => { const h = PUB[t]().holder; if (h.pubNo === no) { delete h.pubNo; h.isPublic = false; pubSave(t); } }); }
@@ -1550,7 +1721,7 @@ async function editDoc(no, b) {
     const { data } = await ghRead(ghCfg(), `docs/${no}.json`); if (!data) throw new Error("файл не найден");
     const ent = DOCS.find(x => x.no === no) || {}, tool = KIND_TOOL[data.kind];
     const meta = { pubNo: no, docTitle: ent.title || data.title || "", note: ent.note != null ? ent.note : (data.note || ""), isPublic: !!ent.public };
-    if (draftDirty(tool) && !window.confirm("Несохранённый черновик в этом редакторе будет заменён. Продолжить?")) { if (b) b.disabled = false; location.hash = "docs"; return; }
+    if (draftDirty(tool) && !(await askYes("Несохранённый черновик в этом редакторе будет заменён. Продолжить?", "Продолжить"))) { if (b) b.disabled = false; location.hash = "docs"; return; }
     if (tool === "pisma") { const h = lwHost; lwHost = null; LW = Object.assign({}, LW_BASE, data.data, meta); lwSave(); lwHost = h; }
     if (tool === "kniga") { BK = Object.assign({}, data.data, meta); bkFocus = 0; bkSave(); }
     if (tool === "stopka") { STK = Object.assign({ title: data.data.title || "", cur: 0, sheets: data.data.sheets || [blankLetter()] }, meta); stSave(); }
