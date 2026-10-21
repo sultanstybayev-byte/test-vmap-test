@@ -602,7 +602,8 @@
    "chars": [
     {
      "id": "cmvifrg1gz72",
-     "name": "Вейна Торн"
+     "name": "Вейна Торн",
+     "fac": "none"
     },
     {
      "id": "cmvifrw37rio",
