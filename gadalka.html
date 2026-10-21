@@ -6,179 +6,8 @@
 <title>Лавка Мирры</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Cormorant+SC:wght@600;700&family=Marck+Script&display=swap">
-<style>
-:root {
-  --gold: #c9a25a; --gold-hi: #f0d696; --ink: #f3e6c8; --muted: #c8b48e;
-  --ease: cubic-bezier(.2,.7,.2,1);
-  --fd: "Cormorant SC", "Cormorant Garamond", Georgia, serif;
-  --fb: "Cormorant Garamond", Georgia, serif;
-  --fh: "Marck Script", "Cormorant Garamond", cursive;
-}
-* { box-sizing: border-box; }
-html, body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; margin: 0; height: 100%; background: #12070c; color: var(--ink); font: 500 19px/1.4 var(--fb); overflow: hidden; -webkit-tap-highlight-color: transparent; }
-button { font: inherit; color: inherit; }
-[hidden] { display: none !important; }
-
-/* ---------- раскладка ---------- */
-.app { position: fixed; inset: 0; display: flex; flex-direction: column; }
-.scene { position: relative; flex: 1 1 auto; min-height: 0; overflow: hidden; container-type: size; background: #0c0806; }
-.scene .room { position: absolute; inset: 0; width: 100%; height: 100%; }
-.stage { position: absolute; left: 50%; bottom: 0; height: min(130cqh, 150cqw); aspect-ratio: 1000 / 640; transform: translateX(-50%); pointer-events: none; }
-.stage > svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; }
-/* руки Мирры выходят из тьмы */
-.hand { position: absolute; top: 29%; width: 13.5%; aspect-ratio: 160 / 300; z-index: 4; pointer-events: none; transition: transform .75s cubic-bezier(.45,.05,.25,1); filter: drop-shadow(0 10px 8px rgba(0,0,0,.55)); }
-.hand.l { left: 27.5%; } .hand.r { left: 59%; }
-.hand .hand-svg { width: 100%; height: 100%; display: block; animation: idle 5s ease-in-out infinite; }
-.hand.r .hand-svg { transform: scaleX(-1); animation-name: idleR; animation-delay: -2.5s; }
-@keyframes idle { 50% { transform: translateY(1.2%) rotate(-1deg); } }
-@keyframes idleR { 0%, 100% { transform: scaleX(-1); } 50% { transform: scaleX(-1) translateY(1.2%) rotate(-1deg); } }
-.hand.busy .hand-svg { animation: none; }
-.eyes { animation: eyes 9s infinite; }
-@keyframes eyes { 0%, 100% { opacity: .15; } 12%, 30% { opacity: .9; } 31% { opacity: 0; } 33% { opacity: .9; } 45%, 60% { opacity: .1; } 70%, 85% { opacity: .75; } }
-.nebula { transform-box: view-box; transform-origin: 500px 312px; animation: neb 40s linear infinite; }
-@keyframes neb { to { transform: rotate(360deg); } }
-.cglow { animation: flick 3.2s infinite; } .orbglow { animation: flick 5s infinite; }
-@keyframes flick { 0%,100% { opacity: .9 } 20% { opacity: .7 } 45% { opacity: 1 } 70% { opacity: .8 } }
-.orbstars { animation: twinkle 4s infinite alternate; }
-@keyframes twinkle { from { opacity: .4; } to { opacity: 1; } }
-
-/* карты на столе */
-.slots { position: absolute; left: 14%; right: 14%; top: 62%; height: 22%; container-type: size; display: flex; justify-content: center; align-items: center; gap: 2.2%; z-index: 3; perspective: 900px; pointer-events: auto; }
-.slot { position: relative; height: 100%; aspect-ratio: 120 / 206; border-radius: 6px; border: 1px dashed rgba(240,214,150,.28); display: grid; place-items: center; }
-.slot > span { position: absolute; bottom: -2px; left: 50%; transform: translate(-50%, 100%); font: 600 11px/1 var(--fd); letter-spacing: .08em; color: rgba(240,214,150,.75); white-space: nowrap; text-shadow: 0 1px 3px #000; }
-.slot { background: rgba(0,0,0,.18); }
-.slot.has { border-color: transparent; }
-.card { position: absolute; inset: 0; animation: land .6s var(--ease) both; cursor: zoom-in; pointer-events: auto; border: 0; padding: 0; background: none; perspective: 700px; }
-.card .fl { position: absolute; inset: 0; display: block; transform-style: preserve-3d; transition: transform .9s var(--ease); }
-@keyframes land { from { transform: translateY(-120%) rotate(-14deg) scale(1.3); opacity: 0; } }
-.card .b, .card .f { position: absolute; inset: 0; display: block; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-.card svg { filter: drop-shadow(0 4px 6px rgba(0,0,0,.55)); }
-.card .f { transform: rotateY(180deg); }
-.card.open .fl { transform: rotateY(180deg); }
-.card.rev.open .fl { transform: rotateY(180deg) rotateZ(180deg); }
-.card.now .f svg { filter: drop-shadow(0 0 10px rgba(255,214,140,.75)) drop-shadow(0 4px 6px rgba(0,0,0,.55)); }
-.slots.n5 .slot { height: min(100cqh, 30cqw); } .slots.n3 .slot { height: min(100cqh, 52cqw); }
-@media (max-width: 560px) { .slots { left: 27.5%; right: 27.5%; top: 56%; height: 30%; gap: 2.2%; } .slot > span { font-size: 9px !important; } }
-.slots.n5 .slot > span { white-space: normal; width: 112%; text-align: center; line-height: 1.05; }
-
-.tc-svg { display: block; width: 100%; height: 100%; }
-.tb-bg { fill: #3a1430; stroke: #c9a25a; stroke-width: 2; } .tb-fr { fill: none; stroke: rgba(201,162,90,.6); stroke-width: 1.2; }
-.tb-or { fill: none; stroke: #c9a25a; stroke-width: 1.4; opacity: .85; }
-.tf-bg { fill: #f1e2bf; stroke: #8a6a3a; stroke-width: 2; } .tf-fr { fill: none; stroke: #7a2414; stroke-width: 1.2; }
-.tf-num { font: 700 16px "Cormorant SC", Georgia, serif; fill: #7a2414; text-anchor: middle; }
-.tf-nm { font: 700 13.5px "Cormorant SC", Georgia, serif; fill: #2a1a0c; text-anchor: middle; letter-spacing: .03em; }
-.tf-gl { fill: none; stroke: #3a2210; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; } .tf-ln { stroke: rgba(122,36,20,.5); }
-
-.flame { animation: fl 1.4s infinite ease-in-out; }
-.flame.b { animation-duration: 1.9s; animation-delay: -.6s; }
-@keyframes fl { 0%,100% { transform: scale(1, 1) rotate(-2deg); } 30% { transform: scale(.92, 1.08) rotate(3deg); } 60% { transform: scale(1.05, .94) rotate(-4deg); } }
-.orb-in { animation: orb 6s infinite ease-in-out; transform-box: fill-box; transform-origin: center; }
-@keyframes orb { 0%,100% { opacity: .55; transform: rotate(0) scale(1); } 50% { opacity: 1; transform: rotate(180deg) scale(1.15); } }
-.smoke { fill: none; stroke: rgba(230,220,255,.16); stroke-width: 6; stroke-linecap: round; animation: smoke 7s infinite linear; }
-.smoke.b { animation-delay: -3.5s; }
-@keyframes smoke { 0% { opacity: 0; transform: translateY(20px); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(-70px); } }
-.dust { position: absolute; inset: 0; pointer-events: none; }
-.dust i { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: rgba(255,226,170,.55); filter: blur(.5px); animation: dust linear infinite; }
-@keyframes dust { from { transform: translate(0, 0); opacity: 0; } 15% { opacity: .9; } to { transform: translate(30px, -160px); opacity: 0; } }
-
-/* ---------- диалог (как в Hades: у каждого свой голос) ---------- */
-.dlg { position: relative; flex: 0 0 auto; z-index: 5; padding: 16px clamp(12px, 4vw, 40px) calc(12px + env(safe-area-inset-bottom)); background: linear-gradient(180deg, rgba(24,10,16,.96), #120709); border-top: 1px solid rgba(201,162,90,.35); box-shadow: 0 -10px 30px rgba(0,0,0,.6); height: clamp(220px, 34vh, 300px); display: flex; flex-direction: column; }
-.dlg-in { width: 100%; max-width: 940px; height: 100%; margin: 0 auto; display: flex; flex-direction: column; min-height: 0; gap: 10px; }
-/* реплика гостя — справа, холодный цвет */
-.g-say { position: absolute; right: max(12px, calc(50% - 470px)); bottom: calc(100% + 14px); z-index: 6; max-width: min(60%, 560px); box-shadow: 0 8px 24px rgba(0,0,0,.6); backdrop-filter: blur(4px); padding: 12px 16px 10px; background: linear-gradient(180deg, rgba(58,84,120,.32), rgba(30,44,66,.4)); border: 1px solid rgba(127,166,201,.55); border-radius: 2px; font: italic 500 17px/1.35 var(--fb); color: #d9e6f2; animation: optin .35s var(--ease) both; }
-.g-say b { position: absolute; right: 12px; top: -11px; padding: 3px 10px; background: #2c4664; border: 1px solid #7fa6c9; font: 700 12px/1 var(--fd); letter-spacing: .14em; text-transform: uppercase; color: #e6f0fa; font-style: normal; }
-.g-say:empty, .g-say[hidden] { display: none; }
-/* реплика Мирры — слева, золото и вино */
-.m-say { position: relative; flex: none; margin-top: 10px; padding: 14px 20px 10px; background: radial-gradient(ellipse at 0 0, rgba(140,40,60,.28), transparent 60%), linear-gradient(180deg, #2a0f1a, #1a0911); border: 1px solid rgba(201,162,90,.7); box-shadow: inset 0 0 0 3px #1a0911, inset 0 0 0 4px rgba(201,162,90,.28), 0 6px 18px rgba(0,0,0,.4); border-radius: 2px; }
-.m-say > b { position: absolute; left: 18px; top: -12px; padding: 4px 14px 4px 12px; background: linear-gradient(180deg, #8a2236, #5a1222); border: 1px solid var(--gold); font: 700 13px/1 var(--fd); letter-spacing: .22em; text-transform: uppercase; color: var(--gold-hi); }
-.m-say > b small { margin-left: 8px; font: italic 500 13px/1 var(--fb); letter-spacing: 0; text-transform: none; color: #e8c9a0; }
-.dlg-in { padding-top: 4px; }
-.line { position: relative; min-height: 2.2em; margin: 0; font: 500 clamp(19px, 2.1vw, 22px)/1.42 var(--fb); color: var(--ink); cursor: pointer; text-wrap: pretty; }
-.line .more { display: inline-block; margin-left: 6px; color: var(--gold-hi); animation: bob 1s infinite; }
-@keyframes bob { 50% { transform: translateY(3px); } }
-/* варианты ответа гостя */
-#ctrl { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; }
-#ctrl:empty { visibility: hidden; }
-.opts-h { margin: 2px 0 6px; font: 700 12px/1 var(--fd); letter-spacing: .2em; text-transform: uppercase; color: #9fbcd8; }
-.opts { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 6px; overflow-x: hidden; overflow-y: auto; min-height: 0; padding: 2px; scrollbar-width: thin; scrollbar-color: rgba(127,166,201,.5) transparent; }
-.opts::-webkit-scrollbar { width: 6px; height: 0; } .opts::-webkit-scrollbar-thumb { background: rgba(127,166,201,.45); border-radius: 3px; } .opts::-webkit-scrollbar-track { background: transparent; }
-.opt { position: relative; text-align: left; padding: 9px 14px 9px 30px; border: 1px solid rgba(127,166,201,.35); border-left: 3px solid #7fa6c9; border-radius: 2px; background: rgba(44,70,100,.18); font: 600 17px/1.25 var(--fb); color: #e3ecf5; cursor: pointer; transition: background .2s, border-color .2s, color .2s; animation: optin .4s var(--ease) both; animation-delay: calc(var(--i) * 45ms); }
-.opt::before { content: "◆"; position: absolute; left: 11px; top: 50%; transform: translateY(-50%); font-size: 10px; color: #7fa6c9; transition: color .2s; }
-.opt:hover, .opt:focus-visible { background: rgba(70,110,150,.36); border-color: #b9d3ea; color: #fff; outline: none; }
-.opt:hover::before, .opt:focus-visible::before { color: var(--gold-hi); }
-.opt.quiet { color: #a9b6c4; font-style: italic; border-style: dashed; border-left-style: solid; }
-.opt.gold { background: linear-gradient(180deg, #f1d79a, #c99a4e); color: #2a1a0c; border-color: var(--gold-hi); font-family: var(--fd); letter-spacing: .04em; text-align: center; padding-left: 14px; }
-.opt.gold::before { display: none; }
-@keyframes optin { from { opacity: 0; transform: translateY(6px); } }
-.name-row { display: flex; gap: 8px; flex-wrap: wrap; }
-.name-row input { -webkit-user-select: text; user-select: text;  flex: 1 1 200px; min-width: 0; padding: 10px 12px; border: 1px solid rgba(127,166,201,.55); border-radius: 2px; background: rgba(0,0,0,.35); color: #e3ecf5; font: 600 19px/1.2 var(--fh); }
-.name-row input:focus { outline: none; border-color: #b9d3ea; }
-.name-row .opt { flex: 0 0 auto; }
-
-/* веер — тянуть карты */
-.fan { position: fixed; left: 0; right: 0; bottom: 0; height: min(46vh, 330px); z-index: 9; pointer-events: none; }
-.fan::before { content: ""; position: absolute; inset: 30% 0 0; background: linear-gradient(180deg, transparent, rgba(8,4,6,.75)); pointer-events: none; }
-.fan button { pointer-events: auto; position: absolute; left: 50%; bottom: -13%; width: clamp(84px, 10vw, 128px); aspect-ratio: 120 / 206; padding: 0; border: 0; background: none; cursor: pointer; transform-origin: 50% 280%; transform: translateX(-50%) rotate(calc((var(--k) - 10.5) * var(--sp, 3.6deg))); transition: transform .45s var(--ease), opacity .35s; filter: drop-shadow(0 3px 5px rgba(0,0,0,.6)); animation: deal .7s var(--ease) both; animation-delay: calc(var(--k) * 22ms); }
-.fan button:hover, .fan button:focus-visible { transform: translateX(-50%) rotate(calc((var(--k) - 10.5) * var(--sp, 3.6deg))) translateY(-14px); outline: none; }
-.fan button.taken { opacity: 0; pointer-events: none; transform: translateX(-50%) rotate(calc((var(--k) - 10.5) * var(--sp, 3.6deg))) translateY(-120px); }
-@keyframes deal { from { transform: translateX(-50%) rotate(0deg); opacity: 0; } }
-@media (max-width: 560px) { .fan { height: 40vh; } .fan button { --sp: 2.4deg; width: 78px; bottom: -4%; transform-origin: 50% 250%; } }
-
-/* верхняя полоса */
-.top { position: absolute; left: 0; right: 0; top: 0; z-index: 8; display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; pointer-events: none; }
-.top button { pointer-events: auto; display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border: 1px solid rgba(201,162,90,.5); border-radius: 3px; background: rgba(20,8,14,.6); color: var(--gold-hi); font: 700 14px/1 var(--fd); letter-spacing: .08em; cursor: pointer; backdrop-filter: blur(3px); }
-.top button:hover { border-color: var(--gold-hi); }
-
-/* ---------- вход: полог ---------- */
-.gate { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; pointer-events: none; }
-.flap { position: absolute; top: 0; bottom: 0; width: 50%; pointer-events: auto; transition: transform 1.6s cubic-bezier(.6,.05,.25,1); background: repeating-linear-gradient(90deg, #3e2512 0 2px, #5a3820 2px 58px, #4a2e18 58px 62px), #4a2e18; box-shadow: inset 0 0 140px rgba(0,0,0,.85); }
-.flap .door-art { position: absolute; inset: 0; width: 100%; height: 100%; }
-.gate { place-items: end center; } .gate-c { margin-bottom: 4vh; padding: 18px 24px; background: radial-gradient(ellipse at 50% 0, rgba(70,26,38,.94), rgba(14,6,9,.94)); }
-.gate .gate-c { max-width: 400px; padding: 14px 20px; background: rgba(14,6,9,.78); backdrop-filter: blur(2px); }
-.gate .gate-c svg { display: none; } .gate .gate-c h1 { font-size: 26px; } .gate .gate-c p { margin-bottom: 8px; font-size: 15px; line-height: 1.3; }
-.gate-c .opt { margin-top: 6px; padding-top: 8px; padding-bottom: 8px; }
-.flap::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,.25), transparent 30%, rgba(0,0,0,.35) 60%, transparent); }
-.flap.l { left: 0; transform-origin: 0 0; border-right: 2px solid #b8893f; }
-.flap.r { right: 0; transform-origin: 100% 0; border-left: 2px solid #b8893f; }
-.gate { perspective: 1400px; }
-.gate.open .flap.l { transform: rotateY(-80deg); opacity: 0; } .gate.open .flap.r { transform: rotateY(80deg); opacity: 0; }
-.flap { transition: transform 1.6s cubic-bezier(.6,.05,.25,1), opacity 1.6s ease-in; }
-.gate-c { position: relative; z-index: 2; pointer-events: auto; text-align: center; padding: 26px 30px; max-width: 460px; margin: 16px; border: 1px solid rgba(201,162,90,.6); background: radial-gradient(ellipse at 50% 0, rgba(80,30,44,.96), rgba(18,7,12,.96)); box-shadow: 0 20px 60px rgba(0,0,0,.7); transition: opacity .5s, transform .6s var(--ease); }
-.gate.open .gate-c { opacity: 0; transform: scale(.94); pointer-events: none; }
-.gate-c svg { width: 70px; height: 70px; stroke: var(--gold); fill: none; stroke-width: 1.4; }
-.gate-c h1 { margin: 6px 0 4px; font: 700 34px/1.05 var(--fd); color: var(--gold-hi); letter-spacing: .05em; }
-.gate-c p { margin: 0 0 18px; color: var(--muted); font-style: italic; }
-.gate-c .opt { display: block; width: 100%; margin-top: 8px; }
-.scene, .dlg { transition: transform 2.2s cubic-bezier(.3,.1,.2,1), filter 2s; }
-body.outside .scene { transform: scale(1.35) translateY(-8%); filter: blur(3px) brightness(.5); }
-body.outside .dlg { transform: translateY(110%); }
-
-/* увеличенная карта */
-.zoom { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 20px; background: rgba(8,3,6,.86); cursor: zoom-out; animation: zin .3s both; }
-@keyframes zin { from { opacity: 0; } }
-.zoom-c { display: flex; gap: 22px; align-items: center; max-width: 760px; flex-wrap: wrap; justify-content: center; }
-.zoom-c .z-card { width: min(52vw, 260px); }
-.zoom-c .rev-b { display: inline-block; margin: 0 0 8px; padding: 3px 9px; border: 1px solid #c9453b; color: #f0a49a; font: 700 12px/1.2 var(--fd); letter-spacing: .1em; text-transform: uppercase; }
-.zoom-c .z-t { flex: 1 1 260px; max-width: 420px; padding: 18px 22px 14px; background: rgba(12,7,12,.78); border: 1px solid rgba(201,162,90,.45); border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,.6); backdrop-filter: blur(4px); }
-.zoom-c h2 { margin: 0 0 6px; font: 700 28px/1.1 var(--fd); color: var(--gold-hi); }
-.zoom-c h2 small { display: block; font: italic 500 17px/1.2 var(--fb); color: var(--muted); }
-.zoom-c p { margin: 0 0 8px; }
-
-.toast { position: fixed; left: 50%; bottom: 24px; z-index: 40; transform: translateX(-50%); padding: 10px 16px; background: #2a1a0c; border: 1px solid var(--gold); border-radius: 4px; color: var(--gold-hi); font: 600 16px/1.3 var(--fb); max-width: 90vw; animation: zin .3s both; }
-
-@media (max-width: 640px) {
-  .dlg { height: 45%; padding-top: 12px; }
-  .dlg-in { gap: 8px; }
-  .opts { grid-template-columns: 1fr; gap: 5px; }
-  .opt { padding: 8px 12px 8px 28px; font-size: 16px; }
-  .line { font-size: 18px; min-height: 2.6em; }
-  .m-say { padding: 14px 14px 10px; }
-  .g-say { max-width: 86%; font-size: 15.5px; padding: 11px 12px 8px; }
-  .slot > span { font-size: 9.5px; }
-}
-@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .2s !important; } }
-</style>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Cormorant+SC:wght@600;700&family=Marck+Script&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Cormorant+SC:wght@600;700&family=Marck+Script&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Cormorant+SC:wght@600;700&family=Marck+Script&display=swap"></noscript>
+<style>:root{--gold:#c9a25a;--gold-hi:#f0d696;--ink:#f3e6c8;--muted:#c8b48e;--ease:cubic-bezier(.2,.7,.2,1);--fd:"Cormorant SC","Cormorant Garamond",Georgia,serif;--fb:"Cormorant Garamond",Georgia,serif;--fh:"Marck Script","Cormorant Garamond",cursive}*{box-sizing:border-box}html,body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;margin:0;height:100%;background:#12070c;color:var(--ink);font:500 19px/1.4 var(--fb);overflow:hidden;-webkit-tap-highlight-color:transparent}button{font:inherit;color:inherit}[hidden]{display:none !important} .app{position:fixed;inset:0;display:flex;flex-direction:column}.scene{position:relative;flex:1 1 auto;min-height:0;overflow:hidden;container-type:size;background:#0c0806}.scene .room{position:absolute;inset:0;width:100%;height:100%}.stage{position:absolute;left:50%;bottom:0;height:min(130cqh,150cqw);aspect-ratio:1000 / 640;transform:translateX(-50%);pointer-events:none}.stage>svg{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible} .hand{position:absolute;top:29%;width:13.5%;aspect-ratio:160 / 300;z-index:4;pointer-events:none;transition:transform .75s cubic-bezier(.45,.05,.25,1);filter:drop-shadow(0 10px 8px rgba(0,0,0,.55))}.hand.l{left:27.5%}.hand.r{left:59%}.hand .hand-svg{width:100%;height:100%;display:block;animation:idle 5s ease-in-out infinite}.hand.r .hand-svg{transform:scaleX(-1);animation-name:idleR;animation-delay:-2.5s}@keyframes idle{50%{transform:translateY(1.2%) rotate(-1deg)}}@keyframes idleR{0%,100%{transform:scaleX(-1)}50%{transform:scaleX(-1) translateY(1.2%) rotate(-1deg)}}.hand.busy .hand-svg{animation:none}.eyes{animation:eyes 9s infinite}@keyframes eyes{0%,100%{opacity:.15}12%,30%{opacity:.9}31%{opacity:0}33%{opacity:.9}45%,60%{opacity:.1}70%,85%{opacity:.75}}.nebula{transform-box:view-box;transform-origin:500px 312px;animation:neb 40s linear infinite}@keyframes neb{to{transform:rotate(360deg)}}.cglow{animation:flick 3.2s infinite}.orbglow{animation:flick 5s infinite}@keyframes flick{0%,100%{opacity:.9}20%{opacity:.7}45%{opacity:1}70%{opacity:.8}}.orbstars{animation:twinkle 4s infinite alternate}@keyframes twinkle{from{opacity:.4}to{opacity:1}} .slots{position:absolute;left:14%;right:14%;top:62%;height:22%;container-type:size;display:flex;justify-content:center;align-items:center;gap:2.2%;z-index:3;perspective:900px;pointer-events:auto}.slot{position:relative;height:100%;aspect-ratio:120 / 206;border-radius:6px;border:1px dashed rgba(240,214,150,.28);display:grid;place-items:center}.slot>span{position:absolute;bottom:-2px;left:50%;transform:translate(-50%,100%);font:600 11px/1 var(--fd);letter-spacing:.08em;color:rgba(240,214,150,.75);white-space:nowrap;text-shadow:0 1px 3px #000}.slot{background:rgba(0,0,0,.18)}.slot.has{border-color:transparent}.card{position:absolute;inset:0;animation:land .6s var(--ease) both;cursor:zoom-in;pointer-events:auto;border:0;padding:0;background:none;perspective:700px}.card .fl{position:absolute;inset:0;display:block;transform-style:preserve-3d;transition:transform .9s var(--ease)}@keyframes land{from{transform:translateY(-120%) rotate(-14deg) scale(1.3);opacity:0}}.card .b,.card .f{position:absolute;inset:0;display:block;backface-visibility:hidden;-webkit-backface-visibility:hidden}.card svg{filter:drop-shadow(0 4px 6px rgba(0,0,0,.55))}.card .f{transform:rotateY(180deg)}.card.open .fl{transform:rotateY(180deg)}.card.rev.open .fl{transform:rotateY(180deg) rotateZ(180deg)}.card.now .f svg{filter:drop-shadow(0 0 10px rgba(255,214,140,.75)) drop-shadow(0 4px 6px rgba(0,0,0,.55))}.slots.n5 .slot{height:min(100cqh,30cqw)}.slots.n3 .slot{height:min(100cqh,52cqw)}@media (max-width:560px){.slots{left:27.5%;right:27.5%;top:56%;height:30%;gap:2.2%}.slot>span{font-size:9px !important}}.slots.n5 .slot>span{white-space:normal;width:112%;text-align:center;line-height:1.05}.tc-svg{display:block;width:100%;height:100%}.tb-bg{fill:#3a1430;stroke:#c9a25a;stroke-width:2}.tb-fr{fill:none;stroke:rgba(201,162,90,.6);stroke-width:1.2}.tb-or{fill:none;stroke:#c9a25a;stroke-width:1.4;opacity:.85}.tf-bg{fill:#f1e2bf;stroke:#8a6a3a;stroke-width:2}.tf-fr{fill:none;stroke:#7a2414;stroke-width:1.2}.tf-num{font:700 16px "Cormorant SC",Georgia,serif;fill:#7a2414;text-anchor:middle}.tf-nm{font:700 13.5px "Cormorant SC",Georgia,serif;fill:#2a1a0c;text-anchor:middle;letter-spacing:.03em}.tf-gl{fill:none;stroke:#3a2210;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.tf-ln{stroke:rgba(122,36,20,.5)}.flame{animation:fl 1.4s infinite ease-in-out}.flame.b{animation-duration:1.9s;animation-delay:-.6s}@keyframes fl{0%,100%{transform:scale(1,1) rotate(-2deg)}30%{transform:scale(.92,1.08) rotate(3deg)}60%{transform:scale(1.05,.94) rotate(-4deg)}}.orb-in{animation:orb 6s infinite ease-in-out;transform-box:fill-box;transform-origin:center}@keyframes orb{0%,100%{opacity:.55;transform:rotate(0) scale(1)}50%{opacity:1;transform:rotate(180deg) scale(1.15)}}.smoke{fill:none;stroke:rgba(230,220,255,.16);stroke-width:6;stroke-linecap:round;animation:smoke 7s infinite linear}.smoke.b{animation-delay:-3.5s}@keyframes smoke{0%{opacity:0;transform:translateY(20px)}30%{opacity:1}100%{opacity:0;transform:translateY(-70px)}}.dust{position:absolute;inset:0;pointer-events:none}.dust i{position:absolute;width:3px;height:3px;border-radius:50%;background:rgba(255,226,170,.55);filter:blur(.5px);animation:dust linear infinite}@keyframes dust{from{transform:translate(0,0);opacity:0}15%{opacity:.9}to{transform:translate(30px,-160px);opacity:0}} .dlg{position:relative;flex:0 0 auto;z-index:5;padding:16px clamp(12px,4vw,40px) calc(12px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(24,10,16,.96),#120709);border-top:1px solid rgba(201,162,90,.35);box-shadow:0 -10px 30px rgba(0,0,0,.6);height:clamp(220px,34vh,300px);display:flex;flex-direction:column}.dlg-in{width:100%;max-width:940px;height:100%;margin:0 auto;display:flex;flex-direction:column;min-height:0;gap:10px} .g-say{position:absolute;right:max(12px,calc(50% - 470px));bottom:calc(100% + 14px);z-index:6;max-width:min(60%,560px);box-shadow:0 8px 24px rgba(0,0,0,.6);backdrop-filter:blur(4px);padding:12px 16px 10px;background:linear-gradient(180deg,rgba(58,84,120,.32),rgba(30,44,66,.4));border:1px solid rgba(127,166,201,.55);border-radius:2px;font:italic 500 17px/1.35 var(--fb);color:#d9e6f2;animation:optin .35s var(--ease) both}.g-say b{position:absolute;right:12px;top:-11px;padding:3px 10px;background:#2c4664;border:1px solid #7fa6c9;font:700 12px/1 var(--fd);letter-spacing:.14em;text-transform:uppercase;color:#e6f0fa;font-style:normal}.g-say:empty,.g-say[hidden]{display:none} .m-say{position:relative;flex:none;margin-top:10px;padding:14px 20px 10px;background:radial-gradient(ellipse at 0 0,rgba(140,40,60,.28),transparent 60%),linear-gradient(180deg,#2a0f1a,#1a0911);border:1px solid rgba(201,162,90,.7);box-shadow:inset 0 0 0 3px #1a0911,inset 0 0 0 4px rgba(201,162,90,.28),0 6px 18px rgba(0,0,0,.4);border-radius:2px}.m-say>b{position:absolute;left:18px;top:-12px;padding:4px 14px 4px 12px;background:linear-gradient(180deg,#8a2236,#5a1222);border:1px solid var(--gold);font:700 13px/1 var(--fd);letter-spacing:.22em;text-transform:uppercase;color:var(--gold-hi)}.m-say>b small{margin-left:8px;font:italic 500 13px/1 var(--fb);letter-spacing:0;text-transform:none;color:#e8c9a0}.dlg-in{padding-top:4px}.line{position:relative;min-height:2.2em;margin:0;font:500 clamp(19px,2.1vw,22px)/1.42 var(--fb);color:var(--ink);cursor:pointer;text-wrap:pretty}.line .more{display:inline-block;margin-left:6px;color:var(--gold-hi);animation:bob 1s infinite}@keyframes bob{50%{transform:translateY(3px)}} #ctrl{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}#ctrl:empty{visibility:hidden}.opts-h{margin:2px 0 6px;font:700 12px/1 var(--fd);letter-spacing:.2em;text-transform:uppercase;color:#9fbcd8}.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:6px;overflow-x:hidden;overflow-y:auto;min-height:0;padding:2px;scrollbar-width:thin;scrollbar-color:rgba(127,166,201,.5) transparent}.opts::-webkit-scrollbar{width:6px;height:0}.opts::-webkit-scrollbar-thumb{background:rgba(127,166,201,.45);border-radius:3px}.opts::-webkit-scrollbar-track{background:transparent}.opt{position:relative;text-align:left;padding:9px 14px 9px 30px;border:1px solid rgba(127,166,201,.35);border-left:3px solid #7fa6c9;border-radius:2px;background:rgba(44,70,100,.18);font:600 17px/1.25 var(--fb);color:#e3ecf5;cursor:pointer;transition:background .2s,border-color .2s,color .2s;animation:optin .4s var(--ease) both;animation-delay:calc(var(--i) * 45ms)}.opt::before{content:"◆";position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:10px;color:#7fa6c9;transition:color .2s}.opt:hover,.opt:focus-visible{background:rgba(70,110,150,.36);border-color:#b9d3ea;color:#fff;outline:none}.opt:hover::before,.opt:focus-visible::before{color:var(--gold-hi)}.opt.quiet{color:#a9b6c4;font-style:italic;border-style:dashed;border-left-style:solid}.opt.gold{background:linear-gradient(180deg,#f1d79a,#c99a4e);color:#2a1a0c;border-color:var(--gold-hi);font-family:var(--fd);letter-spacing:.04em;text-align:center;padding-left:14px}.opt.gold::before{display:none}@keyframes optin{from{opacity:0;transform:translateY(6px)}}.name-row{display:flex;gap:8px;flex-wrap:wrap}.name-row input{-webkit-user-select:text;user-select:text;flex:1 1 200px;min-width:0;padding:10px 12px;border:1px solid rgba(127,166,201,.55);border-radius:2px;background:rgba(0,0,0,.35);color:#e3ecf5;font:600 19px/1.2 var(--fh)}.name-row input:focus{outline:none;border-color:#b9d3ea}.name-row .opt{flex:0 0 auto} .fan{position:fixed;left:0;right:0;bottom:0;height:min(46vh,330px);z-index:9;pointer-events:none}.fan::before{content:"";position:absolute;inset:30% 0 0;background:linear-gradient(180deg,transparent,rgba(8,4,6,.75));pointer-events:none}.fan button{pointer-events:auto;position:absolute;left:50%;bottom:-13%;width:clamp(84px,10vw,128px);aspect-ratio:120 / 206;padding:0;border:0;background:none;cursor:pointer;transform-origin:50% 280%;transform:translateX(-50%) rotate(calc((var(--k) - 10.5) * var(--sp,3.6deg)));transition:transform .45s var(--ease),opacity .35s;filter:drop-shadow(0 3px 5px rgba(0,0,0,.6));animation:deal .7s var(--ease) both;animation-delay:calc(var(--k) * 22ms)}.fan button:hover,.fan button:focus-visible{transform:translateX(-50%) rotate(calc((var(--k) - 10.5) * var(--sp,3.6deg))) translateY(-14px);outline:none}.fan button.taken{opacity:0;pointer-events:none;transform:translateX(-50%) rotate(calc((var(--k) - 10.5) * var(--sp,3.6deg))) translateY(-120px)}@keyframes deal{from{transform:translateX(-50%) rotate(0deg);opacity:0}}@media (max-width:560px){.fan{height:40vh}.fan button{--sp:2.4deg;width:78px;bottom:-4%;transform-origin:50% 250%}} .top{position:absolute;left:0;right:0;top:0;z-index:8;display:flex;justify-content:space-between;align-items:center;padding:10px 12px;pointer-events:none}.top button{pointer-events:auto;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid rgba(201,162,90,.5);border-radius:3px;background:rgba(20,8,14,.6);color:var(--gold-hi);font:700 14px/1 var(--fd);letter-spacing:.08em;cursor:pointer;backdrop-filter:blur(3px)}.top button:hover{border-color:var(--gold-hi)} .gate{position:fixed;inset:0;z-index:20;display:grid;place-items:center;pointer-events:none}.flap{position:absolute;top:0;bottom:0;width:50%;pointer-events:auto;transition:transform 1.6s cubic-bezier(.6,.05,.25,1);background:repeating-linear-gradient(90deg,#3e2512 0 2px,#5a3820 2px 58px,#4a2e18 58px 62px),#4a2e18;box-shadow:inset 0 0 140px rgba(0,0,0,.85)}.flap .door-art{position:absolute;inset:0;width:100%;height:100%}.gate{place-items:end center}.gate-c{margin-bottom:4vh;padding:18px 24px;background:radial-gradient(ellipse at 50% 0,rgba(70,26,38,.94),rgba(14,6,9,.94))}.gate .gate-c{max-width:400px;padding:14px 20px;background:rgba(14,6,9,.78);backdrop-filter:blur(2px)}.gate .gate-c svg{display:none}.gate .gate-c h1{font-size:26px}.gate .gate-c p{margin-bottom:8px;font-size:15px;line-height:1.3}.gate-c .opt{margin-top:6px;padding-top:8px;padding-bottom:8px}.flap::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.25),transparent 30%,rgba(0,0,0,.35) 60%,transparent)}.flap.l{left:0;transform-origin:0 0;border-right:2px solid #b8893f}.flap.r{right:0;transform-origin:100% 0;border-left:2px solid #b8893f}.gate{perspective:1400px}.gate.open .flap.l{transform:rotateY(-80deg);opacity:0}.gate.open .flap.r{transform:rotateY(80deg);opacity:0}.flap{transition:transform 1.6s cubic-bezier(.6,.05,.25,1),opacity 1.6s ease-in}.gate-c{position:relative;z-index:2;pointer-events:auto;text-align:center;padding:26px 30px;max-width:460px;margin:16px;border:1px solid rgba(201,162,90,.6);background:radial-gradient(ellipse at 50% 0,rgba(80,30,44,.96),rgba(18,7,12,.96));box-shadow:0 20px 60px rgba(0,0,0,.7);transition:opacity .5s,transform .6s var(--ease)}.gate.open .gate-c{opacity:0;transform:scale(.94);pointer-events:none}.gate-c svg{width:70px;height:70px;stroke:var(--gold);fill:none;stroke-width:1.4}.gate-c h1{margin:6px 0 4px;font:700 34px/1.05 var(--fd);color:var(--gold-hi);letter-spacing:.05em}.gate-c p{margin:0 0 18px;color:var(--muted);font-style:italic}.gate-c .opt{display:block;width:100%;margin-top:8px}.scene,.dlg{transition:transform 2.2s cubic-bezier(.3,.1,.2,1),filter 2s}body.outside .scene{transform:scale(1.35) translateY(-8%);filter:blur(3px) brightness(.5)}body.outside .dlg{transform:translateY(110%)} .zoom{position:fixed;inset:0;z-index:30;display:grid;place-items:center;padding:20px;background:rgba(8,3,6,.86);cursor:zoom-out;animation:zin .3s both}@keyframes zin{from{opacity:0}}.zoom-c{display:flex;gap:22px;align-items:center;max-width:760px;flex-wrap:wrap;justify-content:center}.zoom-c .z-card{width:min(52vw,260px)}.zoom-c .rev-b{display:inline-block;margin:0 0 8px;padding:3px 9px;border:1px solid #c9453b;color:#f0a49a;font:700 12px/1.2 var(--fd);letter-spacing:.1em;text-transform:uppercase}.zoom-c .z-t{flex:1 1 260px;max-width:420px;padding:18px 22px 14px;background:rgba(12,7,12,.78);border:1px solid rgba(201,162,90,.45);border-radius:4px;box-shadow:0 10px 30px rgba(0,0,0,.6);backdrop-filter:blur(4px)}.zoom-c h2{margin:0 0 6px;font:700 28px/1.1 var(--fd);color:var(--gold-hi)}.zoom-c h2 small{display:block;font:italic 500 17px/1.2 var(--fb);color:var(--muted)}.zoom-c p{margin:0 0 8px}.toast{position:fixed;left:50%;bottom:24px;z-index:40;transform:translateX(-50%);padding:10px 16px;background:#2a1a0c;border:1px solid var(--gold);border-radius:4px;color:var(--gold-hi);font:600 16px/1.3 var(--fb);max-width:90vw;animation:zin .3s both}@media (max-width:640px){.dlg{height:45%;padding-top:12px}.dlg-in{gap:8px}.opts{grid-template-columns:1fr;gap:5px}.opt{padding:8px 12px 8px 28px;font-size:16px}.line{font-size:18px;min-height:2.6em}.m-say{padding:14px 14px 10px}.g-say{max-width:86%;font-size:15.5px;padding:11px 12px 8px}.slot>span{font-size:9.5px}}@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.2s !important}}</style>
 </head>
 <body class="outside">
 <div class="app">
@@ -301,7 +130,6 @@ const TA = (() => {
   const s = S;
   const art = [];
 
-  /* 0 Шут */
   art.push(() => R(0, 0, 108, 162, s.ye) + C(84, 24, 11, s.wh) + RAYS(84, 24, 14, 19, 12, s.wh) +
     P("M0 112 L18 84 L34 102 L54 70 L76 104 L92 88 L108 106 V130 H0Z", s.li) + P("M54 70 L60 80 L55 78 L49 82Z", s.wh) + P("M18 84 L22 91 L18 90 L14 92Z", s.wh) +
     P("M76 162 L70 122 Q80 118 108 126 V162Z", s.nv) + P("M0 162 V120 Q30 110 70 122 L76 162Z", s.pu) +
@@ -312,7 +140,6 @@ const TA = (() => {
     HEAD(48, 53, 7, s.sk, s.or) + P("M40 48 Q46 38 57 45 L63 41 Q61 50 56 49Z", s.gr) + L("M59 44 Q66 33 71 37", s.rd, 2) +
     E(25, 112, 8, 4.6, s.wh, -18) + C(17, 104, 4, s.wh) + P("M15 101 l-3 -4 l5 2Z", s.wh) + L("M21 116 l-3 7 M29 113 l2 7 M32 108 q5 -4 4 -9", s.wh, 2));
 
-  /* I Маг */
   art.push(() => R(0, 0, 108, 162, s.li) + C(54, 66, 40, s.ye) + [12, 26, 40, 54, 68, 82, 96].map(x => ROSE(x, 8, 4.6, s.rd) + E(x + 6, 12, 3, 1.6, s.gr)).join("") +
     L("M44 23 C40 17 36 23 40 27 C44 31 50 23 54 23 C58 23 64 31 68 27 C72 23 68 17 64 23 C60 29 50 17 44 23Z", s.ink, 1.8) +
     P("M40 48 Q54 42 68 48 L73 112 L35 112Z", s.rd) + P("M50 47 L58 47 L61 112 L47 112Z", s.wh) + R(38, 74, 32, 3, s.tl) +
@@ -323,7 +150,6 @@ const TA = (() => {
     P("M20 90 h11 l-2 9 h-7Z", s.ye) + R(24, 99, 3, 5, s.ye) + R(21, 103, 9, 2, s.ye) + C(45, 98, 6, s.ye) + STAR(45, 98, 4.5, 5, s.rd) + L("M60 103 L80 92", s.gy, 2.5) + L("M62 98 l4 7", s.ye, 2) + L("M84 103 L95 89", s.br, 3.4) +
     [16, 30, 44, 58, 72, 86].map((x, i) => i % 2 ? ROSE(x + 3, 152, 5, s.rd) : C(x + 3, 152, 5, s.wh) + C(x + 3, 152, 1.8, s.ye)).join("") + R(0, 158, 108, 4, s.gr));
 
-  /* II Жрица */
   art.push(() => R(0, 0, 108, 162, s.nv) + R(24, 18, 60, 118, "#7e3557") + [0, 1, 2, 3, 4, 5].map(r => [0, 1, 2].map(c => C(36 + c * 18 + (r % 2) * 9, 28 + r * 18, 3.4, s.rd) + L(`M${36 + c * 18 + (r % 2) * 9} ${24 + r * 18} v-2`, s.gr, 1.2)).join("")).join("") +
     R(6, 18, 16, 128, s.dk) + R(4, 14, 20, 6, s.dk) + T(14, 36, "B", s.wh, 9) + R(86, 18, 16, 128, s.wh) + R(84, 14, 20, 6, s.wh) + T(94, 36, "J", s.dk, 9) +
     R(0, 140, 108, 22, "#3a4280") +
@@ -332,7 +158,6 @@ const TA = (() => {
     P("M41 80 h24 v11 h-24Z", s.wh) + T(53, 88, "TORA", s.nv, 5.5) +
     C(54, 148, 10, s.ye) + C(54, 143, 9.2, "#3a4280"));
 
-  /* III Императрица */
   art.push(() => R(0, 0, 108, 162, s.sky) + C(14, 40, 14, s.dg) + C(26, 30, 12, s.dg) + C(92, 34, 15, s.dg) + C(100, 46, 10, s.dg) + R(14, 30, 6, 80, "#4a3a2a") + R(4, 36, 7, 74, s.wh) +
     R(0, 106, 108, 56, s.ye) + [8, 18, 28, 80, 90, 100].map(x => L(`M${x} 160 V122`, s.go, 1.4) + E(x, 120, 2, 5, s.go) + E(x - 3, 128, 1.6, 4, s.go, -30) + E(x + 3, 128, 1.6, 4, s.go, 30)).join("") +
     E(54, 122, 32, 11, s.rd) + P("M34 60 Q54 50 74 60 L86 128 L22 128Z", s.wh) + [[42, 80], [60, 84], [50, 100], [68, 108], [38, 112], [56, 118]].map(([x, y]) => C(x, y, 2.6, s.rd) + C(x, y - 2.6, 1, s.gr)).join("") +
@@ -340,7 +165,6 @@ const TA = (() => {
     HEAD(54, 47, 7, s.sk, "#c9782e") + R(46, 39, 16, 3, s.gr) + [...Array(12)].map((_, i) => { const a = Math.PI * (1.05 + i * .9 / 11); return STAR(54 + Math.cos(a) * 14, 46 + Math.sin(a) * 14, 2.6, 5, s.ye); }).join("") +
     P("M14 120 Q14 110 22 112 Q30 110 30 120 Q30 130 22 138 Q14 130 14 120Z", s.gr) + `<circle cx="22" cy="120" r="3.6" fill="none" stroke="${s.ye}" stroke-width="1.4"/>` + L("M22 124 V130 M19 127 H25", s.ye, 1.4));
 
-  /* IV Император */
   art.push(() => R(0, 0, 108, 162, s.or) + C(54, 52, 32, "#f19a5a") + P("M0 162 V118 L16 100 L28 116 L42 96 L54 112 L70 94 L86 114 L96 102 L108 112 V162Z", "#8a3a2a") + P("M0 162 V136 Q54 124 108 140 V162Z", "#6a2a1e") +
     R(24, 46, 60, 96, "#a8a2b0", 3) + C(26, 48, 6, "#c7c2cc") + C(82, 48, 6, "#c7c2cc") + L("M22 46 q-4 -6 2 -8 M86 46 q4 -6 -2 -8", "#7a7484", 1.6) + C(26, 100, 4, "#c7c2cc") + C(82, 100, 4, "#c7c2cc") +
     P("M36 62 Q54 54 72 62 L77 134 L31 134Z", s.rd) + P("M48 60 h12 l2 74 h-16Z", "#8f8aa0") +
@@ -349,7 +173,6 @@ const TA = (() => {
     HEAD(54, 47, 7, s.sk2, "#e9e4dc") + P("M47 49 Q54 72 61 49 Q54 54 47 49Z", s.wh) + P("M45 41 L47 32 L50 37 L54 29 L58 37 L61 32 L63 41Z", s.ye) +
     R(44, 134, 8, 12, "#8f8aa0") + R(56, 134, 8, 12, "#8f8aa0"));
 
-  /* V Иерофант */
   art.push(() => R(0, 0, 108, 162, s.gy) + R(4, 10, 14, 120, "#77738a") + R(90, 10, 14, 120, "#77738a") + R(18, 10, 72, 120, "#b0abbf") +
     R(0, 130, 108, 32, "#6a6680") + [...Array(6)].map((_, i) => R(i * 18 + (i % 2) * 0, 130, 9, 9, "#5a5670")).join("") +
     P("M32 56 Q54 46 76 56 L84 132 L24 132Z", s.rd) + P("M48 54 h12 l4 78 h-20Z", s.wh) + L("M44 70 H64 M44 76 H64", s.ye, 1.4) +
@@ -360,7 +183,6 @@ const TA = (() => {
     C(24, 140, 7, s.br) + P("M14 162 Q16 144 24 144 Q32 144 34 162Z", "#4a5a8a") + [18, 24, 30].map(x => ROSE(x, 152, 2.6, s.rd)).join("") +
     C(84, 140, 7, "#d9b36a") + P("M74 162 Q76 144 84 144 Q92 144 94 162Z", "#d97a3a") + [78, 84, 90].map(x => C(x, 152, 2.6, s.wh)).join(""));
 
-  /* VI Влюблённые */
   art.push(() => R(0, 0, 108, 162, s.ye) + C(54, 16, 12, s.wh) + RAYS(54, 16, 14, 20, 14, s.wh, 1.4) +
     CLOUD(54, 52, 1.6, s.wh) + P("M54 36 Q20 14 8 34 Q24 30 30 40 Q22 44 24 54 Q38 42 54 46Z", s.rd) + P("M54 36 Q88 14 100 34 Q84 30 78 40 Q86 44 84 54 Q70 42 54 46Z", s.rd) +
     P("M46 40 Q54 34 62 40 L64 54 L44 54Z", s.pu) + HEAD(54, 31, 6, s.sk, s.or) + P("M50 24 l2 -6 l2 4 l2 -5 l2 6Z", s.or) + ARM("M46 42 L36 50 M62 42 L72 50", s.pu, 4) +
@@ -371,7 +193,6 @@ const TA = (() => {
     HEAD(30, 100, 6, s.sk2, s.br) + P("M24 108 Q30 105 36 108 L35 132 L25 132Z", s.sk2) + L("M27 132 V146 M33 132 V146", s.sk2, 4) + ARM("M35 112 L42 122", s.sk2, 3.4) +
     HEAD(78, 100, 6, s.sk, s.go) + P("M71 104 Q74 120 70 130 L72 108Z", s.go) + P("M72 108 Q78 105 84 108 L85 132 L73 132Z", s.sk) + L("M75 132 V146 M81 132 V146", s.sk, 4) + ARM("M73 112 L68 106", s.sk, 3.4));
 
-  /* VII Колесница */
   art.push(() => R(0, 0, 108, 162, s.ye) + [6, 20, 34, 74, 88, 100].map((x, i) => R(x - 5, 40 + (i % 3) * 6, 11, 50, "#d8c8a2") + R(x - 6, 36 + (i % 3) * 6, 13, 5, "#c7b48a")).join("") + R(0, 88, 108, 8, s.tl) + R(0, 96, 108, 66, "#c9b07a") +
     L("M26 46 V100 M82 46 V100", s.ye, 2.4) + P("M22 40 H86 L82 48 H26Z", s.nv) + [32, 42, 54, 66, 76].map(x => STAR(x, 44, 2.4, 6, s.ye)).join("") +
     P("M42 64 Q54 58 66 64 L68 96 L40 96Z", "#8f8aa0") + R(46, 70, 16, 10, s.ye) + ARM("M66 68 L72 82", "#8f8aa0", 5) + L("M72 84 L78 60", s.wh, 2.4) +
@@ -381,7 +202,6 @@ const TA = (() => {
     E(32, 146, 14, 7, s.dk) + C(22, 136, 6, s.dk) + P("M15 134 L22 128 L29 134 L27 142 L17 142Z", s.dk) + L("M18 152 V160 M44 150 V160", s.dk, 3) +
     E(76, 146, 14, 7, s.wh) + C(86, 136, 6, s.wh) + P("M79 134 L86 128 L93 134 L91 142 L81 142Z", s.wh) + L("M64 150 V160 M90 152 V160", s.wh, 3) + C(84, 136, .9, s.dk) + C(88, 136, .9, s.dk) + C(20, 136, .9, s.wh) + C(24, 136, .9, s.wh));
 
-  /* VIII Сила */
   art.push(() => R(0, 0, 108, 162, s.ye) + P("M0 104 L30 78 L50 96 L76 70 L108 100 V120 H0Z", "#7ea3c9") + R(0, 112, 108, 50, s.gr) +
     L("M44 22 C40 16 36 22 40 26 C44 30 50 22 54 22 C58 22 64 30 68 26 C72 22 68 16 64 22 C60 28 50 16 44 22Z", s.ink, 1.8) +
     P("M34 50 Q46 44 56 52 L66 132 L22 132Z", s.wh) + [[34, 56], [40, 54], [46, 54], [52, 56], [44, 76], [36, 96]].map(([x, y]) => C(x, y, 2.4, s.rd)).join("") + L("M30 66 Q44 70 58 62", s.gr, 2) +
@@ -390,14 +210,12 @@ const TA = (() => {
     C(50, 108, 14, "#b9552a") + C(50, 110, 8.5, s.or) + P("M43 115 Q50 124 57 115 Q50 118 43 115Z", s.wh) + C(46, 108, 1.2, s.dk) + C(54, 108, 1.2, s.dk) +
     ARM("M40 62 L44 104", s.wh, 5) + ARM("M54 62 L58 112", s.wh, 5) + C(45, 106, 2.6, s.sk) + C(58, 114, 2.6, s.sk));
 
-  /* IX Отшельник */
   art.push(() => R(0, 0, 108, 162, s.nv) + [[12, 14], [30, 30], [92, 12], [80, 34], [20, 56], [96, 60], [62, 16]].map(([x, y]) => STAR(x, y, 1.8, 4, s.wh, .3)).join("") +
     P("M0 162 V132 L36 108 L60 118 L108 100 V162Z", s.wh) + P("M36 108 L48 118 L40 116 L30 122Z", "#d6dbe8") +
     L("M30 46 V146", s.ye, 2.6) + P("M38 50 Q52 34 66 50 L76 144 L28 144Z", "#8f8aa0") + P("M44 50 Q52 40 60 50 L58 60 L46 60Z", "#77738a") +
     C(52, 52, 5.4, s.sk) + P("M47 55 Q52 76 57 55Z", s.wh) + ARM("M36 66 L31 74", "#8f8aa0", 5) +
     ARM("M64 64 L74 58", "#8f8aa0", 5) + C(76, 72, 18, "rgba(255,226,140,.28)") + L("M76 56 V62", s.ye, 1.4) + P("M70 62 H82 L80 78 H72Z", s.ye) + STAR(76, 70, 4.4, 6, s.wh, .5));
 
-  /* X Колесо Судьбы */
   art.push(() => R(0, 0, 108, 162, "#5fa8c9") + CLOUD(16, 18, .9, s.wh) + CLOUD(92, 18, .9, s.wh) + CLOUD(16, 142, .9, s.wh) + CLOUD(92, 142, .9, s.wh) +
     C(16, 12, 4, s.sk) + P("M8 12 q4 -6 8 -2 q4 -4 8 2Z", s.wh) + C(92, 12, 4, s.gy) + P("M95 12 l4 1 -4 2Z", s.ye) + P("M84 12 q-4 -6 4 -4 M100 12 q4 -6 -4 -4", s.gy) +
     C(16, 136, 4.6, s.or) + C(16, 136, 2.6, s.ye) + C(92, 136, 4.6, s.sk3) + L("M88 132 l-3 -3 M96 132 l3 -3", s.wh, 1.4) +
@@ -407,21 +225,18 @@ const TA = (() => {
     L("M24 58 q-8 10 2 18 q8 8 -2 18 q-6 8 2 14", s.ye, 3) + C(24, 57, 2.4, s.ye) +
     P("M84 98 Q88 88 92 98 L90 116 L84 116Z", s.rd) + C(88, 88, 3.6, s.rd) + P("M86 86 l-1 -6 l3 4 l3 -4 l-1 6Z", s.rd));
 
-  /* XI Справедливость */
   art.push(() => R(0, 0, 108, 162, s.li) + R(20, 20, 68, 110, s.pu) + R(6, 14, 14, 124, s.gy) + R(88, 14, 14, 124, s.gy) + R(4, 10, 18, 6, s.gy) + R(86, 10, 18, 6, s.gy) + R(0, 136, 108, 26, "#8f8aa0") +
     R(30, 60, 48, 76, "#8f8aa0", 2) + P("M32 58 Q54 50 76 58 L82 138 L26 138Z", s.rd) + P("M30 62 Q24 100 28 138 L36 138 L38 62Z", s.gr) + P("M78 62 Q84 100 80 138 L72 138 L70 62Z", s.gr) +
     HEAD(54, 46, 7, s.sk, s.br) + P("M46 40 H62 V32 L58 36 L54 30 L50 36 L46 32Z", s.ye) + R(51, 34, 6, 4, s.tl) +
     ARM("M70 62 L76 50", s.rd, 6) + L("M77 50 V14", s.wh, 2.6) + L("M73 50 H81", s.ye, 2.4) + P("M77 10 l2 4 h-4Z", s.wh) +
     ARM("M38 64 L32 80", s.rd, 6) + L("M32 82 V92", s.ye, 1.6) + L("M20 92 H44", s.ye, 2) + L("M20 92 l-4 10 M20 92 l4 10 M44 92 l-4 10 M44 92 l4 10", s.ye, 1) + P("M14 102 Q20 108 26 102Z", s.ye) + P("M38 102 Q44 108 50 102Z", s.ye));
 
-  /* XII Повешенный */
   art.push(() => R(0, 0, 108, 162, "#9fd0b4") + R(0, 140, 108, 22, s.gr) +
     R(22, 6, 6, 140, s.br) + R(80, 6, 6, 140, s.br) + R(18, 10, 72, 7, s.br) + [[20, 20], [84, 24], [24, 60], [82, 90], [30, 10], [70, 8]].map(([x, y]) => E(x, y, 4, 2, s.dg, 30)).join("") +
     L("M54 17 V26", "#d8c8a2", 1.6) + L("M54 26 L54 70", s.rd, 5.4) + L("M54 46 L66 36 L58 28", s.rd, 5.4) +
     P("M44 68 Q54 64 64 68 L62 100 L46 100Z", "#3e6db0") + R(45, 80, 18, 3, s.ye) + ARM("M46 72 L40 92 L48 98 M62 72 L68 92 L60 98", "#3e6db0", 4.4) +
     C(54, 106, 13, s.ye) + RAYS(54, 106, 13, 17, 16, s.ye, 1) + C(54, 108, 6.6, s.sk) + P("M47 110 Q54 118 61 110 L60 114 Q54 120 48 114Z", s.go));
 
-  /* XIII Смерть */
   art.push(() => R(0, 0, 108, 162, "#e8b3a0") + R(0, 0, 108, 70, "#c9a3d8") + C(84, 92, 14, s.ye) + RAYS(84, 92, 16, 22, 12, s.ye, 1.2) + R(68, 72, 8, 30, "#8f8aa0") + R(92, 72, 8, 30, "#8f8aa0") + P("M68 72 l4 -6 l4 6Z", "#8f8aa0") + P("M92 72 l4 -6 l4 6Z", "#8f8aa0") +
     R(0, 100, 108, 62, "#7d8a5a") + L("M56 104 Q80 100 108 112", s.tl, 4) +
     E(44, 106, 26, 13, s.wh) + P("M62 98 Q72 86 74 76 L82 80 Q80 90 72 104Z", s.wh) + E(78, 76, 7, 4.6, s.wh, 30) + L("M24 112 L20 134 M36 116 L34 138 M54 116 L58 136 M64 112 L70 132", s.wh, 4.4) + P("M20 100 q-8 6 -6 18", s.wh) + L("M18 104 q-6 6 -4 16", s.wh, 3) +
@@ -431,7 +246,6 @@ const TA = (() => {
     ARM("M38 76 L31 74", s.dk, 4) +
     `<g transform="translate(12 -4)">${P("M4 150 Q20 140 40 146 L40 154 Q20 156 4 156Z", s.rd) + C(4, 150, 5, s.sk) + P("M-1 145 l2 -5 2 3 2 -4 2 4 2 -2 0 5Z", s.ye)}</g>`);
 
-  /* XIV Умеренность */
   art.push(() => R(0, 0, 108, 162, s.li) + P("M60 162 Q70 130 96 110 L100 112 Q80 132 74 162Z", "#e8dcc0") + P("M80 112 L94 92 L108 108 V116 H80Z", "#7ea3c9") + C(96, 90, 6, s.ye) + RAYS(96, 90, 7, 10, 10, s.ye, 1) +
     R(0, 128, 108, 34, s.gr) + P("M0 140 Q30 132 52 142 Q48 158 30 162 H0Z", s.tl) +
     P("M54 46 Q20 30 10 70 Q24 62 30 72 Q24 80 28 92 Q42 70 54 64Z", s.rd) + P("M54 46 Q88 30 98 70 Q84 62 78 72 Q84 80 80 92 Q66 70 54 64Z", s.rd) +
@@ -440,7 +254,6 @@ const TA = (() => {
     ARM("M44 64 L36 80", s.wh, 5) + ARM("M64 64 L72 98", s.wh, 5) + P("M30 78 h10 l-2 10 h-6Z", s.ye) + P("M68 98 h10 l-2 10 h-6Z", s.ye) + L("M38 80 Q56 84 72 100", s.tl, 2) +
     L("M88 162 V138 M96 162 V144", s.dg, 1.6) + P("M84 138 q4 -8 8 0 q-4 4 -8 0Z", s.pu) + P("M92 144 q4 -8 8 0 q-4 4 -8 0Z", s.pu) + L("M44 146 V156", s.sk, 3) + C(44, 156, 3, s.tl));
 
-  /* XV Дьявол */
   art.push(() => R(0, 0, 108, 162, s.dk) + P("M54 50 Q14 18 2 46 Q14 44 16 56 Q8 60 12 72 Q28 60 54 66Z", "#4a3a6a") + P("M54 50 Q94 18 106 46 Q94 44 92 56 Q100 60 96 72 Q80 60 54 66Z", "#4a3a6a") +
     `<g transform="rotate(180 54 16)">${STAR(54, 16, 9, 5, "none")}</g>` + (() => { let d = ""; for (let i = 0; i < 5; i++) { const a = Math.PI / 2 + i * Math.PI * 4 / 5; d += (i ? "L" : "M") + (54 + Math.cos(a) * 9).toFixed(1) + " " + (16 + Math.sin(a) * 9).toFixed(1); } return L(d + "Z", s.wh, 1.2); })() +
     P("M40 56 Q54 48 68 56 L66 96 L42 96Z", s.sk3) + C(54, 40, 9, s.sk3) + P("M46 34 Q38 22 42 18 Q44 26 50 32Z", s.ye) + P("M62 34 Q70 22 66 18 Q64 26 58 32Z", s.ye) + C(50, 40, 1.4, s.ye) + C(58, 40, 1.4, s.ye) + P("M50 46 L54 56 L58 46Z", s.dk) +
@@ -450,7 +263,6 @@ const TA = (() => {
     HEAD(26, 116, 5, s.sk, s.br) + P("M21 112 l-2 -5 3 2Z M31 112 l2 -5 -3 2Z", s.sk3) + P("M20 122 Q26 118 32 122 L32 146 L20 146Z", s.sk) + P("M20 140 q-8 4 -8 -4 q0 -4 4 -2", s.or) + L("M18 140 q-8 0 -8 -6", s.or, 1.6) +
     HEAD(82, 116, 5, s.sk, s.go) + P("M77 112 l-2 -5 3 2Z M87 112 l2 -5 -3 2Z", s.sk3) + P("M76 122 Q82 118 88 122 L88 146 L76 146Z", s.sk) + L("M90 140 q8 0 8 -6", s.gr, 1.6) + C(98, 134, 1.8, s.rd) + R(0, 146, 108, 16, "#3a3050"));
 
-  /* XVI Башня */
   art.push(() => R(0, 0, 108, 162, s.dk) + CLOUD(20, 28, 1.1, "#4a4466") + CLOUD(88, 22, 1.2, "#4a4466") + P("M72 0 L60 22 L68 22 L52 46 L58 46 L44 64 L62 36 L54 36 L70 14 L62 14 L76 0Z", s.ye) +
     P("M18 162 Q26 132 40 124 L70 124 Q84 132 90 162Z", "#77738a") + R(38, 50, 32, 76, "#d8c8a2") + R(36, 46, 36, 6, "#c7b48a") +
     P("M44 54 L44 34 L50 40 L54 30 L58 40 L64 34 L64 54Z", s.ye) + `<g transform="rotate(-28 54 42) translate(-14 -16)">${P("M44 54 L44 46 L50 50 L54 44 L58 50 L64 46 L64 54Z", s.ye)}</g>` +
@@ -459,7 +271,6 @@ const TA = (() => {
     `<g transform="rotate(-140 22 108)">${C(22, 96, 4.4, s.sk)}${P("M17 100 h10 l2 14 h-14Z", "#3e6db0")}${L("M19 114 v8 M25 114 v8", s.sk, 2.6)}${L("M17 102 l-6 -6 M27 102 l6 -6", s.sk, 2.6)}</g>` +
     `<g transform="rotate(160 88 116)">${C(88, 104, 4.4, s.sk)}${P("M83 108 h10 l2 14 h-14Z", s.rd)}${L("M85 122 v8 M91 122 v8", s.sk, 2.6)}${L("M83 110 l-6 -6 M93 110 l6 -6", s.sk, 2.6)}</g>`);
 
-  /* XVII Звезда */
   art.push(() => R(0, 0, 108, 162, s.nv) + STAR(54, 28, 18, 8, s.ye, .45) + STAR(54, 28, 8, 8, s.wh, .45) +
     [[16, 14], [92, 14], [12, 44], [96, 44], [24, 70], [84, 70], [54, 62]].map(([x, y]) => STAR(x, y, 5, 8, s.wh, .4)).join("") +
     P("M0 162 V118 Q40 104 76 116 Q96 122 108 116 V162Z", s.gr) + E(30, 140, 30, 10, s.tl) +
@@ -468,7 +279,6 @@ const TA = (() => {
     ARM("M52 106 L40 118", s.sk2, 3.4) + ARM("M62 106 L72 112", s.sk2, 3.4) +
     P("M34 114 h8 l-1 8 h-6Z", s.rd) + P("M72 108 h8 l-1 8 h-6Z", s.rd) + L("M36 122 Q30 130 30 134", s.wh, 1.6) + L("M78 116 Q90 120 96 128 M80 116 Q88 126 90 132", s.wh, 1.2));
 
-  /* XVIII Луна */
   art.push(() => R(0, 0, 108, 162, "#3d4a86") + RAYS(54, 34, 22, 30, 24, s.ye, 1.2) + C(54, 34, 20, s.ye) + C(62, 30, 17, "#3d4a86") + C(46, 30, 1.6, s.go) + P("M40 40 q4 3 8 1", s.go) +
     [[40, 62], [54, 66], [68, 62], [32, 74], [76, 74]].map(([x, y]) => P(`M${x} ${y} q2 4 0 6 q-2 -2 0 -6Z`, s.ye)).join("") +
     R(4, 70, 14, 52, "#8f8aa0") + P("M2 70 L11 58 L20 70Z", "#77738a") + R(9, 82, 4, 8, s.ye) + R(90, 70, 14, 52, "#8f8aa0") + P("M88 70 L97 58 L106 70Z", "#77738a") + R(95, 82, 4, 8, s.ye) +
@@ -477,7 +287,6 @@ const TA = (() => {
     E(84, 126, 10, 6, s.gy) + C(90, 118, 5, s.gy) + P("M93 114 l-2 -6 -3 5Z", s.gy) + L("M88 132 V140 M80 130 V140", s.gy, 3) +
     E(54, 150, 34, 12, s.tl) + E(54, 146, 5, 3.4, s.rd) + L("M50 144 l-4 -4 M58 144 l4 -4 M51 148 l-3 3 M57 148 l3 3", s.rd, 1.4));
 
-  /* XIX Солнце */
   art.push(() => R(0, 0, 108, 162, s.sky) + (() => { let o = ""; for (let i = 0; i < 16; i++) { const a = Math.PI * 2 * i / 16, x1 = 54 + Math.cos(a) * 26, y1 = 38 + Math.sin(a) * 26, x2 = 54 + Math.cos(a) * 36, y2 = 38 + Math.sin(a) * 36; o += i % 2 ? L(`M${x1.toFixed(1)} ${y1.toFixed(1)}L${x2.toFixed(1)} ${y2.toFixed(1)}`, s.ye, 2.6) : L(`M${x1.toFixed(1)} ${y1.toFixed(1)}Q${((x1 + x2) / 2 + Math.sin(a) * 3).toFixed(1)} ${((y1 + y2) / 2 - Math.cos(a) * 3).toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)}`, s.or, 2.6); } return o; })() +
     C(54, 38, 22, s.ye) + L("M46 36 q3 2 6 0 M56 36 q3 2 6 0 M48 46 q6 4 12 0", s.go, 1.6) +
     R(0, 92, 108, 26, "#a8a2b0") + [8, 20, 32, 44, 56, 68, 80, 92, 104].map(x => L(`M0 ${x > 50 ? 105 : 105}H108`, "#8f8aa0", .6)).slice(0, 1).join("") +
@@ -487,13 +296,11 @@ const TA = (() => {
     HEAD(54, 104, 6, s.sk, s.go) + [49, 53, 57].map(x => C(x, 98, 1.8, s.ye)).join("") + P("M54 96 q4 -8 8 -6 q-4 2 -6 8Z", s.rd) + P("M50 110 Q54 108 58 110 L60 124 L48 124Z", s.sk) + ARM("M50 112 L40 104", s.sk, 3) +
     L("M40 104 L32 74", s.br, 1.6) + P("M32 74 Q18 70 10 80 Q16 88 26 92 Q20 84 32 82Z", s.rd));
 
-  /* XX Суд */
   art.push(() => R(0, 0, 108, 162, s.sky) + CLOUD(54, 42, 2.2, s.wh) + P("M54 20 Q20 0 8 22 Q22 20 28 30 Q42 22 54 28Z", s.rd) + P("M54 20 Q88 0 100 22 Q86 20 80 30 Q66 22 54 28Z", s.rd) +
     HEAD(46, 22, 6, s.sk, s.go) + P("M38 30 Q46 26 54 30 L56 40 L36 40Z", "#6aa0d8") + L("M52 26 L82 46", s.ye, 3) + P("M80 42 L88 50 L82 52Z", s.ye) + R(64, 34, 14, 11, s.wh) + L("M71 34 V45 M64 39.5 H78", s.rd, 1.8) + L("M64 34 L60 32", s.ye, 1) + ARM("M50 32 L60 34", s.sk, 3) +
     P("M0 110 L18 80 L34 102 L54 84 L74 104 L92 78 L108 100 V120 H0Z", s.wh) + R(0, 118, 108, 44, s.tl) +
     [[22, 128, s.sk2, s.br], [54, 132, s.sk, s.go], [86, 128, s.sk2, s.dk]].map(([x, y, sk, hr]) => R(x - 12, y + 8, 24, 10, s.br) + HEAD(x, y - 6, 4.6, sk, hr) + P(`M${x - 5} ${y - 1} h10 l1 10 h-12Z`, sk) + ARM(`M${x - 4} ${y} L${x - 9} ${y - 12} M${x + 4} ${y} L${x + 9} ${y - 12}`, sk, 2.6)).join(""));
 
-  /* XXI Мир */
   art.push(() => R(0, 0, 108, 162, "#8e7cc3") + CLOUD(15, 24, .8, s.wh) + CLOUD(93, 24, .8, s.wh) + CLOUD(15, 146, .8, s.wh) + CLOUD(93, 146, .8, s.wh) +
     C(15, 18, 4, s.sk) + P("M11 16 q4 -6 8 0Z", s.go) + C(93, 18, 4, s.gy) + P("M96 18 l4 1 -4 2Z", s.ye) + C(15, 140, 4.6, s.or) + C(15, 140, 2.6, s.ye) + C(93, 140, 4.6, s.sk3) + L("M89 136 l-3 -3 M97 136 l3 -3", s.wh, 1.4) +
     `<ellipse cx="54" cy="81" rx="30" ry="56" fill="none" stroke="${s.gr}" stroke-width="7"/>` + [...Array(24)].map((_, i) => { const a = Math.PI * 2 * i / 24; return E(54 + Math.cos(a) * 30, 81 + Math.sin(a) * 56, 3.4, 1.6, s.dg, a * 57.3 + 60); }).join("") +
@@ -504,9 +311,7 @@ const TA = (() => {
   return art.map(f => f());
 })();
 
-/* лицевая сторона и рубашка: тёмно-синяя карта с золотой гравированной рамкой */
 const TF_STAR = (x, y, r) => `<path d="M${x} ${y - r}L${x + r * .22} ${y - r * .22}L${x + r} ${y}L${x + r * .22} ${y + r * .22}L${x} ${y + r}L${x - r * .22} ${y + r * .22}L${x - r} ${y}L${x - r * .22} ${y - r * .22}Z"/>`;
-/* карта 120×206 — пропорции настоящей колоды (70×120 мм) */
 function tarotFrame(inner, bottom) {
   const c = (x, y, sx, sy, star) => `<g transform="translate(${x} ${y}) scale(${sx} ${sy})"><path d="M0 9 V3 Q3 0 9 0" fill="none"/><path d="M4 13 V7 Q7 4 13 4" fill="none" stroke-opacity=".6"/>${star ? TF_STAR(11, 11, 3.2) : ""}</g>`;
   return `<svg viewBox="0 0 120 206" class="tc-svg"><defs><linearGradient id="tfg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7e2a6"/><stop offset=".35" stop-color="#c9963f"/><stop offset=".6" stop-color="#f3d88e"/><stop offset="1" stop-color="#9a6e22"/></linearGradient>
@@ -532,7 +337,6 @@ function tarotCardSVG(c, back) {
       `<g transform="translate(0 4)"><g fill="url(#tfg)"><circle cx="44" cy="182" r="2"/><circle cx="52" cy="182" r="2.6"/><circle cx="60" cy="182" r="3.2"/><circle cx="68" cy="182" r="2.6"/><circle cx="76" cy="182" r="2"/></g><g fill="#141a38"><circle cx="45" cy="181.5" r="1.7"/><circle cx="53.4" cy="181.5" r="2"/><circle cx="66.6" cy="181.5" r="2"/><circle cx="75" cy="181.5" r="1.7"/></g></g>`);
   }
   const i = TAROT.indexOf(c);
-  /* окно под пропорции скана (≈1 : 1.77); под картинкой — запасной рисунок или название */
   return tarotFrame(`<defs><clipPath id="ta${i}"><rect x="10" y="14.5" width="100" height="177" rx="1.5"/></clipPath></defs>
     <g clip-path="url(#ta${i})"><rect x="10" y="14.5" width="100" height="177" fill="#e9dcb8"/>${TA[i] ? `<g transform="translate(-0.9 14.5) scale(1.0926)">${TA[i]}</g>` : `<text x="60" y="106" font-family="Cormorant SC, Georgia, serif" font-weight="700" font-size="10" fill="#2b2140" text-anchor="middle">${c[1]}</text>`}</g>
     <image href="${rwsLocal(i)}" x="10" y="14.5" width="100" height="177" preserveAspectRatio="none"/>
@@ -545,20 +349,16 @@ function tarotCardSVG(c, back) {
    ===================================================================== */
 const SCN = (() => {
   const r2 = n => Math.round(n * 10) / 10;
-  /* ---------- общие кусочки ---------- */
   const brassG = id => `<linearGradient id="${id}" x1="0" x2="1"><stop offset="0" stop-color="#5a3d14"/><stop offset=".3" stop-color="#d8b061"/><stop offset=".5" stop-color="#f5dc98"/><stop offset=".72" stop-color="#a57a2c"/><stop offset="1" stop-color="#4a3010"/></linearGradient>`;
   const flame = (x, y, s = 1, cls = "") => `<g class="flame ${cls}" style="transform-origin:${x}px ${y}px"><path d="M${x} ${y} C${x - 7 * s} ${y - 10 * s} ${x - 3 * s} ${y - 22 * s} ${x} ${y - 30 * s} C${x + 3 * s} ${y - 22 * s} ${x + 7 * s} ${y - 10 * s} ${x} ${y}Z" fill="#ffcf62"/><path d="M${x} ${y - 2 * s} C${x - 3 * s} ${y - 8 * s} ${x - 1 * s} ${y - 15 * s} ${x} ${y - 19 * s} C${x + 1 * s} ${y - 15 * s} ${x + 3 * s} ${y - 8 * s} ${x} ${y - 2 * s}Z" fill="#fff6d6"/></g>`;
   const glow = (x, y, r, o = .55) => `<circle cx="${x}" cy="${y}" r="${r}" fill="url(#cglow)" opacity="${o}" class="cglow"/>`;
-  /* восковая свеча с подтёками */
   const candle = (x, base, h, w = 14, lit = true) => `<rect x="${x - w / 2}" y="${base - h}" width="${w}" height="${h}" fill="url(#wax)"/><path d="M${x - w / 2} ${base - h + 2} q${w * .25} ${h * .25} 0 ${h * .4} M${x + w / 2 - 1} ${base - h + 2} q-2 ${h * .15} 0 ${h * .22}" stroke="#efe2c4" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cx="${x}" cy="${base - h}" rx="${w / 2}" ry="2.4" fill="#fff4dc"/><path d="M${x} ${base - h} v-6" stroke="#1a0c06" stroke-width="1.4"/>${lit ? flame(x, base - h - 5, w / 14) : ""}`;
-  /* латунный подсвечник */
   const stick = (x, base, h, sc = 1) => `<ellipse cx="${x}" cy="${base}" rx="${22 * sc}" ry="${6 * sc}" fill="url(#brass)"/><path d="M${x - 18 * sc} ${base} Q${x} ${base - 14 * sc} ${x + 18 * sc} ${base}Z" fill="url(#brass)"/>
     <rect x="${x - 3.5 * sc}" y="${base - h}" width="${7 * sc}" height="${h}" fill="url(#brass)"/>${[.2, .5, .78].map(k => `<ellipse cx="${x}" cy="${base - h * k}" rx="${7 * sc}" ry="${4 * sc}" fill="url(#brass)"/>`).join("")}
     <path d="M${x - 13 * sc} ${base - h} Q${x} ${base - h + 10 * sc} ${x + 13 * sc} ${base - h}Z" fill="url(#brass)"/><ellipse cx="${x}" cy="${base - h}" rx="${13 * sc}" ry="${3 * sc}" fill="#e8c77a"/>`;
   const book = (x, base, w, h, c, lean = 0) => `<g transform="rotate(${lean} ${x} ${base})"><rect x="${x}" y="${base - h}" width="${w}" height="${h}" fill="${c}"/><rect x="${x}" y="${base - h}" width="${w}" height="${h}" fill="url(#spine)"/><path d="M${x + 1} ${base - h * .82} h${w - 2} M${x + 1} ${base - h * .18} h${w - 2}" stroke="#d8b061" stroke-width="1.6" opacity=".8"/><rect x="${x + w * .25}" y="${base - h * .6}" width="${w * .5}" height="${h * .18}" fill="#000" opacity=".25"/></g>`;
   const scroll = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#e6d8b8"/><circle cx="${x}" cy="${y}" r="${r * .62}" fill="none" stroke="#a8946a" stroke-width="1.2"/><circle cx="${x}" cy="${y}" r="${r * .28}" fill="none" stroke="#a8946a" stroke-width="1"/>`;
   const jar = (x, base, h, c) => `<path d="M${x - 14} ${base} Q${x - 18} ${base - h * .6} ${x - 10} ${base - h * .8} V${base - h} H${x + 10} V${base - h * .8} Q${x + 18} ${base - h * .6} ${x + 14} ${base}Z" fill="${c}" opacity=".85"/><rect x="${x - 11}" y="${base - h - 5}" width="22" height="6" fill="#5a3a1a"/><path d="M${x - 9} ${base - h * .7} q-3 ${h * .3} 0 ${h * .55}" stroke="#fff" stroke-opacity=".35" stroke-width="2" fill="none"/>`;
-  /* шкаф с полками */
   function cabinet(x0, w, mirror) {
     const x1 = x0 + w, sx = mirror ? x0 : x1 - 18, inner0 = mirror ? x0 + 18 : x0, inner1 = mirror ? x1 : x1 - 18;
     let s = `<rect x="${x0}" y="0" width="${w}" height="560" fill="url(#woodDark)"/><rect x="${inner0}" y="0" width="${inner1 - inner0}" height="380" fill="#170e09"/>`;
@@ -593,19 +393,16 @@ const SCN = (() => {
     <rect width="1600" height="470" fill="#000" filter="url(#grain)" opacity=".6"/><ellipse cx="800" cy="250" rx="420" ry="330" fill="url(#dark)"/>
     <rect x="0" y="380" width="1600" height="90" fill="#1c120c"/><rect x="0" y="376" width="1600" height="6" fill="#4a2e18"/>`;
     for (let x = 30; x < 1600; x += 90) s += `<rect x="${x}" y="392" width="70" height="66" fill="none" stroke="#2c1c10" stroke-width="3"/>`;
-    /* пол — доски в перспективе */
     s += `<rect x="0" y="466" width="1600" height="174" fill="url(#floor)"/>`;
     for (let i = -10; i <= 26; i++) { const xt = 800 + (i * 70 - 560) * .55 + 0, xb = 800 + (i * 70 - 560) * 2.1; s += `<path d="M${r2(xt)} 466 L${r2(xb)} 640" stroke="#150c06" stroke-width="2"/>`; }
     [490, 520, 562, 620].forEach((y, i) => { for (let x = (i * 137) % 200; x < 1600; x += 260 + i * 30) s += `<path d="M${x} ${y} h${40 + i * 10}" stroke="#150c06" stroke-width="2"/>`; });
     s += `<rect x="0" y="466" width="1600" height="174" fill="#000" filter="url(#grain)" opacity=".7"/>`;
-    /* ловцы снов */
     [[600, 0, 120, "#3a6a8a"], [1000, 0, 130, "#8a5a2a"]].forEach(([x, , y, c]) => {
       s += `<path d="M${x} 0 V${y - 46}" stroke="#7a6a50" stroke-width="1.4"/><circle cx="${x}" cy="${y}" r="44" fill="none" stroke="#6a4a2a" stroke-width="7"/><circle cx="${x}" cy="${y}" r="44" fill="none" stroke="${c}" stroke-width="3" stroke-dasharray="6 5"/>`;
       let web = ""; for (let k = 0; k < 9; k++) { const a = k * Math.PI * 2 / 9, b = a + Math.PI * 2 / 9 * 1.5; web += `M${r2(x + Math.cos(a) * 40)} ${r2(y + Math.sin(a) * 40)} L${r2(x + Math.cos(b) * 14)} ${r2(y + Math.sin(b) * 14)}`; }
       s += `<path d="${web}" stroke="#c9b48a" stroke-width=".9" opacity=".7"/><circle cx="${x}" cy="${y}" r="13" fill="none" stroke="#c9b48a" stroke-width=".9" opacity=".7"/><circle cx="${x}" cy="${y}" r="4" fill="${c}"/>`;
       [-26, 0, 26].forEach((dx, k) => { const fy = y + 44 + (k === 1 ? 14 : 0); s += `<path d="M${x + dx} ${y + 36} V${fy + 6}" stroke="#7a6a50" stroke-width="1"/><circle cx="${x + dx}" cy="${fy + 8}" r="3" fill="${c}"/><path d="M${x + dx} ${fy + 10} c-9 14 -7 38 0 54 c7 -16 9 -40 0 -54Z" fill="#d8ccb6"/><path d="M${x + dx} ${fy + 12} v50" stroke="#8a7a60" stroke-width="1"/><path d="M${x + dx} ${fy + 44} c-4 8 -3 14 0 20 c3 -6 4 -12 0 -20Z" fill="#3a2a20" opacity=".6"/>`; });
     });
-    /* левый шкаф */
     s += cabinet(0, 430, false);
     s += book(30, 86, 16, 62, "#5a1a1a") + book(47, 86, 13, 56, "#2a3a5a") + book(61, 86, 18, 66, "#4a3a1a") + book(80, 86, 12, 50, "#2e4a2a") + book(96, 86, 16, 60, "#6a2a1a", 14);
     s += scroll(160, 76, 10) + scroll(182, 76, 10) + scroll(171, 58, 10) + scroll(204, 76, 10) + scroll(193, 58, 10) + scroll(182, 40, 10);
@@ -617,16 +414,13 @@ const SCN = (() => {
     s += glow(110, 260, 90, .5) + candle(110, 286, 34, 14) + `<rect x="160" y="270" width="30" height="16" fill="#5a3a20"/><rect x="160" y="266" width="30" height="5" fill="#7a5230"/><rect x="214" y="276" width="10" height="10" fill="#e8e0d0"/><circle cx="217" cy="279" r="1" fill="#222"/><circle cx="221" cy="283" r="1" fill="#222"/><ellipse cx="270" cy="282" rx="22" ry="5" fill="#6a4a2a"/><ellipse cx="270" cy="278" rx="14" ry="5" fill="#b8b4c8"/><circle cx="270" cy="277" r="3" fill="#5a7aa8"/>`;
     s += book(320, 286, 30, 12, "#6a5a2a") + book(316, 274, 38, 12, "#3a1a1a") + `<circle cx="300" cy="282" r="4" fill="#d8b061"/><circle cx="309" cy="283" r="3.4" fill="#d8b061"/><circle cx="304" cy="278" r="3.4" fill="#e8c77a"/>`;
     s += glow(70, 340, 110, .55) + stick(70, 376, 46, .9) + candle(70, 330, 40, 13) + stick(350, 376, 58, .9) + glow(350, 300, 100, .5) + candle(350, 318, 30, 13);
-    /* правый шкаф */
     s += cabinet(1170, 430, true);
     s += [1210, 1236, 1262, 1290].map((x, i) => candle(x, 86, 30 + (i % 2) * 14, 16, false)).join("") + book(1320, 86, 16, 60, "#3a2a4a") + book(1337, 86, 18, 66, "#5a2a1a") + book(1356, 86, 14, 54, "#2a4a3a") + book(1420, 86, 50, 14, "#4a3a2a") + book(1424, 72, 42, 12, "#2a1a3a") + book(1512, 86, 16, 62, "#6a1a1a") + book(1529, 86, 14, 58, "#1a2a4a");
     s += glow(1250, 160, 80, .4) + candle(1240, 186, 26, 12) + jar(1300, 186, 46, "#5a4a7a") + book(1350, 186, 15, 62, "#3a1a1a") + book(1366, 186, 15, 56, "#4a4a2a") + book(1382, 186, 18, 66, "#2a2a2a") + `<path d="M1440 186 q-10 -30 14 -38 q24 8 14 38Z" fill="#4a3a6a"/><circle cx="1454" cy="146" r="5" fill="#d8b061"/>` + jar(1520, 186, 54, "#6a5a2a");
     s += book(1220, 286, 46, 14, "#5a2a2a") + book(1226, 272, 38, 12, "#2a3a5a") + glow(1330, 250, 90, .45) + candle(1330, 286, 40, 14) + candle(1352, 286, 26, 12) + `<ellipse cx="1430" cy="282" rx="24" ry="5" fill="#3a2a1a"/><path d="M1414 280 q16 -20 32 0Z" fill="#6a4a1a"/>` + scroll(1500, 276, 10) + scroll(1522, 276, 10) + scroll(1511, 258, 10);
     s += glow(1230, 300, 110, .55) + stick(1230, 376, 58, .9) + candle(1230, 318, 34, 13) + [1440, 1490, 1540].map((x, i) => stick(x, 376, 40 + i * 8, .7)).join("") + [1440, 1490, 1540].map((x, i) => candle(x, 376 - 40 - i * 8, 26 - i * 3, 11, i !== 1)).join("") + glow(1490, 320, 120, .45);
-    /* ящики и мешки на полу */
     const crate = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#crate)"/>${[1, 2, 3].map(k => `<path d="M${x} ${y + h * k / 4} h${w}" stroke="#3a2410" stroke-width="2"/>`).join("")}<rect x="${x}" y="${y}" width="10" height="${h}" fill="#4a2e14"/><rect x="${x + w - 10}" y="${y}" width="10" height="${h}" fill="#4a2e14"/><path d="M${x + 10} ${y + h - 6} L${x + w - 10} ${y + 6}" stroke="#4a2e14" stroke-width="9"/><path d="M${x} ${y} l14 -12 h${w} l-14 12Z" fill="#9a7244"/><path d="M${x + w} ${y} l14 -12 v${h} l-14 12Z" fill="#3e2812"/>`;
     s += `<ellipse cx="150" cy="628" rx="150" ry="14" fill="#000" opacity=".5"/>` + crate(40, 520, 160, 108) + crate(196, 548, 110, 80) + crate(70, 432, 116, 88) + `<path d="M84 432 q30 -26 60 -4 q-30 -10 -60 4Z" fill="#c9b48a" opacity=".8"/>`;
-    /* бочка, полная свёрнутых свитков, и пирамида свитков на полу */
     const roll = (x, y, len, ang, w = 15) => `<g transform="rotate(${ang} ${x} ${y})"><rect x="${x - w / 2}" y="${y - len}" width="${w}" height="${len}" fill="url(#paper)"/><path d="M${x - w / 2} ${y - len * .55} h${w}" stroke="#8a2a2a" stroke-width="3"/><ellipse cx="${x}" cy="${y - len}" rx="${w / 2}" ry="${w * .22}" fill="#efe4c8"/><ellipse cx="${x}" cy="${y - len}" rx="${w * .28}" ry="${w * .12}" fill="none" stroke="#a8946a" stroke-width="1"/></g>`;
     const end = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#e2d4b0" stroke="#7a6640" stroke-width="1.2"/><path d="M${x} ${y} m-${r * .55} 0 a${r * .55} ${r * .55} 0 1 1 ${r * .55} ${r * .55} a${r * .35} ${r * .35} 0 1 1 -${r * .3} -${r * .35} a${r * .15} ${r * .15} 0 1 1 ${r * .12} ${r * .12}" fill="none" stroke="#9a8458" stroke-width="1"/>`;
     s += `<ellipse cx="1430" cy="630" rx="190" ry="14" fill="#000" opacity=".55"/>`;
@@ -634,12 +428,10 @@ const SCN = (() => {
     s += `<path d="M1336 488 Q1322 556 1338 626 H1462 Q1478 556 1464 488Z" fill="url(#crate)"/>${[1352, 1374, 1400, 1426, 1448].map(x => `<path d="M${x} 490 Q${x + (x - 1400) * .12} 556 ${x} 624" stroke="#3a2410" stroke-width="2" fill="none"/>`).join("")}<path d="M1331 512 Q1400 522 1469 512 M1330 600 Q1400 610 1470 600" stroke="#26262a" stroke-width="9" fill="none"/><path d="M1331 510 Q1400 520 1469 510" stroke="#6a6a72" stroke-width="2" fill="none"/><ellipse cx="1400" cy="488" rx="64" ry="11" fill="#1a0e06"/><ellipse cx="1400" cy="488" rx="64" ry="11" fill="none" stroke="#6a4424" stroke-width="4"/>`;
     [[4, 616, 14], [3, 590, 14], [2, 564, 14], [1, 538, 14]].forEach(([n, y, r], row) => { for (let k = 0; k < n; k++) s += end(1500 + row * 13 + k * 26, y, r); });
     s += `<g transform="rotate(-8 1290 616)"><rect x="1236" y="604" width="92" height="20" fill="url(#paper)"/><ellipse cx="1328" cy="614" rx="5" ry="10" fill="#efe4c8"/><path d="M1236 604 q-30 4 -44 20 h44Z" fill="#e8dcc0"/><path d="M1200 618 h30 M1206 612 h24" stroke="#8a7a5a" stroke-width="1"/><path d="M1282 604 v20" stroke="#8a2a2a" stroke-width="3"/></g>`;
-    /* дым и общий свет */
     s += `<path class="smoke" d="M1452 140 c-10 -20 12 -30 0 -50 c-10 -18 10 -28 2 -44"/><path class="smoke b" d="M262 40 c12 -18 -8 -32 4 -52"/>`;
     s += `<rect width="1600" height="640" fill="url(#vig)"/>`;
     return s;
   }
-  /* ---------- стол, тьма, шар (1000×640) ---------- */
   function table() {
     let s = `<defs>
       ${brassG("brass2")}
@@ -662,12 +454,10 @@ const SCN = (() => {
     </defs>
     <ellipse cx="500" cy="260" rx="560" ry="400" fill="url(#void)"/>
     <g class="eyes"><ellipse cx="476" cy="196" rx="14" ry="6" fill="url(#eyeG)"/><ellipse cx="524" cy="196" rx="14" ry="6" fill="url(#eyeG)"/><path d="M469 196 Q476 192.6 483 196 Q476 198.4 469 196Z" fill="#f2d48a"/><path d="M517 196 Q524 192.6 531 196 Q524 198.4 517 196Z" fill="#f2d48a"/><circle cx="476" cy="195.8" r="1.1" fill="#1a0c04"/><circle cx="524" cy="195.8" r="1.1" fill="#1a0c04"/></g>`;
-    /* стол: столешница и скатерть */
     s += `<path d="M58 470 L40 660 H960 L942 470Z" fill="url(#drape)"/>`;
     for (let k = 0; k < 16; k++) { const x = 70 + k * 58; s += `<path d="M${x} ${560 + Math.sin(k * 1.7) * 18} Q${x + 10} 620 ${x - 4 + (k % 3) * 6} 660" stroke="#000" stroke-opacity=".4" stroke-width="${8 + (k % 3) * 4}" fill="none"/><path d="M${x + 20} ${570 + Math.cos(k) * 14} Q${x + 28} 620 ${x + 26} 660" stroke="#5a2a34" stroke-opacity=".35" stroke-width="3" fill="none"/>`; }
     s += `<ellipse cx="500" cy="478" rx="446" ry="124" fill="#0a0507"/><ellipse cx="500" cy="470" rx="442" ry="120" fill="url(#top)"/>`;
     s += `<ellipse cx="500" cy="470" rx="442" ry="120" fill="none" stroke="#5a3a2a" stroke-width="3"/><g clip-path="url(#tclip)"><ellipse cx="500" cy="420" rx="420" ry="150" fill="url(#tglow)" class="orbglow"/></g>`;
-    /* круг зодиака */
     s += `<g fill="none" stroke="#cfc6d8" stroke-opacity=".55"><ellipse cx="500" cy="478" rx="360" ry="96" stroke-width="2"/><ellipse cx="500" cy="478" rx="342" ry="91" stroke-width="1"/><ellipse cx="500" cy="478" rx="276" ry="73" stroke-width="1.5"/><ellipse cx="500" cy="478" rx="150" ry="40" stroke-width="1.2" stroke-dasharray="2 6"/></g>`;
     const RN = ["XII", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI"];
     for (let k = 0; k < 12; k++) {
@@ -677,7 +467,6 @@ const SCN = (() => {
       s += `<text x="0" y="0" transform="translate(${r2(x)} ${r2(y + 5)}) scale(${r2(.8 + .25 * Math.sin(a))} ${r2(sy)})" font-family="Georgia,serif" font-size="17" fill="#d8d0e0" fill-opacity=".55" text-anchor="middle">${RN[k]}</text>`;
       const x2 = 500 + Math.cos(a) * 352, y2 = 478 + Math.sin(a) * 94; s += `<circle cx="${r2(x2)}" cy="${r2(y2)}" r="2" fill="#d8d0e0" opacity=".5"/>`;
     }
-    /* шар: голубое стекло, внутри плывёт космос; подставка из серебра */
     s += `<ellipse cx="500" cy="402" rx="74" ry="14" fill="#5a8ad8" opacity=".22"/><ellipse cx="500" cy="400" rx="52" ry="9" fill="#000" opacity=".55"/>
       <path d="M452 400 Q462 380 500 376 Q538 380 548 400 Q500 410 452 400Z" fill="url(#silver)"/><path d="M466 384 Q474 362 500 358 Q526 362 534 384 Q500 392 466 384Z" fill="url(#silver)"/>
       <path d="M468 378 q-14 -8 -10 -24 M532 378 q14 -8 10 -24 M500 376 v-14" stroke="url(#silver)" stroke-width="4" fill="none"/>
@@ -686,13 +475,11 @@ const SCN = (() => {
         ${[...Array(30)].map((_, i) => `<circle cx="${r2(500 + Math.cos(i * 2.39) * (6 + (i * 13) % 50))}" cy="${r2(312 + Math.sin(i * 2.39) * (6 + (i * 11) % 48))}" r="${(i % 4) * .35 + .5}" fill="#fff" opacity="${.5 + (i % 3) * .25}"/>`).join("")}</g></g>
       <circle cx="500" cy="312" r="56" fill="url(#orbB)"/><circle cx="500" cy="312" r="56" fill="none" stroke="#bfe0ff" stroke-opacity=".55" stroke-width="1.4"/>
       <ellipse cx="480" cy="288" rx="17" ry="9" fill="#fff" opacity=".5" transform="rotate(-30 480 288)"/><ellipse cx="528" cy="342" rx="10" ry="4" fill="#bfe0ff" opacity=".35" transform="rotate(-30 528 342)"/>`;
-    /* розы и ленты на скатерти */
     const rose = (x, y) => `<g>${[0, 1, 2, 3, 4, 5].map(k => `<path d="M${x} ${y} q${r2(Math.cos(k) * 22)} ${r2(Math.sin(k) * 22 - 6)} ${r2(Math.cos(k + .9) * 14)} ${r2(Math.sin(k + .9) * 14)}" fill="#7a1220" stroke="#3a060c" stroke-width="1"/>`).join("")}<circle cx="${x}" cy="${y}" r="9" fill="#9a1a2a"/><path d="M${x - 5} ${y} a5 5 0 1 1 5 5 a3 3 0 1 1 -3 -3" stroke="#4a0810" stroke-width="1.6" fill="none"/>
       <path d="M${x - 4} ${y + 10} q-14 40 -4 70 q8 20 -2 44" stroke="url(#rib)" stroke-width="5" fill="none"/><path d="M${x + 4} ${y + 10} q16 34 6 64 q-8 24 4 48" stroke="url(#rib)" stroke-width="5" fill="none"/></g>`;
     s += rose(176, 600) + rose(824, 600);
     return s;
   }
-  /* ---------- рука (пальцы к гостю, большой палец справа) ---------- */
   function hand(id) {
     const finger = (x, y, len, w, ang, ring) => {
       const t = `<g transform="rotate(${ang} ${x} ${y})"><path d="M${x - w / 2} ${y} C${x - w / 2} ${y + len * .62} ${x - w * .44} ${y + len - 3} ${x} ${y + len} C${x + w * .44} ${y + len - 3} ${x + w / 2} ${y + len * .62} ${x + w / 2} ${y}Z" fill="url(#skin${id})"/>` +
@@ -722,7 +509,6 @@ const SCN = (() => {
       ${[60, 74, 89, 103].map(x => `<ellipse cx="${x}" cy="${220}" rx="5" ry="3" fill="#fff" opacity=".18"/>`).join("")}
     </g></svg>`;
   }
-  /* ---------- створка двери: резной дракон во всю высоту, железное кольцо ---------- */
   function door(mirror) {
     const carve = (d, w) => `<path d="${d}" stroke="#120904" stroke-width="${w + 4}" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" stroke="#7a5230" stroke-width="${w}" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" stroke="#a87a48" stroke-width="${Math.max(1, w * .25)}" fill="none" stroke-linecap="round" transform="translate(-1.2 -1.2)" opacity=".7"/>`;
     const body = "M214 176 C196 214 150 236 140 288 C128 350 214 380 218 450 C222 520 140 540 128 610 C116 690 196 712 206 772 C214 826 168 850 150 846";
@@ -802,7 +588,6 @@ const MIRRA = {
   end: ["Вот и всё, {n}. Карты сказали — а уж что с этим делать, решать тебе.", "Свеча догорает. Запомни, что услышал, и не пересказывай Ордену.", "Судьба — дорога, а не клетка. Иди, {n}. И не оглядывайся на Чернолесье."],
   bye: [["Оставить медный грош.", "Грош за правду — честная плата. Да хранит тебя огонь, которого боятся мёртвые."], ["Оставить серебряный.", "Серебро?.. Щедро. Тогда скажу ещё одно: тот, кого ты ищешь, ищет тебя тоже. Иди."], ["Уйти молча.", "Иди-иди. Платят все — рано или поздно. Не мне, так судьбе."], ["Спросить ещё раз.", "Жадный до правды… Ладно. Перетасую."]]
 };
-/* слова для каждой из 22 карт (порядок как в TAROT) */
 const MIRRA_CARDS = [
   { say: ["Шут. Ты стоишь на краю, {n}, и делаешь шаг — не глядя вниз. Так начинаются великие пути и глупые смерти.", "Шут — это новое. Всё, что было, — пыль. Впереди дорога без карты."],
     rsay: ["Шут вверх ногами. Ты бежишь — но не вперёд, а прочь. От чего, {n}?"],
@@ -916,7 +701,6 @@ const MIRRA_CARDS = [
     who: "Странник, что вернулся домой.", change: "Круг замкнут. Новый начнётся сам." }
 ];
 
-/* Младшие Арканы (56): Жезлы, Кубки, Мечи, Пентакли — индексы 22…77 */
 TAROT.push(...[["Т", "Туз Жезлов", "", "Искра нового дела, вдохновение, начало пути.", "Задержка, угасший порыв, несостоявшийся старт."], ["II", "Двойка Жезлов", "", "Планы, взгляд за горизонт, выбор дороги.", "Страх перемен, планы без действий."], ["III", "Тройка Жезлов", "", "Ожидание вестей, первые плоды, корабли на горизонте.", "Задержки, обманутые ожидания."], ["IV", "Четвёрка Жезлов", "", "Праздник, дом, устойчивость, свадьба.", "Непрочный мир, ссора в доме."], ["V", "Пятёрка Жезлов", "", "Спор, соперничество, мелкие стычки.", "Затухание вражды или скрытый конфликт."], ["VI", "Шестёрка Жезлов", "", "Победа, признание, триумф.", "Гордыня, падение славы, зависть."], ["VII", "Семёрка Жезлов", "", "Оборона, стойкость, борьба против многих.", "Усталость, уступка, сдача позиций."], ["VIII", "Восьмёрка Жезлов", "", "Быстрые вести, стремительное движение, письма.", "Спешка, задержка вестей, суета."], ["IX", "Девятка Жезлов", "", "Стойкость, последний рубеж, осторожность.", "Изнеможение, подозрительность, упрямство."], ["X", "Десятка Жезлов", "", "Тяжкое бремя, ответственность, перегруз.", "Сброшенный груз или надорванная спина."], ["П", "Паж Жезлов", "", "Весть, любопытство, юный порыв.", "Пустые обещания, ребячество."], ["Р", "Рыцарь Жезлов", "", "Порыв, приключение, переезд.", "Безрассудство, вспыльчивость."], ["Кр", "Королева Жезлов", "", "Уверенность, тепло, обаяние.", "Ревность, властность, капризы."], ["К", "Король Жезлов", "", "Лидерство, дальновидность, смелость.", "Тирания, нетерпимость."], ["Т", "Туз Кубков", "", "Новое чувство, любовь, полнота сердца.", "Пустота, закрытое сердце."], ["II", "Двойка Кубков", "", "Союз, взаимность, примирение.", "Разлад, неравные чувства."], ["III", "Тройка Кубков", "", "Дружба, праздник, радость вместе.", "Сплетни, излишества, третий лишний."], ["IV", "Четвёрка Кубков", "", "Скука, апатия, упущенный дар.", "Пробуждение, новый интерес."], ["V", "Пятёрка Кубков", "", "Утрата, сожаление, горе.", "Принятие, возвращение надежды."], ["VI", "Шестёрка Кубков", "", "Воспоминания, детство, невинность.", "Жизнь прошлым, застревание."], ["VII", "Семёрка Кубков", "", "Иллюзии, мечты, слишком много путей.", "Ясность, трезвый выбор."], ["VIII", "Восьмёрка Кубков", "", "Уход, поиск большего, разочарование.", "Страх уйти, возвращение."], ["IX", "Девятка Кубков", "", "Исполнение желаний, довольство.", "Самодовольство, пустые удовольствия."], ["X", "Десятка Кубков", "", "Семейное счастье, гармония, дом.", "Раздор в семье, разбитые надежды."], ["П", "Паж Кубков", "", "Нежная весть, мечтательность, творчество.", "Обидчивость, незрелость."], ["Р", "Рыцарь Кубков", "", "Предложение, романтика, приглашение.", "Пустые обещания, обман чувств."], ["Кр", "Королева Кубков", "", "Сочувствие, чутьё, забота.", "Зависимость, буря чувств."], ["К", "Король Кубков", "", "Спокойствие, мудрость чувств, щедрость.", "Холодность, тайное влияние."], ["Т", "Туз Мечей", "", "Ясность, правда, прорыв.", "Путаница, жестокое слово."], ["II", "Двойка Мечей", "", "Тупик, трудный выбор, перемирие.", "Решение принято или обман раскрыт."], ["III", "Тройка Мечей", "", "Сердечная боль, горе, разрыв.", "Исцеление раны, прощение."], ["IV", "Четвёрка Мечей", "", "Отдых, затишье, восстановление.", "Беспокойство, возвращение к делам."], ["V", "Пятёрка Мечей", "", "Поражение, нечестная победа, раздор.", "Примирение, сожаление."], ["VI", "Шестёрка Мечей", "", "Переход, отъезд, спокойные воды.", "Застревание, тяжкий груз прошлого."], ["VII", "Семёрка Мечей", "", "Хитрость, обман, тайный умысел.", "Раскрытый обман, признание."], ["VIII", "Восьмёрка Мечей", "", "Ловушка, ограничение, страх.", "Освобождение, выход из клетки."], ["IX", "Девятка Мечей", "", "Тревога, кошмары, бессонница.", "Надежда, страх отступает."], ["X", "Десятка Мечей", "", "Крах, конец, самое дно.", "Восстановление, худшее позади."], ["П", "Паж Мечей", "", "Любопытство, слежка, острый ум.", "Сплетни, колкость."], ["Р", "Рыцарь Мечей", "", "Натиск, спешка, решимость.", "Безрассудство, грубость."], ["Кр", "Королева Мечей", "", "Честность, независимость, острый ум.", "Холодность, жестокость слов."], ["К", "Король Мечей", "", "Разум, власть закона, справедливость.", "Жестокий приказ, злоупотребление властью."], ["Т", "Туз Пентаклей", "", "Новая возможность, деньги, дар.", "Упущенная выгода, жадность."], ["II", "Двойка Пентаклей", "", "Равновесие, много дел сразу.", "Перегруз, хаос в делах."], ["III", "Тройка Пентаклей", "", "Мастерство, работа сообща, признание.", "Халтура, разлад в команде."], ["IV", "Четвёрка Пентаклей", "", "Скупость, накопление, контроль.", "Расточительность или умение отпустить."], ["V", "Пятёрка Пентаклей", "", "Нужда, бедность, холод.", "Помощь пришла, выход из нужды."], ["VI", "Шестёрка Пентаклей", "", "Щедрость, милостыня, помощь.", "Долг, неравный обмен."], ["VII", "Семёрка Пентаклей", "", "Терпение, ожидание урожая.", "Нетерпение, напрасный труд."], ["VIII", "Восьмёрка Пентаклей", "", "Труд, учёба, усердие.", "Скука, лень, небрежность."], ["IX", "Девятка Пентаклей", "", "Достаток, независимость, свой сад.", "Зависимость, потеря покоя."], ["X", "Десятка Пентаклей", "", "Богатство рода, наследство, традиции.", "Семейные долги, ссора за наследство."], ["П", "Паж Пентаклей", "", "Учёба, новое дело, практичность.", "Лень, несобранность."], ["Р", "Рыцарь Пентаклей", "", "Надёжность, усердие, медленный путь.", "Застой, упрямство."], ["Кр", "Королева Пентаклей", "", "Забота, достаток, домашний уют.", "Тревога о деньгах, забвение себя."], ["К", "Король Пентаклей", "", "Богатство, успех, щедрая власть.", "Жадность, продажность."]]);
 MIRRA_CARDS.push(...[{"say": ["Туз Жезлов. Искра нового дела, вдохновение, начало пути.", "Жезл — это огонь и воля. Туз Жезлов говорит: искра нового дела, вдохновение, начало пути."], "rsay": ["Туз Жезлов, да вверх ногами. Задержка, угасший порыв, несостоявшийся старт."], "adv": "Хватай искру, пока она горит, — начинай.", "radv": "Не трать огонь впустую: сначала реши, куда идёшь.", "who": "Тот, кто зажжёт в тебе огонь, — новый знакомый или покровитель.", "change": "Огонь можно раздуть или погасить — выбор за тобой."}, {"say": ["Двойка Жезлов. Планы, взгляд за горизонт, выбор дороги.", "Жезл — это огонь и воля. Двойка Жезлов говорит: планы, взгляд за горизонт, выбор дороги."], "rsay": ["Двойка Жезлов, да вверх ногами. Страх перемен, планы без действий."], "adv": "Смотри дальше своих стен — мир больше.", "radv": "Перестань чертить карты — выйди за ворота.", "who": "Тот, кто держит мир в руках и ждёт твоего решения.", "change": "Огонь можно раздуть или погасить — выбор за тобой."}, {"say": ["Тройка Жезлов. Ожидание вестей, первые плоды, корабли на горизонте.", "Жезл — это огонь и воля. Тройка Жезлов говорит: ожидание вестей, первые плоды, корабли на горизонте."], "rsay": ["Тройка Жезлов, да вверх ногами. Задержки, обманутые ожидания."], "adv": "Твои корабли уже в пути — жди и готовь пристань.", "radv": "Не жди помощи со стороны — плыви сам.", "who": "Купец или гонец из дальних земель.", "change": "Огонь можно раздуть или погасить — выбор за тобой."}, {"say": ["Четвёрка Жезлов. Праздник, дом, устойчивость, свадьба.", "Жезл — это огонь и воля. Четвёрка Жезлов говорит: праздник, дом, устойчивость, свадьба."], "rsay": ["Четвёрка Жезлов, да вверх ногами. Непрочный мир, ссора в доме."], "adv": "Порадуйся тому, что построено.", "radv": "Укрепи дом, пока он не дал трещину.", "who": "Родня, хозяева дома, гости праздника.", "change": "Огонь можно раздуть или погасить — выбор за тобой."}, {"say": ["Пятёрка Жезлов. Спор, соперничество, мелкие стычки.", "Жезл — это огонь и воля. Пятёрка Жезлов говорит: спор, соперничество, мелкие стычки."], "rsay": ["Пятёрка Жезлов, да вверх ногами. Затухание вражды или скрытый конфликт."], "adv": "Спорь честно — в споре рождается сила.", "radv": "Не ищи драки там, где её нет.", "who": "Соперник, который на самом деле похож на тебя.", "change": "Огонь можно раздуть или погасить — выбор за тобой."}, {"say": ["Шестёрка Жезлов. Победа, признание, триумф.", "Жезл — это огонь и воля. Шестёрка Жезлов говорит: победа, признание, триумф."], "rsay": ["Шестёрка Жезлов, да вверх ногами. Гордыня, падение славы, зависть."], "adv": "Принимай почести, но помни, кто нёс тебя.", "radv": "Слава переменчива — не опирайся на неё.", "who": "Победитель, которого встречает толпа.", "change": "Огонь можно раздуть или погасить — выбор за тобой."}, {"say": ["Семёрка Жезлов. Оборона, стойкость, борьба против многих.", "Жезл — это огонь и воля. Семёрка Жезлов говорит: оборона, стойкость, борьба против многих."], "rsay": ["Семёрка Жезлов, да вверх ногами. Усталость, уступка, сдача позиций."], "adv": "Держи высоту — у тебя выгодное место.", "radv": "Выбери, за что стоять, а что отпустить.", "who": "Тот, кто в одиночку держит оборону.", "change": "Огонь можно раздуть или погасить — выбор за тобой."}, {"say": ["Восьмёрка Жезлов. Быстрые вести, стремительное движение, письма.", "Жезл — это огонь и воля. Восьмёрка Жезлов говорит: быстрые вести, стремительное движение, письма."], "rsay": ["Восьмёрка Жезлов, да вверх ногами. Спешка, задержка вестей, суета."], "adv": "Действуй быстро — время на твоей стороне.", "radv": "Не гони коня — придёшь не туда.", "who": "Гонец, птица с письмом, дорожный человек.", "change": "Огонь можно раздуть или погасить — выбор за тобой."}, {"say": ["Девятка Жезлов. Стойкость, последний рубеж, осторожность.", "Жезл — это огонь и воля. Девятка Жезлов говорит: стойкость, последний рубеж, осторожность."], "rsay": ["Девятка Жезлов, да вверх ногами. Изнеможение, подозрительность, упрямство."], "adv": "Ещё один шаг — и ты выдержишь.", "radv": "Отдохни, пока раны не стали шрамами.", "who": "Израненный страж, который не сдаётся.", "change": "Огонь можно раздуть или погасить — выбор за тобой."}, {"say": ["Десятка Жезлов. Тяжкое бремя, ответственность, перегруз.", "Жезл — это огонь и воля. Десятка Жезлов говорит: тяжкое бремя, ответственность, перегруз."], "rsay": ["Десятка Жезлов, да вверх ногами. Сброшенный груз или надорванная спина."], "adv": "Неси, но спроси себя — твоё ли это бремя.", "radv": "Положи часть ноши — ты не вьючный мул.", "who": "Тот, кто тащит всё на себе.", "change": "Огонь можно раздуть или погасить — выбор за тобой."}, {"say": ["Паж Жезлов. Весть, любопытство, юный порыв.", "Жезл — это огонь и воля. Паж Жезлов говорит: весть, любопытство, юный порыв."], "rsay": ["Паж Жезлов, да вверх ногами. Пустые обещания, ребячество."], "adv": "Будь смел, как ученик, — спрашивай.", "radv": "Не обещай того, чего не сделаешь.", "who": "Юный вестник, ученик, горячая голова.", "change": "Огонь можно раздуть или погасить — выбор за тобой."}, {"say": ["Рыцарь Жезлов. Порыв, приключение, переезд.", "Жезл — это огонь и воля. Рыцарь Жезлов говорит: порыв, приключение, переезд."], "rsay": ["Рыцарь Жезлов, да вверх ногами. Безрассудство, вспыльчивость."], "adv": "Скачи вперёд — сейчас время смелых.", "radv": "Остынь, прежде чем рубить сплеча.", "who": "Всадник, искатель приключений, наёмник.", "change": "Огонь можно раздуть или погасить — выбор за тобой."}, {"say": ["Королева Жезлов. Уверенность, тепло, обаяние.", "Жезл — это огонь и воля. Королева Жезлов говорит: уверенность, тепло, обаяние."], "rsay": ["Королева Жезлов, да вверх ногами. Ревность, властность, капризы."], "adv": "Свети — и к тебе потянутся.", "radv": "Не сжигай тех, кого греешь.", "who": "Яркая женщина, хозяйка дома или двора.", "change": "Огонь можно раздуть или погасить — выбор за тобой."}, {"say": ["Король Жезлов. Лидерство, дальновидность, смелость.", "Жезл — это огонь и воля. Король Жезлов говорит: лидерство, дальновидность, смелость."], "rsay": ["Король Жезлов, да вверх ногами. Тирания, нетерпимость."], "adv": "Веди за собой — тебя послушают.", "radv": "Не путай силу с криком.", "who": "Предводитель, полководец, глава дома.", "change": "Огонь можно раздуть или погасить — выбор за тобой."}, {"say": ["Туз Кубков. Новое чувство, любовь, полнота сердца.", "Чаша — это сердце. Туз Кубков говорит: новое чувство, любовь, полнота сердца."], "rsay": ["Туз Кубков, да вверх ногами. Пустота, закрытое сердце."], "adv": "Открой сердце — чаша полна.", "radv": "Не держи чувства в себе — они киснут.", "who": "Тот, кто подарит тебе любовь или утешение.", "change": "Чувства текут, как вода, — направь их русло."}, {"say": ["Двойка Кубков. Союз, взаимность, примирение.", "Чаша — это сердце. Двойка Кубков говорит: союз, взаимность, примирение."], "rsay": ["Двойка Кубков, да вверх ногами. Разлад, неравные чувства."], "adv": "Протяни руку — тебе ответят.", "radv": "Поговори, прежде чем рвать.", "who": "Возлюбленный, друг, будущий союзник.", "change": "Чувства текут, как вода, — направь их русло."}, {"say": ["Тройка Кубков. Дружба, праздник, радость вместе.", "Чаша — это сердце. Тройка Кубков говорит: дружба, праздник, радость вместе."], "rsay": ["Тройка Кубков, да вверх ногами. Сплетни, излишества, третий лишний."], "adv": "Позови друзей — радость растёт, когда её делят.", "radv": "Не всякий за столом тебе друг.", "who": "Подруги, сёстры, весёлая компания.", "change": "Чувства текут, как вода, — направь их русло."}, {"say": ["Четвёрка Кубков. Скука, апатия, упущенный дар.", "Чаша — это сердце. Четвёрка Кубков говорит: скука, апатия, упущенный дар."], "rsay": ["Четвёрка Кубков, да вверх ногами. Пробуждение, новый интерес."], "adv": "Оглянись — тебе протягивают чашу.", "radv": "Ты проснулся — не упусти миг.", "who": "Тот, кто предлагает, пока ты отворачиваешься.", "change": "Чувства текут, как вода, — направь их русло."}, {"say": ["Пятёрка Кубков. Утрата, сожаление, горе.", "Чаша — это сердце. Пятёрка Кубков говорит: утрата, сожаление, горе."], "rsay": ["Пятёрка Кубков, да вверх ногами. Принятие, возвращение надежды."], "adv": "Две чаши ещё стоят — повернись к ним.", "radv": "Хватит плакать над пролитым.", "who": "Тот, кого ты потерял.", "change": "Чувства текут, как вода, — направь их русло."}, {"say": ["Шестёрка Кубков. Воспоминания, детство, невинность.", "Чаша — это сердце. Шестёрка Кубков говорит: воспоминания, детство, невинность."], "rsay": ["Шестёрка Кубков, да вверх ногами. Жизнь прошлым, застревание."], "adv": "Вспомни, кем ты был, — это поможет.", "radv": "Прошлое — не дом, а дорога.", "who": "Друг детства, старая любовь.", "change": "Чувства текут, как вода, — направь их русло."}, {"say": ["Семёрка Кубков. Иллюзии, мечты, слишком много путей.", "Чаша — это сердце. Семёрка Кубков говорит: иллюзии, мечты, слишком много путей."], "rsay": ["Семёрка Кубков, да вверх ногами. Ясность, трезвый выбор."], "adv": "Не всё золото, что блестит в чашах.", "radv": "Выбери одно — и держись.", "who": "Обманщик или мечтатель.", "change": "Чувства текут, как вода, — направь их русло."}, {"say": ["Восьмёрка Кубков. Уход, поиск большего, разочарование.", "Чаша — это сердце. Восьмёрка Кубков говорит: уход, поиск большего, разочарование."], "rsay": ["Восьмёрка Кубков, да вверх ногами. Страх уйти, возвращение."], "adv": "Иногда нужно уйти, чтобы найти.", "radv": "Не беги от того, что можно починить.", "who": "Тот, кто ушёл в ночь.", "change": "Чувства текут, как вода, — направь их русло."}, {"say": ["Девятка Кубков. Исполнение желаний, довольство.", "Чаша — это сердце. Девятка Кубков говорит: исполнение желаний, довольство."], "rsay": ["Девятка Кубков, да вверх ногами. Самодовольство, пустые удовольствия."], "adv": "Загадай желание — карта обещает.", "radv": "Сытость — ещё не счастье.", "who": "Довольный хозяин, трактирщик.", "change": "Чувства текут, как вода, — направь их русло."}, {"say": ["Десятка Кубков. Семейное счастье, гармония, дом.", "Чаша — это сердце. Десятка Кубков говорит: семейное счастье, гармония, дом."], "rsay": ["Десятка Кубков, да вверх ногами. Раздор в семье, разбитые надежды."], "adv": "Береги своих — они твоя радуга.", "radv": "Помирись с близкими, пока не поздно.", "who": "Семья, близкие, родной дом.", "change": "Чувства текут, как вода, — направь их русло."}, {"say": ["Паж Кубков. Нежная весть, мечтательность, творчество.", "Чаша — это сердце. Паж Кубков говорит: нежная весть, мечтательность, творчество."], "rsay": ["Паж Кубков, да вверх ногами. Обидчивость, незрелость."], "adv": "Слушай сердце — оно шепчет.", "radv": "Не принимай всё близко к сердцу.", "who": "Юный мечтатель, поэт.", "change": "Чувства текут, как вода, — направь их русло."}, {"say": ["Рыцарь Кубков. Предложение, романтика, приглашение.", "Чаша — это сердце. Рыцарь Кубков говорит: предложение, романтика, приглашение."], "rsay": ["Рыцарь Кубков, да вверх ногами. Пустые обещания, обман чувств."], "adv": "Прими приглашение — оно искренне.", "radv": "Красивые слова — ещё не дела.", "who": "Влюблённый или посланник с дарами.", "change": "Чувства текут, как вода, — направь их русло."}, {"say": ["Королева Кубков. Сочувствие, чутьё, забота.", "Чаша — это сердце. Королева Кубков говорит: сочувствие, чутьё, забота."], "rsay": ["Королева Кубков, да вверх ногами. Зависимость, буря чувств."], "adv": "Доверься чутью.", "radv": "Не тони в чужих слезах.", "who": "Мудрая женщина, целительница.", "change": "Чувства текут, как вода, — направь их русло."}, {"say": ["Король Кубков. Спокойствие, мудрость чувств, щедрость.", "Чаша — это сердце. Король Кубков говорит: спокойствие, мудрость чувств, щедрость."], "rsay": ["Король Кубков, да вверх ногами. Холодность, тайное влияние."], "adv": "Держи голову выше волн.", "radv": "Не прячь бурю под спокойным лицом.", "who": "Мудрый советник, лекарь, духовник.", "change": "Чувства текут, как вода, — направь их русло."}, {"say": ["Туз Мечей. Ясность, правда, прорыв.", "Меч — это разум и боль. Туз Мечей говорит: ясность, правда, прорыв."], "rsay": ["Туз Мечей, да вверх ногами. Путаница, жестокое слово."], "adv": "Режь правдой — она освободит.", "radv": "Подумай, прежде чем рубить словом.", "who": "Тот, кто скажет тебе правду.", "change": "Мысль сильнее меча — передумай, и всё изменится."}, {"say": ["Двойка Мечей. Тупик, трудный выбор, перемирие.", "Меч — это разум и боль. Двойка Мечей говорит: тупик, трудный выбор, перемирие."], "rsay": ["Двойка Мечей, да вверх ногами. Решение принято или обман раскрыт."], "adv": "Сними повязку — посмотри правде в глаза.", "radv": "Хватит медлить — выбор уже сделан.", "who": "Тот, кто мечется между двух огней.", "change": "Мысль сильнее меча — передумай, и всё изменится."}, {"say": ["Тройка Мечей. Сердечная боль, горе, разрыв.", "Меч — это разум и боль. Тройка Мечей говорит: сердечная боль, горе, разрыв."], "rsay": ["Тройка Мечей, да вверх ногами. Исцеление раны, прощение."], "adv": "Позволь себе погоревать — это пройдёт.", "radv": "Рана затягивается — не трогай её.", "who": "Тот, кто ранил, — или кого ранили.", "change": "Мысль сильнее меча — передумай, и всё изменится."}, {"say": ["Четвёрка Мечей. Отдых, затишье, восстановление.", "Меч — это разум и боль. Четвёрка Мечей говорит: отдых, затишье, восстановление."], "rsay": ["Четвёрка Мечей, да вверх ногами. Беспокойство, возвращение к делам."], "adv": "Ляг и отдохни — бой подождёт.", "radv": "Пора вставать — отдых окончен.", "who": "Больной, затворник, спящий.", "change": "Мысль сильнее меча — передумай, и всё изменится."}, {"say": ["Пятёрка Мечей. Поражение, нечестная победа, раздор.", "Меч — это разум и боль. Пятёрка Мечей говорит: поражение, нечестная победа, раздор."], "rsay": ["Пятёрка Мечей, да вверх ногами. Примирение, сожаление."], "adv": "Не всякая победа стоит потерь.", "radv": "Протяни руку побеждённому.", "who": "Победитель, которого все ненавидят.", "change": "Мысль сильнее меча — передумай, и всё изменится."}, {"say": ["Шестёрка Мечей. Переход, отъезд, спокойные воды.", "Меч — это разум и боль. Шестёрка Мечей говорит: переход, отъезд, спокойные воды."], "rsay": ["Шестёрка Мечей, да вверх ногами. Застревание, тяжкий груз прошлого."], "adv": "Плыви к лучшему берегу.", "radv": "Не тащи старые мечи в новую лодку.", "who": "Лодочник, проводник, беженец.", "change": "Мысль сильнее меча — передумай, и всё изменится."}, {"say": ["Семёрка Мечей. Хитрость, обман, тайный умысел.", "Меч — это разум и боль. Семёрка Мечей говорит: хитрость, обман, тайный умысел."], "rsay": ["Семёрка Мечей, да вверх ногами. Раскрытый обман, признание."], "adv": "Будь осторожен — кто-то хитрит.", "radv": "Признайся — так будет легче.", "who": "Вор, шпион, ловкач.", "change": "Мысль сильнее меча — передумай, и всё изменится."}, {"say": ["Восьмёрка Мечей. Ловушка, ограничение, страх.", "Меч — это разум и боль. Восьмёрка Мечей говорит: ловушка, ограничение, страх."], "rsay": ["Восьмёрка Мечей, да вверх ногами. Освобождение, выход из клетки."], "adv": "Путы слабее, чем кажутся.", "radv": "Шагни — и выйдешь.", "who": "Тот, кто сам себя связал.", "change": "Мысль сильнее меча — передумай, и всё изменится."}, {"say": ["Девятка Мечей. Тревога, кошмары, бессонница.", "Меч — это разум и боль. Девятка Мечей говорит: тревога, кошмары, бессонница."], "rsay": ["Девятка Мечей, да вверх ногами. Надежда, страх отступает."], "adv": "Страх ночью больше, чем днём.", "radv": "Расскажи кому-то — и кошмар сожмётся.", "who": "Тот, кто не спит ночами.", "change": "Мысль сильнее меча — передумай, и всё изменится."}, {"say": ["Десятка Мечей. Крах, конец, самое дно.", "Меч — это разум и боль. Десятка Мечей говорит: крах, конец, самое дно."], "rsay": ["Десятка Мечей, да вверх ногами. Восстановление, худшее позади."], "adv": "Ниже падать некуда — значит, дальше вверх.", "radv": "Встань — рассвет уже близко.", "who": "Тот, кого предали.", "change": "Мысль сильнее меча — передумай, и всё изменится."}, {"say": ["Паж Мечей. Любопытство, слежка, острый ум.", "Меч — это разум и боль. Паж Мечей говорит: любопытство, слежка, острый ум."], "rsay": ["Паж Мечей, да вверх ногами. Сплетни, колкость."], "adv": "Наблюдай и учись.", "radv": "Не болтай о том, что видел.", "who": "Юный шпион, ученик.", "change": "Мысль сильнее меча — передумай, и всё изменится."}, {"say": ["Рыцарь Мечей. Натиск, спешка, решимость.", "Меч — это разум и боль. Рыцарь Мечей говорит: натиск, спешка, решимость."], "rsay": ["Рыцарь Мечей, да вверх ногами. Безрассудство, грубость."], "adv": "Иди напролом — сейчас можно.", "radv": "Не руби сплеча.", "who": "Всадник, налетающий как буря.", "change": "Мысль сильнее меча — передумай, и всё изменится."}, {"say": ["Королева Мечей. Честность, независимость, острый ум.", "Меч — это разум и боль. Королева Мечей говорит: честность, независимость, острый ум."], "rsay": ["Королева Мечей, да вверх ногами. Холодность, жестокость слов."], "adv": "Говори прямо — тебя уважают.", "radv": "Не превращай правду в нож.", "who": "Вдова, судья, строгая наставница.", "change": "Мысль сильнее меча — передумай, и всё изменится."}, {"say": ["Король Мечей. Разум, власть закона, справедливость.", "Меч — это разум и боль. Король Мечей говорит: разум, власть закона, справедливость."], "rsay": ["Король Мечей, да вверх ногами. Жестокий приказ, злоупотребление властью."], "adv": "Решай головой.", "radv": "Закон без милосердия — та же тирания.", "who": "Судья, инквизитор, советник Престола.", "change": "Мысль сильнее меча — передумай, и всё изменится."}, {"say": ["Туз Пентаклей. Новая возможность, деньги, дар.", "Монета — это земля и труд. Туз Пентаклей говорит: новая возможность, деньги, дар."], "rsay": ["Туз Пентаклей, да вверх ногами. Упущенная выгода, жадность."], "adv": "Бери то, что даётся в руки.", "radv": "Не сжимай монету так, что она режет ладонь.", "who": "Тот, кто принесёт тебе удачу или заказ.", "change": "Земля отдаёт то, что в неё вложили, — вложи иначе."}, {"say": ["Двойка Пентаклей. Равновесие, много дел сразу.", "Монета — это земля и труд. Двойка Пентаклей говорит: равновесие, много дел сразу."], "rsay": ["Двойка Пентаклей, да вверх ногами. Перегруз, хаос в делах."], "adv": "Держи равновесие — и всё устоит.", "radv": "Брось один мяч, чтобы поймать другой.", "who": "Ловкач, торговец, шут на ярмарке.", "change": "Земля отдаёт то, что в неё вложили, — вложи иначе."}, {"say": ["Тройка Пентаклей. Мастерство, работа сообща, признание.", "Монета — это земля и труд. Тройка Пентаклей говорит: мастерство, работа сообща, признание."], "rsay": ["Тройка Пентаклей, да вверх ногами. Халтура, разлад в команде."], "adv": "Работай руками — тебя заметят.", "radv": "Делай хорошо или не делай вовсе.", "who": "Мастер, зодчий, гильдия.", "change": "Земля отдаёт то, что в неё вложили, — вложи иначе."}, {"say": ["Четвёрка Пентаклей. Скупость, накопление, контроль.", "Монета — это земля и труд. Четвёрка Пентаклей говорит: скупость, накопление, контроль."], "rsay": ["Четвёрка Пентаклей, да вверх ногами. Расточительность или умение отпустить."], "adv": "Сохрани то, что имеешь.", "radv": "Разожми кулак — ты задыхаешься.", "who": "Скряга, ростовщик, казначей.", "change": "Земля отдаёт то, что в неё вложили, — вложи иначе."}, {"say": ["Пятёрка Пентаклей. Нужда, бедность, холод.", "Монета — это земля и труд. Пятёрка Пентаклей говорит: нужда, бедность, холод."], "rsay": ["Пятёрка Пентаклей, да вверх ногами. Помощь пришла, выход из нужды."], "adv": "Попроси о помощи — двери открыты.", "radv": "Худшее позади, иди к свету.", "who": "Нищий, изгнанник, больной.", "change": "Земля отдаёт то, что в неё вложили, — вложи иначе."}, {"say": ["Шестёрка Пентаклей. Щедрость, милостыня, помощь.", "Монета — это земля и труд. Шестёрка Пентаклей говорит: щедрость, милостыня, помощь."], "rsay": ["Шестёрка Пентаклей, да вверх ногами. Долг, неравный обмен."], "adv": "Дай — и тебе вернётся.", "radv": "Не покупай любовь монетами.", "who": "Благодетель, купец, ростовщик.", "change": "Земля отдаёт то, что в неё вложили, — вложи иначе."}, {"say": ["Семёрка Пентаклей. Терпение, ожидание урожая.", "Монета — это земля и труд. Семёрка Пентаклей говорит: терпение, ожидание урожая."], "rsay": ["Семёрка Пентаклей, да вверх ногами. Нетерпение, напрасный труд."], "adv": "Подожди — урожай зреет.", "radv": "Проверь, на том ли поле ты работаешь.", "who": "Земледелец, тот, кто ждёт.", "change": "Земля отдаёт то, что в неё вложили, — вложи иначе."}, {"say": ["Восьмёрка Пентаклей. Труд, учёба, усердие.", "Монета — это земля и труд. Восьмёрка Пентаклей говорит: труд, учёба, усердие."], "rsay": ["Восьмёрка Пентаклей, да вверх ногами. Скука, лень, небрежность."], "adv": "Работай упорно — мастерство придёт.", "radv": "Не бросай начатое.", "who": "Подмастерье, ремесленник.", "change": "Земля отдаёт то, что в неё вложили, — вложи иначе."}, {"say": ["Девятка Пентаклей. Достаток, независимость, свой сад.", "Монета — это земля и труд. Девятка Пентаклей говорит: достаток, независимость, свой сад."], "rsay": ["Девятка Пентаклей, да вверх ногами. Зависимость, потеря покоя."], "adv": "Наслаждайся плодами трудов.", "radv": "Не будь птицей в золотой клетке.", "who": "Хозяйка поместья, знатная дама.", "change": "Земля отдаёт то, что в неё вложили, — вложи иначе."}, {"say": ["Десятка Пентаклей. Богатство рода, наследство, традиции.", "Монета — это земля и труд. Десятка Пентаклей говорит: богатство рода, наследство, традиции."], "rsay": ["Десятка Пентаклей, да вверх ногами. Семейные долги, ссора за наследство."], "adv": "Думай о роде, не только о себе.", "radv": "Не дели наследство кровью.", "who": "Старейшина рода, наследник.", "change": "Земля отдаёт то, что в неё вложили, — вложи иначе."}, {"say": ["Паж Пентаклей. Учёба, новое дело, практичность.", "Монета — это земля и труд. Паж Пентаклей говорит: учёба, новое дело, практичность."], "rsay": ["Паж Пентаклей, да вверх ногами. Лень, несобранность."], "adv": "Учись — знание станет золотом.", "radv": "Мечтать мало — действуй.", "who": "Ученик, студент, юный купец.", "change": "Земля отдаёт то, что в неё вложили, — вложи иначе."}, {"say": ["Рыцарь Пентаклей. Надёжность, усердие, медленный путь.", "Монета — это земля и труд. Рыцарь Пентаклей говорит: надёжность, усердие, медленный путь."], "rsay": ["Рыцарь Пентаклей, да вверх ногами. Застой, упрямство."], "adv": "Медленно, но верно.", "radv": "Не стой на месте из страха.", "who": "Верный воин, работяга.", "change": "Земля отдаёт то, что в неё вложили, — вложи иначе."}, {"say": ["Королева Пентаклей. Забота, достаток, домашний уют.", "Монета — это земля и труд. Королева Пентаклей говорит: забота, достаток, домашний уют."], "rsay": ["Королева Пентаклей, да вверх ногами. Тревога о деньгах, забвение себя."], "adv": "Позаботься о теле и доме.", "radv": "Не забывай о себе в заботах.", "who": "Хозяйка, кормилица, щедрая мать.", "change": "Земля отдаёт то, что в неё вложили, — вложи иначе."}, {"say": ["Король Пентаклей. Богатство, успех, щедрая власть.", "Монета — это земля и труд. Король Пентаклей говорит: богатство, успех, щедрая власть."], "rsay": ["Король Пентаклей, да вверх ногами. Жадность, продажность."], "adv": "Строй — и будешь богат.", "radv": "Не продавай совесть за золото.", "who": "Богатый купец, банкир, глава гильдии.", "change": "Земля отдаёт то, что в неё вложили, — вложи иначе."}]);
 
@@ -930,7 +714,6 @@ const IN_FRAME = (() => { try { return window.self !== window.top; } catch (_) {
 function toast(t) { const d = document.createElement("div"); d.className = "toast"; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 3200); }
 function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (_) { return null; } }
 
-/* ===================== ЛАВКА ===================== */
 $("#room").innerHTML = SCN.room();
 $("#tbl").innerHTML = SCN.table();
 document.querySelector(".flap.l").innerHTML = SCN.door(false);
@@ -938,10 +721,8 @@ document.querySelector(".flap.r").innerHTML = SCN.door(true);
 (() => { let d = ""; for (let i = 0; i < 16; i++) d += `<i style="left:${tRand(100)}%;top:${20 + tRand(70)}%;animation-duration:${9 + tRand(10)}s;animation-delay:-${tRand(12)}s"></i>`; $("#dust").innerHTML = d; })();
 const M = () => document.body;
 function look() {}
-/* карта сама переворачивается на столе */
 async function handFlip(i, el) { el.classList.add("open"); await wait(950); }
 
-/* ===================== ДИАЛОГОВЫЙ ДВИЖОК ===================== */
 let G = { n: "", name: "", topic: "", spread: "three", drawn: [], deck: [], visits: 0 };
 const fill = t => t.replace(/\{n\}/g, G.name || "путник").replace(/\{t\}/g, MIRRA.topicName[G.topic] || "твоего вопроса");
 const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
@@ -956,7 +737,6 @@ function type(text) {
   });
 }
 function echo(t) { const e = $("#echo"); if (!t) { e.hidden = true; e.innerHTML = ""; return; } e.hidden = false; e.innerHTML = `<b>${esc(G.name || "Гость")}</b>${esc(fill(t))}`; }
-/* Мирра говорит; ждём касания, чтобы продолжить */
 async function say(text, guest) {
   echo(guest || ""); $("#ctrl").innerHTML = ""; await type(text);
   const el = $("#line"); el.insertAdjacentHTML("beforeend", `<span class="more">▾</span>`);
@@ -966,7 +746,6 @@ async function say(text, guest) {
     setTimeout(() => { $("#dlg").addEventListener("click", go); addEventListener("keydown", key); }, 60);
   });
 }
-/* Мирра говорит и ждёт ответа: opts = [[текст, класс?], …] → индекс */
 async function ask(text, opts, guest) {
   echo(guest || ""); $("#ctrl").innerHTML = ""; await type(text);
   return choose(opts);
@@ -980,7 +759,6 @@ function choose(opts) {
 }
 const opTxt = o => Array.isArray(o) ? o[0] : o;
 
-/* ===================== СТОЛ ===================== */
 function slotsDraw() {
   const sp = TAROT_SPREADS[G.spread];
   $("#slots").className = "slots n" + sp.pos.length;
@@ -1013,7 +791,6 @@ function zoomCard(i) {
 }
 document.addEventListener("click", e => { const c = e.target.closest("[data-card]"); if (c) zoomCard(+c.dataset.card); });
 
-/* ===================== СЦЕНАРИЙ ===================== */
 const SELF = [
   ["Кто ты такая, Мирра?", "Я? Старуха с колодой и плохими коленями. Когда-то меня звали иначе. Когда-то я танцевала при дворе. Но двор сгорел, а танцы — нет: карты тоже танцуют, {n}."],
   ["Откуда ты родом?", "С юга, из-за песков, где солнце белое, а ночи пахнут жасмином. Мой табор шёл на север сорок зим назад. Дошла только я."],
@@ -1114,13 +891,11 @@ async function cardTalk(i, pos) {
   if (d.rev) await say(pick(MIRRA.rev));
   await say(pick(d.rev ? C.rsay : C.say) + " " + pick(TOPIC_TAIL[G.topic]));
   look("guest");
-  /* её вопрос гостю */
   if (C.q) {
     const opts = C.a.map(x => x[0]).concat([["Промолчать.", "quiet"]]);
     const a = await ask(C.q, opts);
     if (a < C.a.length) await say(C.a[a][1], C.a[a][0]); else await say(pick(MIRRA.quiet), "…");
   }
-  /* вопросы гостя */
   let left = MIRRA.guestQ.slice(0, 3), first = true;
   while (left.length) {
     const q = await ask(first ? pick(["Спрашивай, если есть что спросить.", "Хочешь спросить меня о чём-то, {n}?", "Карта ещё тёплая. Спрашивай."]) : pick(["Что ещё?", "Ещё вопрос?", "Спрашивай дальше — или пойдём к следующей."]),
@@ -1170,7 +945,6 @@ function leave() {
   if (IN_FRAME) { try { parent.postMessage({ velaris: "closeOverlay" }, "*"); return; } catch (_) {} }
   location.href = "index.html" + location.search;
 }
-/* шатёр может быть скрыт мастерами — тогда полог завязан для игроков */
 (async () => {
   const role = new URLSearchParams(location.search).get("vk_viewer_group_role") || "";
   let tok = false; try { tok = !!(JSON.parse(localStorage.getItem("velaris-gh-v1")) || {}).token; } catch (_) {}
