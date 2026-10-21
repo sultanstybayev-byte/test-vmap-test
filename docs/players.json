@@ -866,7 +866,8 @@
    "chars": [
     {
      "id": "cmvigwefvqj6",
-     "name": "Свен Галт"
+     "name": "Свен Галт",
+     "fac": "guild"
     }
    ],
    "char": "Свен Галт"
