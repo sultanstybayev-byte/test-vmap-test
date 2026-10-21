@@ -1488,8 +1488,7 @@ function docsHubHTML() {
   return `${head("Архив", "Документы", "Письма, указы, книги и бумаги, попавшие в руки героев.")}
     ${ADMIN ? `<div class="doc-admin"><button type="button" class="btn" data-workshop="docs">+ Создать документ</button>${canEdit() ? `<button type="button" class="btn ghost" data-fnew>+ Папка</button>` : ""}<button type="button" class="btn ghost" data-workshop="docs">Мастерская</button>
       <small>${canEdit() ? "Документ можно перетащить в другую папку: на компьютере — мышью, на телефоне — зажмите и тяните." : "Вы администратор. Чтобы раскладывать документы по папкам, открывать и скрывать их, подключите ключ GitHub в Мастерской (один раз на этом устройстве)."}</small></div><div id="fedit"></div>` : ""}
-    <div class="shelves wide" id="doclist"><p class="lead">Загружаю…</p></div>
-    <p class="vk-role">${VK_ROLE ? "Роль по данным ВК: " + esc(VK_ROLE) : VK_P.has("vk_user_id") ? "ВК не передал роль в группе" : ""}</p>`;
+    <div class="shelves wide" id="doclist"><p class="lead">Загружаю…</p></div>`;
 }
 async function docsLoad() {
   if (!$("#doclist")) return;
