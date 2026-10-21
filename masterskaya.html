@@ -278,6 +278,11 @@ html.shared #app, html.shared .bg { display: none; }
 .ic-pick button[aria-pressed="true"] { background: linear-gradient(180deg, #f1d79a, #c99a4e); border-color: var(--gold-hi); } .ic-pick button[aria-pressed="true"] svg { stroke: #2a1a0c; } .ic-pick button[aria-pressed="true"] { color: #2a1a0c; }
 .cv-own { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; } .cv-own img { width: 56px; height: 56px; object-fit: cover; border-radius: 50%; border: 2px solid var(--gold); }
 .cv-own .btn { padding: 8px 12px; font-size: 14.5px; }
+.lw-dsg { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 6px; }
+.lw-dsg button { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 3px 5px; border: 1px solid rgba(111,85,50,.4); border-radius: 4px; background: rgba(255,252,240,.5); cursor: pointer; }
+.lw-dsg-p { display: block; width: 100%; aspect-ratio: 360 / 470; background: no-repeat center / cover; border-radius: 2px; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
+.lw-dsg small { font: 600 11.5px/1.15 var(--font-body); color: var(--text-ink); text-align: center; }
+.lw-dsg button[aria-pressed="true"] { border-color: var(--blood); background: rgba(255,252,240,.9); outline: 2px solid var(--gold); outline-offset: 0; }
 </style>
 </head>
 <body>
@@ -676,8 +681,11 @@ function letterHTML(extra = lwExtra()) {
     <div class="fld"><label for="lw-seal">Оттиск</label><select id="lw-seal" data-lw="seal">${seals.map(([k, t]) => `<option value="${k}"${k === LW.seal ? " selected" : ""}>${esc(t)}</option>`).join("")}</select></div>
     ${LW.seal === "initial" ? inp("initial", "Буква на печати", (LW.sign || "А")[0]) : ""}
     ${LW.seal === "none" ? "" : `<div class="fld"><label>Сургуч</label><div class="lw-wax">${Object.entries(LW_WAX).map(([k, w]) => `<button type="button" data-lwx="${k}" aria-pressed="${k === LW.wax}" title="${w[0]}" aria-label="${w[0]}" style="--w:${w[1]};--h:${w[2]}"></button>`).join("")}</div></div>`}
+    <h3>Оформление</h3>
+    <div class="fld"><div class="lw-dsg">${LW_DESIGNS.map((d, i) => `<button type="button" data-lwd="${i}" aria-pressed="${lwDesignOf(LW) === i}" title="${esc(d[0])}"><span class="lw-dsg-p" style="background-image:url('data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 470'><rect width='360' height='470' fill='#ecdaae'/><g fill='#3b2a18' stroke='#3b2a18' stroke-linecap='round' stroke-linejoin='round'>${d[1](360, 470, "#3b2a18", "#7a2414", EMBLEMS.crown)}</g><g stroke='#8a7350' stroke-width='5' opacity='.45'><path d='M80 170H280M80 200H270M80 230H280M80 260H230'/></g></svg>`).replace(/'/g, "%27")}')"></span><small>${esc(d[0])}</small></button>`).join("")}</div></div>
+    <div class="fld"><label>Огонь</label><div class="lw-seg">${LW_BURN.map((t, i) => `<button type="button" data-lwb="${i}" aria-pressed="${(+LW.burn || 0) === i}">${t}</button>`).join("")}</div><small>${["", "Опалённые края и уголки.", "Прожжённые дыры: часть текста сгорела."][+LW.burn || 0]}</small></div>
     <h3>Украшения</h3>
-    <div class="lw-chks">${chk("dropcap", "Расписная буквица")}${chk("corners", "Узоры в углах")}${chk("folds", "Сгибы")}${chk("blots", "Кляксы")}${chk("wobble", "Живой почерк")}${chk("backdrop", "Тёмный фон вокруг")}</div>
+    <div class="lw-chks">${chk("dropcap", "Расписная буквица")}${chk("folds", "Сгибы")}${chk("blots", "Кляксы")}${chk("wobble", "Живой почерк")}${chk("backdrop", "Тёмный фон вокруг")}</div>
     <button type="button" class="btn ghost" id="lw-reseed">Другие пятна и кляксы</button>
   </div>
   <div class="lw-prev">
@@ -710,10 +718,12 @@ document.addEventListener("change", e => {
   if (t.dataset && t.dataset.lwc) { LW[t.dataset.lwc] = t.checked; lwSave(); lwDraw(); }
 });
 document.addEventListener("click", e => {
-  const t = e.target, b = t.closest && t.closest("[data-lwk],[data-lws],[data-lwx],#lw-reseed,#lw-dl,#lw-copy,#lw-open");
+  const t = e.target, b = t.closest && t.closest("[data-lwd],[data-lwb],[data-lwk],[data-lws],[data-lwx],#lw-reseed,#lw-dl,#lw-copy,#lw-open");
   if (!b) return;
   if (b.dataset.lwk) { LW.kind = b.dataset.lwk; if (LW.kind === "decree" && !LW.title) LW.title = "Указ"; if (LW.kind === "secret" && !LW.title) LW.title = "Тайно"; lwSave(); lwRefreshForm(); return; }
   if (b.dataset.lws) { LW.size = +b.dataset.lws; lwSave(); b.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); lwDraw(); return; }
+  if (b.dataset.lwd != null) { LW.design = +b.dataset.lwd; LW.corners = false; lwSave(); b.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); lwDraw(); return; }
+  if (b.dataset.lwb != null) { LW.burn = +b.dataset.lwb; lwSave(); lwRefreshForm(); return; }
   if (b.dataset.lwx) { LW.wax = b.dataset.lwx; lwSave(); b.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); lwDraw(); return; }
   if (b.id === "lw-reseed") { LW.seed = (LW.seed * 7 + 13) % 9973; lwSave(); lwDraw(); return; }
   const cv = $("#lw-cv"); if (!cv) return;
@@ -767,13 +777,71 @@ async function lwRender() {
   await lwPaint(cv, LW, 2, () => tok !== lwTok);
 }
 /* Рисует письмо L на холсте cv в масштабе S. stale() — «уже не нужно» (пользователь успел изменить письмо). */
+/* ---------- 14 оформлений письма: рамки и украшения чернилами поверх бумаги ---------- */
+const lwR = (i, d) => { const v = Math.sin(i * 12.9898 + d * 78.233) * 43758.5453; return v - Math.floor(v); };
+const LW_FLEUR = `<path d="M0-14c-4 4-4 10 0 14 4-4 4-10 0-14z"/><path d="M0 0c-6-6-14-4-12 2 2 4 8 2 12-2zM0 0c6-6 14-4 12 2-2 4-8 2-12-2z"/><path d="M-7 4h14M0 4v8" fill="none"/>`;
+/* [название, (W, H, чернила, красный, знак) → svg-содержимое, доп. отступ текста] */
+const LW_DESIGNS = [
+  ["Без украшений", () => "", 0],
+  ["Уголки", (W, H, k, r) => { const g = `<g fill="none" stroke-width="1.6" stroke-linecap="round"><path d="M4 76V20C4 10 10 4 20 4h56"/><path d="M10 76V26c0-9 7-16 16-16h50"/><path d="M20 24c6-8 18-8 20 2s-10 14-14 6 6-12 10-4"/><path d="M24 20c-8-6-8-16 0-16"/><path d="M20 24c-6 8-16 8-16 0"/></g><circle cx="20" cy="24" r="3" fill="${r}" stroke="none"/>`;
+    return [[12, 12, 1, 1], [W - 12, 12, -1, 1], [12, H - 12, 1, -1], [W - 12, H - 12, -1, -1]].map(([x, y, a, b]) => `<g transform="translate(${x} ${y}) scale(${a * .8} ${b * .8})">${g}</g>`).join("") + `<rect x="16" y="16" width="${W - 32}" height="${H - 32}" fill="none" stroke-width="1.2" opacity=".55"/>`; }, 14],
+  ["Двойная рамка", (W, H) => `<rect x="18" y="18" width="${W - 36}" height="${H - 36}" fill="none" stroke-width="2.2"/><rect x="25" y="25" width="${W - 50}" height="${H - 50}" fill="none" stroke-width=".9"/>`, 16],
+  ["Герб в шапке", (W, H, k, r, em) => `<g transform="translate(${W / 2 - 22} 26) scale(1.85)" fill="none" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">${em}</g><path d="M60 88H${W / 2 - 34}M${W / 2 + 34} 88H${W - 60}" stroke-width="1.2"/><path d="M${W / 2} 82l6 6-6 6-6-6z" fill="${r}" stroke="none"/><path d="M60 ${H - 34}H${W - 60}" stroke-width="1" opacity=".6"/>`, 56],
+  ["Водяной знак", (W, H, k, r, em) => `<g transform="translate(${W / 2 - 150} ${H / 2 - 150}) scale(12.5)" fill="none" stroke-width=".7" stroke-linecap="round" stroke-linejoin="round" opacity=".17">${em}</g>`, 0],
+  ["Лоза по краям", (W, H, k, r) => {
+    const wave = (x1, y1, x2, y2) => { const n = Math.max(2, Math.round(Math.hypot(x2 - x1, y2 - y1) / 34)), dx = (x2 - x1) / n, dy = (y2 - y1) / n, len = Math.hypot(dx, dy), nx = -dy / len, ny = dx / len; let p = `M${x1} ${y1}`, lv = "";
+      for (let i = 0; i < n; i++) { const sg = i % 2 ? -1 : 1, cx = x1 + dx * (i + .5) + nx * 7 * sg, cy = y1 + dy * (i + .5) + ny * 7 * sg; p += `Q${cx.toFixed(1)} ${cy.toFixed(1)} ${(x1 + dx * (i + 1)).toFixed(1)} ${(y1 + dy * (i + 1)).toFixed(1)}`;
+        lv += `<ellipse cx="${(cx + nx * 5 * sg).toFixed(1)}" cy="${(cy + ny * 5 * sg).toFixed(1)}" rx="4.2" ry="2" transform="rotate(${(Math.atan2(dy, dx) * 57.3 + 35 * sg).toFixed(0)} ${(cx + nx * 5 * sg).toFixed(1)} ${(cy + ny * 5 * sg).toFixed(1)})" stroke="none"/>`; }
+      return `<path d="${p}" fill="none" stroke-width="1.3"/>` + lv; };
+    return wave(34, 24, W - 34, 24) + wave(34, H - 24, W - 34, H - 24) + wave(22, 40, 22, H - 40) + wave(W - 22, 40, W - 22, H - 40) + `<g fill="${r}" stroke="none"><circle cx="24" cy="24" r="4"/><circle cx="${W - 24}" cy="24" r="4"/><circle cx="24" cy="${H - 24}" r="4"/><circle cx="${W - 24}" cy="${H - 24}" r="4"/></g>`; }, 18],
+  ["Канцелярский бланк", (W, H, k, r) => { let o = `<path d="M54 0V${H}" stroke="${r}" stroke-width="1.2" opacity=".55"/><path d="M58 0V${H}" stroke="${r}" stroke-width=".6" opacity=".4"/>`; for (let y = 96; y < H - 30; y += 30) o += `<path d="M20 ${y}H${W - 20}" stroke-width=".6" opacity=".18"/>`; return o + `<path d="M20 66H${W - 20}" stroke-width="1.6" opacity=".7"/><path d="M20 71H${W - 20}" stroke-width=".7" opacity=".6"/>`; }, 6],
+  ["Узор сверху и снизу", (W, H, k, r) => { const v = (y, f) => `<g transform="translate(${W / 2} ${y}) scale(${f} 1)"><path d="M-180 0h140M40 0h140" stroke-width="1.2"/><path d="M-40 0c10-10 22-10 26 0-4 10-16 10-26 0zM40 0c-10-10-22-10-26 0 4 10 16 10 26 0z" fill="none" stroke-width="1.2"/><path d="M-80 0c6-8 14-8 16-2s-6 8-8 3M80 0c-6-8-14-8-16-2s6 8 8 3" fill="none" stroke-width="1.1"/><path d="M0-8l7 8-7 8-7-8z" fill="${r}" stroke="none"/></g>`; return v(30, Math.min(1.3, (W - 80) / 360)) + v(H - 30, Math.min(1.3, (W - 80) / 360)); }, 14],
+  ["Готическое окно", (W, H, k, r) => `<path d="M30 ${H - 22}V${Math.min(170, H * .3)}C30 ${Math.min(100, H * .18)} ${W * .3} 40 ${W / 2} 22C${W * .7} 40 ${W - 30} ${Math.min(100, H * .18)} ${W - 30} ${Math.min(170, H * .3)}V${H - 22}Z" fill="none" stroke-width="1.6" opacity=".75"/><g transform="translate(${W / 2} 60)" fill="none" stroke="${r}" stroke-width="1.2"><circle r="6"/><circle cx="-8" cy="7" r="6"/><circle cx="8" cy="7" r="6"/></g>`, 30],
+  ["Меандр", (W, H) => { let o = ""; const n = Math.floor((W - 60) / 16), x0 = (W - n * 16) / 2; for (let i = 0; i < n; i++) { const x = x0 + i * 16; o += `<path d="M${x} 32v-10h12v8h-6v-4h2" fill="none" stroke-width="1.3"/><path d="M${x} ${H - 32}v10h12v-8h-6v4h2" fill="none" stroke-width="1.3"/>`; } return o + `<path d="M${x0} 36H${W - x0}M${x0} ${H - 36}H${W - x0}" stroke-width=".8"/>`; }, 16],
+  ["Звёздная канва", (W, H, k, r) => { let o = ""; for (let i = 0; i < 40; i++) { const e = i % 4, t = lwR(i, 1), q = 10 + lwR(i, 2) * 26, x = e === 0 ? t * W : e === 1 ? t * W : e === 2 ? q : W - q, y = e === 0 ? q : e === 1 ? H - q : t * H, rr = 1.5 + lwR(i, 3) * 3.2;
+    o += `<path d="M${x.toFixed(1)} ${(y - rr).toFixed(1)}L${(x + rr * .3).toFixed(1)} ${(y - rr * .3).toFixed(1)} ${(x + rr).toFixed(1)} ${y.toFixed(1)} ${(x + rr * .3).toFixed(1)} ${(y + rr * .3).toFixed(1)} ${x.toFixed(1)} ${(y + rr).toFixed(1)} ${(x - rr * .3).toFixed(1)} ${(y + rr * .3).toFixed(1)} ${(x - rr).toFixed(1)} ${y.toFixed(1)} ${(x - rr * .3).toFixed(1)} ${(y - rr * .3).toFixed(1)}z" stroke="none"/>`; }
+    return o + `<path d="M${W - 64} 40a16 16 0 1 0 8 28 13 13 0 0 1-8-28z" fill="${r}" stroke="none" opacity=".8"/>`; }, 16],
+  ["Траурная кайма", (W, H) => `<rect x="9" y="9" width="${W - 18}" height="${H - 18}" fill="none" stroke-width="9"/><rect x="21" y="21" width="${W - 42}" height="${H - 42}" fill="none" stroke-width=".8"/>`, 18],
+  ["Лилии", (W, H, k, r) => [[34, 34, 135], [W - 34, 34, 225], [34, H - 34, 45], [W - 34, H - 34, 315]].map(([x, y, a]) => `<g transform="translate(${x} ${y}) rotate(${a - 90}) scale(1.1)">${LW_FLEUR}</g>`).join("") + `<g transform="translate(${W / 2} 26) scale(1.1)" fill="${r}">${LW_FLEUR}</g><path d="M58 18H${W / 2 - 24}M${W / 2 + 24} 18H${W - 58}M58 ${H - 18}H${W - 58}M18 58V${H - 58}M${W - 18} 58V${H - 58}" stroke-width="1" opacity=".7"/>`, 20],
+  ["Витой шнур", (W, H) => { let o = ""; for (let x = 24; x < W - 24; x += 6) o += `<path d="M${x} 16l4 8M${x} ${H - 24}l4 8" stroke-width="1.3"/>`; for (let y = 30; y < H - 24; y += 6) o += `<path d="M16 ${y}l8 4M${W - 24} ${y}l8 4" stroke-width="1.3"/>`; return o + `<g stroke="none"><circle cx="20" cy="20" r="5"/><circle cx="${W - 20}" cy="20" r="5"/><circle cx="20" cy="${H - 20}" r="5"/><circle cx="${W - 20}" cy="${H - 20}" r="5"/></g>`; }, 16]
+];
+const LW_BURN = ["Целое", "Опалённое", "Сильно обгоревшее"];
+const lwDesignOf = L => L.design != null ? +L.design : L.corners ? 1 : 0;
+/* Обгорание: прожжённые края и дыры с обугленной каймой. Текст под дырами пропадает. */
+function lwBurn(c, W, H, lvl, seed) {
+  const r = lwRng(seed * 13 + 77), blobs = [];
+  const add = (x, y, rad) => { const pts = []; for (let i = 0; i < 28; i++) { const a = i / 28 * Math.PI * 2, k = 1 + (r() - .5) * .55 + Math.sin(a * 3 + r() * 6) * .12; pts.push([x + Math.cos(a) * rad * k, y + Math.sin(a) * rad * k]); } blobs.push(pts); };
+  const edgePt = () => { const e = Math.floor(r() * 4), t = r(); return e === 0 ? [t * W, 0] : e === 1 ? [W, t * H] : e === 2 ? [t * W, H] : [0, t * H]; };
+  const nEdge = lvl === 1 ? 9 : 14;
+  for (let i = 0; i < nEdge; i++) { const [x, y] = edgePt(); add(x, y, (lvl === 1 ? 14 : 20) + r() * (lvl === 1 ? 26 : 46)); }
+  [[0, 0], [W, 0], [0, H], [W, H]].forEach(([x, y]) => { if (r() < (lvl === 1 ? .6 : 1)) add(x, y, (lvl === 1 ? 30 : 55) + r() * (lvl === 1 ? 40 : 70)); });
+  if (lvl === 2) { for (let i = 0; i < 2; i++) add(W * (.2 + r() * .6), H * (.25 + r() * .55), 28 + r() * 46); add(W * (r() < .5 ? .05 : .95), H * (.3 + r() * .4), 80 + r() * 70); }
+  const path = pts => { const p = new Path2D(); p.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i <= pts.length; i++) { const a = pts[i % pts.length], b = pts[(i + 1) % pts.length]; p.quadraticCurveTo(a[0], a[1], (a[0] + b[0]) / 2, (a[1] + b[1]) / 2); } p.closePath(); return p; };
+  const scale = (pts, f) => { const cx = pts.reduce((s, p) => s + p[0], 0) / pts.length, cy = pts.reduce((s, p) => s + p[1], 0) / pts.length; return pts.map(([x, y]) => [cx + (x - cx) * f, cy + (y - cy) * f]); };
+  c.save();
+  /* 1) потемнение вокруг ожогов */
+  blobs.forEach(b => { const cx = b.reduce((s, p) => s + p[0], 0) / b.length, cy = b.reduce((s, p) => s + p[1], 0) / b.length, rad = Math.max(...b.map(([x, y]) => Math.hypot(x - cx, y - cy)));
+    const g = c.createRadialGradient(cx, cy, rad * .6, cx, cy, rad * 1.75); g.addColorStop(0, "rgba(70,32,8,.55)"); g.addColorStop(.45, "rgba(110,60,20,.28)"); g.addColorStop(1, "rgba(120,70,25,0)"); c.fillStyle = g; c.fillRect(cx - rad * 2, cy - rad * 2, rad * 4, rad * 4); });
+  /* 2) обугленная кайма */
+  c.save(); c.shadowColor = "rgba(60,24,6,.75)"; c.shadowBlur = 9;
+  c.fillStyle = "rgba(85,40,12,.45)"; blobs.forEach(b => c.fill(path(scale(b, 1.2))));
+  c.shadowBlur = 4; c.shadowColor = "rgba(20,8,2,.9)"; c.fillStyle = "rgba(24,11,4,.95)"; blobs.forEach(b => c.fill(path(scale(b, 1.07))));
+  c.restore();
+  /* 3) сами дыры */
+  c.globalCompositeOperation = "destination-out"; c.fillStyle = "#000"; blobs.forEach(b => c.fill(path(b)));
+  /* 4) тлеющие искры по краю */
+  c.globalCompositeOperation = "source-atop";
+  blobs.forEach(b => { for (let i = 0; i < b.length; i += 3) if (r() < .35) { const [x, y] = scale([b[i]], 1)[0]; c.fillStyle = `rgba(${200 + r() * 55 | 0},${90 + r() * 60 | 0},20,${(.25 + r() * .35).toFixed(2)})`; c.beginPath(); c.arc(x, y, .8 + r() * 1.8, 0, Math.PI * 2); c.fill(); } });
+  c.restore();
+}
 async function lwPaint(cv, L, S = 2, stale = () => false) {
   const P = LW_PAPERS[L.paper] || LW_PAPERS.parch, H = LW_HANDS[L.hand] || LW_HANDS.marck;
   let ink = (LW_INKS[L.ink] || LW_INKS.black)[1];
   if (P.dark && ["black", "sepia", "blue", "red"].includes(L.ink)) ink = LW_INKS.silver[1];
   const red = P.dark ? "#c0503a" : "#7a2414";
   const W = { letter: 720, decree: 760, note: 520, secret: 640 }[L.kind] || 720;
-  const pad = (L.kind === "note" ? 46 : 66) + (L.corners ? 14 : 0);
+  const DSG = LW_DESIGNS[lwDesignOf(L)] || LW_DESIGNS[0], burn = +L.burn || 0;
+  const pad = (L.kind === "note" ? 46 : 66) + DSG[2] + (burn === 2 ? 14 : 0);
   const fs = [17, 20, 24][L.size] * H.k, lh = fs * H.lh;
   const SH = LW_HANDS[L.sigHand], sigF = SH ? SH.f : (L.hand === "kurale" || L.hand === "oldst") ? "Marck Script" : H.f, sigK = SH ? SH.k / H.k : 1;
   const font = (sz, fam = H.f, ital = H.ital) => `${ital ? "italic " : ""}${sz.toFixed(1)}px "${fam}", "Marck Script", cursive`;
@@ -781,14 +849,12 @@ async function lwPaint(cv, L, S = 2, stale = () => false) {
   const wax = LW_WAX[L.wax] || LW_WAX.red;
   const seal = L.seal && L.seal !== "none" ? L.seal : "";
   const need = [];
-  if (L.corners) need.push(lwImg(LW_SVG.corner(ink)));
   if (L.kind === "decree") { need.push(lwImg(LW_SVG.vine(ink)), lwImg(LW_SVG.emblem(seal && EMBLEMS[seal] ? seal : "crown", ink, 1.3))); }
   if (L.dropcap) need.push(lwImg(LW_SVG.illum()));
   if (seal && EMBLEMS[seal]) need.push(lwImg(LW_SVG.emblem(seal, wax[3], 1.7)), lwImg(LW_SVG.emblem(seal, wax[2], 1.7)), lwImg(LW_SVG.emblem(seal, wax[1], 1.7)));
   const imgs = await Promise.all(need);
   if (stale()) return;
   const I = {}; let k = 0;
-  if (L.corners) I.corner = imgs[k++];
   if (L.kind === "decree") { I.vine = imgs[k++]; I.crest = imgs[k++]; }
   if (L.dropcap) I.illum = imgs[k++];
   if (seal && EMBLEMS[seal]) { I.eLo = imgs[k++]; I.eHi = imgs[k++]; I.eMid = imgs[k++]; }
@@ -866,22 +932,30 @@ async function lwPaint(cv, L, S = 2, stale = () => false) {
   const minH = { letter: W * .85, decree: W * 1.05, note: W * .5, secret: W * .62 }[L.kind] || W;
   const Hp = Math.ceil(Math.max(y, minH));
 
-  /* 2. холст */
+  /* оформление рисуется по размеру уже известного листа */
+  let dImg = null;
+  if (DSG[1]) {
+    const emId = seal && (EMBLEMS[seal] || (typeof BK_ICONS !== "undefined" && BK_ICONS[seal])) ? seal : "crown";
+    const em = (typeof bkIconSvg === "function" ? bkIconSvg(emId) : EMBLEMS[emId]) || EMBLEMS.crown;
+    dImg = await lwImg(`<svg xmlns='http://www.w3.org/2000/svg' width='${W}' height='${Hp}' viewBox='0 0 ${W} ${Hp}'><g fill='${ink}' stroke='${ink}' stroke-linecap='round' stroke-linejoin='round'>${DSG[1](W, Hp, ink, red, em)}</g></svg>`);
+    if (stale()) return;
+  }
+  /* 2. холст: лист рисуется отдельно, чтобы прожжённые дыры были сквозными */
   const CW = W + M * 2, CH = Hp + M * 2;
   cv.width = CW * S; cv.height = CH * S;
-  const c = cv.getContext("2d");
-  c.setTransform(S, 0, 0, S, 0, 0);
-  c.clearRect(0, 0, CW, CH);
+  const main = cv.getContext("2d");
+  main.setTransform(S, 0, 0, S, 0, 0);
+  main.clearRect(0, 0, CW, CH);
   const rnd = lwRng(L.seed * 31 + 5);
   if (L.backdrop) {
-    const g = c.createRadialGradient(CW / 2, CH * .45, 40, CW / 2, CH / 2, Math.max(CW, CH) * .75);
+    const g = main.createRadialGradient(CW / 2, CH * .45, 40, CW / 2, CH / 2, Math.max(CW, CH) * .75);
     g.addColorStop(0, "#3d2a18"); g.addColorStop(1, "#140d07");
-    c.fillStyle = g; c.fillRect(0, 0, CW, CH);
-    c.globalAlpha = .55; c.fillStyle = lwNoisePat(c); c.fillRect(0, 0, CW, CH); c.globalAlpha = 1;
+    main.fillStyle = g; main.fillRect(0, 0, CW, CH);
+    main.globalAlpha = .55; main.fillStyle = lwNoisePat(main); main.fillRect(0, 0, CW, CH); main.globalAlpha = 1;
   }
-  c.translate(M, M);
+  const sheet = document.createElement("canvas"); sheet.width = Math.ceil(W * S); sheet.height = Math.ceil(Hp * S);
+  const c = sheet.getContext("2d"); c.setTransform(S, 0, 0, S, 0, 0);
   const path = lwEdge(W, Hp, P, rnd);
-  if (L.backdrop) { c.save(); c.shadowColor = "rgba(0,0,0,.55)"; c.shadowBlur = 26; c.shadowOffsetY = 10; c.fillStyle = P.bot; c.fill(path); c.restore(); }
   c.save(); c.clip(path);
   const pg = c.createLinearGradient(0, 0, W * .3, Hp); pg.addColorStop(0, P.top); pg.addColorStop(1, P.bot);
   c.fillStyle = pg; c.fillRect(-5, -5, W + 10, Hp + 10);
@@ -918,12 +992,8 @@ async function lwPaint(cv, L, S = 2, stale = () => false) {
     });
   }
   c.restore();
-  /* узоры в углах */
-  if (I.corner) {
-    const s = 64, o = 12;
-    [[o, o, 1, 1], [W - o, o, -1, 1], [o, Hp - o, 1, -1], [W - o, Hp - o, -1, -1]].forEach(([x, yy, sx, sy]) => { c.save(); c.translate(x, yy); c.scale(sx, sy); c.globalAlpha = .9; c.drawImage(I.corner, 0, 0, s, s); c.restore(); });
-    c.save(); c.globalAlpha = .55; c.strokeStyle = ink; c.lineWidth = 1.2; c.strokeRect(o + 4, o + 4, W - o * 2 - 8, Hp - o * 2 - 8); c.restore();
-  }
+  /* оформление */
+  if (dImg) { c.save(); c.clip(path); c.globalAlpha = .88; c.drawImage(dImg, 0, 0, W, Hp); c.restore(); }
   /* 3. текст и украшения */
   const inkA = (n, j) => L.wobble ? .82 + lwHash(L.seed, n, j, 3) * .18 : 1;
   for (const op of ops) {
@@ -970,6 +1040,13 @@ async function lwPaint(cv, L, S = 2, stale = () => false) {
     }
     if (br() < .7) { const x = pad + br() * cw, yy = Hp - pad * .6 - br() * 30; lwBlot(c, x, yy, 2.5 + br() * 3, ink, br); }
   }
+  /* обгорание */
+  if (burn) lwBurn(c, W, Hp, burn, L.seed);
+  /* лист — на стол, с тенью по его настоящему контуру (с дырами) */
+  main.save();
+  if (L.backdrop) { main.shadowColor = "rgba(0,0,0,.55)"; main.shadowBlur = 26; main.shadowOffsetY = 10; }
+  main.drawImage(sheet, M, M, W, Hp);
+  main.restore();
 }
 function lwEdge(W, H, P, rnd) {
   const pts = [], step = 12, amp = P.amp;
