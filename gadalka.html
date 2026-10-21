@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Шатёр Мирры</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Cormorant+SC:wght@600;700&family=Marck+Script&display=swap">
+<style>
+:root {
+  --gold: #c9a25a; --gold-hi: #f0d696; --ink: #f3e6c8; --muted: #c8b48e;
+  --ease: cubic-bezier(.2,.7,.2,1);
+  --fd: "Cormorant SC", "Cormorant Garamond", Georgia, serif;
+  --fb: "Cormorant Garamond", Georgia, serif;
+  --fh: "Marck Script", "Cormorant Garamond", cursive;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #12070c; color: var(--ink); font: 500 19px/1.4 var(--fb); overflow: hidden; -webkit-tap-highlight-color: transparent; }
+button { font: inherit; color: inherit; }
+[hidden] { display: none !important; }
+
+/* ---------- раскладка ---------- */
+.app { position: fixed; inset: 0; display: flex; flex-direction: column; }
+.scene { position: relative; flex: 1 1 auto; min-height: 46%; overflow: hidden; container-type: size;
+  background: radial-gradient(ellipse 70% 90% at 50% 40%, #4a1a26 0%, #2a0d18 55%, #12070c 100%); }
+.scene .tent { position: absolute; inset: 0; width: 100%; height: 100%; }
+.scene .glow { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 60% 55% at 72% 78%, rgba(255,170,70,.20), transparent 70%), radial-gradient(ellipse 50% 50% at 24% 80%, rgba(150,120,255,.14), transparent 70%); animation: flick 3.2s infinite; mix-blend-mode: screen; }
+@keyframes flick { 0%,100% { opacity: .9 } 20% { opacity: .75 } 45% { opacity: 1 } 70% { opacity: .82 } }
+/* стол — на всю ширину, а сцена с гадалкой сидит на нём */
+.table { position: absolute; left: -2%; right: -2%; bottom: 0; height: calc(min(100cqh, 96cqw) * .30);
+  background: radial-gradient(ellipse 55% 70% at 50% 40%, rgba(255,190,120,.10), transparent 70%), repeating-linear-gradient(100deg, rgba(0,0,0,.08) 0 3px, transparent 3px 9px), linear-gradient(180deg, #5a1424 0%, #3c0c1a 55%, #22060e 100%);
+  border-top: 3px solid #b8893f; border-radius: 50% 50% 0 0 / 14px 14px 0 0; box-shadow: 0 -2px 0 #5c3a14, 0 -14px 30px rgba(0,0,0,.45) inset; }
+.table::before { content: ""; position: absolute; left: 50%; top: 22%; width: min(70cqw, 560px); height: 70%; transform: translateX(-50%); border: 1px solid rgba(201,162,90,.28); border-radius: 50%; box-shadow: 0 0 0 7px rgba(201,162,90,.06); }
+.stage { position: absolute; left: 50%; bottom: 0; height: min(100cqh, 96cqw); aspect-ratio: 1000 / 640; transform: translateX(-50%); pointer-events: none; }
+.stage svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+/* карты на столе */
+.slots { position: absolute; left: 0; right: 0; bottom: calc(min(100cqh, 96cqw) * .03); height: calc(min(100cqh, 96cqw) * .23); display: flex; justify-content: center; align-items: center; gap: clamp(6px, 1.6cqw, 18px); z-index: 3; perspective: 900px; }
+.slot { position: relative; height: 100%; aspect-ratio: 120 / 200; border-radius: 6px; border: 1px dashed rgba(240,214,150,.28); display: grid; place-items: center; }
+.slot > span { position: absolute; bottom: -2px; left: 50%; transform: translate(-50%, 100%); font: 600 11px/1 var(--fd); letter-spacing: .08em; color: rgba(240,214,150,.7); white-space: nowrap; }
+.slot.has { border-color: transparent; }
+.card { position: absolute; inset: 0; animation: land .6s var(--ease) both; cursor: zoom-in; pointer-events: auto; border: 0; padding: 0; background: none; perspective: 700px; }
+.card .fl { position: absolute; inset: 0; display: block; transform-style: preserve-3d; transition: transform .9s var(--ease); }
+@keyframes land { from { transform: translateY(-120%) rotate(-14deg) scale(1.3); opacity: 0; } }
+.card .b, .card .f { position: absolute; inset: 0; display: block; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.card svg { filter: drop-shadow(0 4px 6px rgba(0,0,0,.55)); }
+.card .f { transform: rotateY(180deg); }
+.card.open .fl { transform: rotateY(180deg); }
+.card.rev.open .fl { transform: rotateY(180deg) rotateZ(180deg); }
+.card.now .f svg { filter: drop-shadow(0 0 10px rgba(255,214,140,.75)) drop-shadow(0 4px 6px rgba(0,0,0,.55)); }
+.slots.n5 .slot { height: 88%; }
+.slots.n5 .slot > span { white-space: normal; width: 112%; text-align: center; line-height: 1.05; }
+
+.tc-svg { display: block; width: 100%; height: 100%; }
+.tb-bg { fill: #3a1430; stroke: #c9a25a; stroke-width: 2; } .tb-fr { fill: none; stroke: rgba(201,162,90,.6); stroke-width: 1.2; }
+.tb-or { fill: none; stroke: #c9a25a; stroke-width: 1.4; opacity: .85; }
+.tf-bg { fill: #f1e2bf; stroke: #8a6a3a; stroke-width: 2; } .tf-fr { fill: none; stroke: #7a2414; stroke-width: 1.2; }
+.tf-num { font: 700 16px "Cormorant SC", Georgia, serif; fill: #7a2414; text-anchor: middle; }
+.tf-nm { font: 700 13.5px "Cormorant SC", Georgia, serif; fill: #2a1a0c; text-anchor: middle; letter-spacing: .03em; }
+.tf-gl { fill: none; stroke: #3a2210; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; } .tf-ln { stroke: rgba(122,36,20,.5); }
+
+/* ---------- гадалка: живые детали ---------- */
+.eye { transform-box: fill-box; transform-origin: center; animation: blink 5.5s infinite; }
+.eye.r { animation-delay: .02s; }
+@keyframes blink { 0%, 93%, 100% { transform: scaleY(1); } 95.5% { transform: scaleY(.08); } }
+.iris { transition: transform .6s var(--ease); }
+.look-down .iris { transform: translate(0, 2.6px); }
+.look-guest .iris { transform: translate(0, 0); }
+.mouth-o { transform-box: fill-box; transform-origin: center; transform: scaleY(0); }
+.talk .mouth-o { animation: talk .26s infinite alternate; }
+@keyframes talk { from { transform: scaleY(.1); } to { transform: scaleY(1); } }
+.flame { transform-box: fill-box; transform-origin: 50% 100%; animation: fl 1.4s infinite ease-in-out; }
+.flame.b { animation-duration: 1.9s; animation-delay: -.6s; }
+@keyframes fl { 0%,100% { transform: scale(1, 1) rotate(-2deg); } 30% { transform: scale(.92, 1.08) rotate(3deg); } 60% { transform: scale(1.05, .94) rotate(-4deg); } }
+.lamp { transform-box: view-box; animation: sway 6s infinite ease-in-out; }
+.lamp.r { animation-delay: -3s; }
+@keyframes sway { 0%,100% { transform: rotate(1.4deg); } 50% { transform: rotate(-1.4deg); } }
+.orb-in { animation: orb 6s infinite ease-in-out; transform-box: fill-box; transform-origin: center; }
+@keyframes orb { 0%,100% { opacity: .55; transform: rotate(0) scale(1); } 50% { opacity: 1; transform: rotate(180deg) scale(1.15); } }
+.smoke { fill: none; stroke: rgba(230,220,255,.16); stroke-width: 6; stroke-linecap: round; animation: smoke 7s infinite linear; }
+.smoke.b { animation-delay: -3.5s; }
+@keyframes smoke { 0% { opacity: 0; transform: translateY(20px); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(-70px); } }
+.breathe { transform-box: fill-box; transform-origin: 50% 100%; animation: br 5s infinite ease-in-out; }
+@keyframes br { 0%,100% { transform: scaleY(1); } 50% { transform: scaleY(1.012); } }
+.dust { position: absolute; inset: 0; pointer-events: none; }
+.dust i { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: rgba(255,226,170,.55); filter: blur(.5px); animation: dust linear infinite; }
+@keyframes dust { from { transform: translate(0, 0); opacity: 0; } 15% { opacity: .9; } to { transform: translate(30px, -160px); opacity: 0; } }
+
+/* ---------- диалог ---------- */
+.dlg { position: relative; flex: 0 0 auto; z-index: 5; padding: 14px clamp(14px, 4vw, 40px) calc(14px + env(safe-area-inset-bottom)); background: linear-gradient(180deg, #1f0d14, #140810); border-top: 1px solid rgba(201,162,90,.55); box-shadow: 0 -10px 30px rgba(0,0,0,.6); max-height: 56%; display: flex; flex-direction: column; }
+.dlg-in { width: 100%; max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; min-height: 0; }
+.who { display: flex; align-items: baseline; gap: 10px; margin: 0 0 4px; font: 700 15px/1 var(--fd); letter-spacing: .2em; color: var(--gold); text-transform: uppercase; }
+.who small { font: italic 500 14px/1 var(--fb); letter-spacing: 0; color: var(--muted); text-transform: none; }
+.echo { min-height: 0; margin: 0 0 4px; font: italic 500 16px/1.3 var(--fb); color: #a99472; }
+.echo:empty { display: none; }
+.echo::before { content: "— "; }
+.line { position: relative; min-height: 3.1em; margin: 0; font: 500 clamp(19px, 2.1vw, 22px)/1.42 var(--fb); color: var(--ink); cursor: pointer; text-wrap: pretty; }
+.line .more { display: inline-block; margin-left: 6px; color: var(--gold-hi); animation: bob 1s infinite; }
+@keyframes bob { 50% { transform: translateY(3px); } }
+.opts { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px; margin-top: 12px; overflow-y: auto; min-height: 0; padding: 2px; }
+.opt { text-align: left; padding: 10px 14px; border: 1px solid rgba(201,162,90,.45); border-radius: 4px; background: rgba(255,240,210,.04); font: 600 17px/1.25 var(--fb); color: var(--ink); cursor: pointer; transition: background .25s, border-color .25s, transform .25s var(--ease); animation: optin .4s var(--ease) both; animation-delay: calc(var(--i) * 50ms); }
+.opt:hover, .opt:focus-visible { background: rgba(240,214,150,.13); border-color: var(--gold-hi); outline: none; transform: translateX(3px); }
+.opt.quiet { color: var(--muted); font-style: italic; border-style: dashed; }
+.opt.gold { background: linear-gradient(180deg, #f1d79a, #c99a4e); color: #2a1a0c; border-color: var(--gold-hi); font-family: var(--fd); letter-spacing: .04em; text-align: center; }
+@keyframes optin { from { opacity: 0; transform: translateY(6px); } }
+.name-row { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.name-row input { flex: 1 1 200px; min-width: 0; padding: 10px 12px; border: 1px solid rgba(201,162,90,.55); border-radius: 4px; background: rgba(0,0,0,.35); color: var(--ink); font: 600 19px/1.2 var(--fh); }
+.name-row input:focus { outline: none; border-color: var(--gold-hi); }
+.name-row .opt { flex: 0 0 auto; }
+
+/* веер — тянуть карты */
+.fan { position: relative; height: clamp(120px, 20vh, 170px); margin-top: 6px; }
+.fan button { position: absolute; left: 50%; bottom: 4px; width: clamp(54px, 9vw, 78px); aspect-ratio: 120 / 200; padding: 0; border: 0; background: none; cursor: pointer; transform-origin: 50% 280%; transform: translateX(-50%) rotate(calc((var(--k) - 10.5) * var(--sp, 3.6deg))); transition: transform .45s var(--ease), opacity .35s; filter: drop-shadow(0 3px 5px rgba(0,0,0,.6)); animation: deal .7s var(--ease) both; animation-delay: calc(var(--k) * 22ms); }
+.fan button:hover, .fan button:focus-visible { transform: translateX(-50%) rotate(calc((var(--k) - 10.5) * var(--sp, 3.6deg))) translateY(-14px); outline: none; }
+.fan button.taken { opacity: 0; pointer-events: none; transform: translateX(-50%) rotate(calc((var(--k) - 10.5) * var(--sp, 3.6deg))) translateY(-120px); }
+@keyframes deal { from { transform: translateX(-50%) rotate(0deg); opacity: 0; } }
+@media (max-width: 560px) { .fan { height: 130px; } .fan button { --sp: 2.2deg; width: 58px; bottom: 26px; transform-origin: 50% 240%; } }
+
+/* верхняя полоса */
+.top { position: absolute; left: 0; right: 0; top: 0; z-index: 8; display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; pointer-events: none; }
+.top button { pointer-events: auto; display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border: 1px solid rgba(201,162,90,.5); border-radius: 3px; background: rgba(20,8,14,.6); color: var(--gold-hi); font: 700 14px/1 var(--fd); letter-spacing: .08em; cursor: pointer; backdrop-filter: blur(3px); }
+.top button:hover { border-color: var(--gold-hi); }
+
+/* ---------- вход: полог ---------- */
+.gate { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; pointer-events: none; }
+.flap { position: absolute; top: 0; bottom: 0; width: 51%; pointer-events: auto; transition: transform 1.6s cubic-bezier(.6,.05,.25,1); background: repeating-linear-gradient(90deg, #5a1626 0 34px, #3a0e22 34px 68px, #b8893f 68px 70px, #3a0e22 70px 72px); box-shadow: inset 0 0 120px rgba(0,0,0,.85); }
+.flap::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,.25), transparent 30%, rgba(0,0,0,.35) 60%, transparent); }
+.flap.l { left: 0; transform-origin: 0 0; border-right: 2px solid #b8893f; }
+.flap.r { right: 0; transform-origin: 100% 0; border-left: 2px solid #b8893f; }
+.gate.open .flap.l { transform: translateX(-105%) skewX(-6deg); }
+.gate.open .flap.r { transform: translateX(105%) skewX(6deg); }
+.gate-c { position: relative; z-index: 2; pointer-events: auto; text-align: center; padding: 26px 30px; max-width: 460px; margin: 16px; border: 1px solid rgba(201,162,90,.6); background: radial-gradient(ellipse at 50% 0, rgba(80,30,44,.96), rgba(18,7,12,.96)); box-shadow: 0 20px 60px rgba(0,0,0,.7); transition: opacity .5s, transform .6s var(--ease); }
+.gate.open .gate-c { opacity: 0; transform: scale(.94); pointer-events: none; }
+.gate-c svg { width: 70px; height: 70px; stroke: var(--gold); fill: none; stroke-width: 1.4; }
+.gate-c h1 { margin: 6px 0 4px; font: 700 34px/1.05 var(--fd); color: var(--gold-hi); letter-spacing: .05em; }
+.gate-c p { margin: 0 0 18px; color: var(--muted); font-style: italic; }
+.gate-c .opt { display: block; width: 100%; margin-top: 8px; }
+.scene, .dlg { transition: transform 2.2s cubic-bezier(.3,.1,.2,1), filter 2s; }
+body.outside .scene { transform: scale(1.35) translateY(-8%); filter: blur(3px) brightness(.5); }
+body.outside .dlg { transform: translateY(110%); }
+
+/* увеличенная карта */
+.zoom { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; padding: 20px; background: rgba(8,3,6,.86); cursor: zoom-out; animation: zin .3s both; }
+@keyframes zin { from { opacity: 0; } }
+.zoom-c { display: flex; gap: 22px; align-items: center; max-width: 760px; flex-wrap: wrap; justify-content: center; }
+.zoom-c .z-card { width: min(46vw, 240px); }
+.zoom-c .z-card.rev { transform: rotate(180deg); }
+.zoom-c .z-t { flex: 1 1 260px; max-width: 420px; }
+.zoom-c h2 { margin: 0 0 6px; font: 700 28px/1.1 var(--fd); color: var(--gold-hi); }
+.zoom-c h2 small { display: block; font: italic 500 17px/1.2 var(--fb); color: var(--muted); }
+.zoom-c p { margin: 0 0 8px; }
+
+.toast { position: fixed; left: 50%; bottom: 24px; z-index: 40; transform: translateX(-50%); padding: 10px 16px; background: #2a1a0c; border: 1px solid var(--gold); border-radius: 4px; color: var(--gold-hi); font: 600 16px/1.3 var(--fb); max-width: 90vw; animation: zin .3s both; }
+
+@media (max-width: 640px) {
+  .dlg { max-height: 54%; padding-top: 10px; }
+  .opts { grid-template-columns: 1fr; gap: 6px; margin-top: 8px; }
+  .opt { padding: 9px 12px; font-size: 16px; }
+  .line { font-size: 18px; min-height: 2.9em; }
+  .slot > span { font-size: 9.5px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .2s !important; } }
+</style>
+</head>
+<body class="outside">
+<div class="app">
+  <div class="scene" id="scene">
+    <svg class="tent" viewBox="0 0 1000 640" preserveAspectRatio="xMidYMid slice" aria-hidden="true" id="tent"></svg>
+    <div class="table"></div>
+    <div class="stage" id="stage" aria-hidden="true"></div>
+    <div class="glow"></div>
+    <div class="dust" id="dust"></div>
+    <div class="slots" id="slots"></div>
+    <div class="top"><button type="button" id="leave"><svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 4l-6 6 6 6"/></svg>Выйти из шатра</button><button type="button" id="restart" hidden>Сначала</button></div>
+  </div>
+  <div class="dlg" id="dlg">
+    <div class="dlg-in">
+      <p class="who">Мирра <small id="who-s">гадалка</small></p>
+      <p class="echo" id="echo"></p>
+      <p class="line" id="line" aria-live="polite"></p>
+      <div id="ctrl"></div>
+    </div>
+  </div>
+</div>
+<div class="gate" id="gate">
+  <div class="flap l"></div><div class="flap r"></div>
+  <div class="gate-c">
+    <svg viewBox="0 0 64 64"><path d="M32 6L8 52h48z"/><path d="M32 6v46M20 52c4-14 8-22 12-30 4 8 8 16 12 30"/><circle cx="32" cy="40" r="4"/><path d="M32 2v4"/></svg>
+    <h1>Шатёр Мирры</h1>
+    <p>Полог пахнет дымом, полынью и воском. Изнутри доносится тихое бормотание — и шорох карт.</p>
+    <button type="button" class="opt gold" id="enter">Откинуть полог и войти</button>
+    <button type="button" class="opt quiet" id="nope">Пройти мимо</button>
+  </div>
+</div>
+<script>
+/* =====================================================================
+   ГАДАЛКА: расклад карт Таро (22 Старших Аркана).
+   Колоду тасуют, игрок сам тянет карты из веера, гадалка переворачивает
+   их по одной и толкует — прямое и перевёрнутое положение.
+   ===================================================================== */
+const TAROT = [
+  ["0", "Шут", '<path d="M8 52h22l6-10h16"/><circle cx="24" cy="22" r="5"/><path d="M24 27v12l-6 10M24 39l7 8M24 31l9-6M33 25l8-8M41 17l4 2-2 4"/><path d="M46 8l1.5 3 3 .5-2.2 2 .6 3-2.9-1.5-2.9 1.5.6-3-2.2-2 3-.5z"/>',
+    "Новое начало, шаг в неизвестность, доверие пути.", "Безрассудство, глупый риск, бегство от выбора."],
+  ["I", "Маг", '<path d="M30 8c-4 0-6 3-6 5s2 5 6 5 6-3 6-5-2-5-6-5zM30 8c4 0 6-3 6-5M30 18v16"/><path d="M14 40h32M18 40v10M42 40v10"/><path d="M24 46l2-4h8l2 4M30 34l-8-6M30 34l8-6"/><circle cx="20" cy="48" r="1.5"/><circle cx="40" cy="48" r="1.5"/>',
+    "Воля, мастерство, всё нужное уже в руках.", "Обман, фокусы, сила, обращённая во зло."],
+  ["II", "Жрица", '<path d="M18 52V14M42 52V14"/><path d="M30 12a9 9 0 1 0 0 0zM24 12a7 7 0 0 1 12 0"/><path d="M22 28h16v18H22z"/><path d="M26 33h8M26 38h8M26 43h5"/>',
+    "Тайное знание, интуиция, молчание, которое говорит громче слов.", "Скрытые мотивы, секреты, что обернутся против вас."],
+  ["III", "Императрица", '<path d="M18 22l4-8 4 6 4-8 4 8 4-6 4 8z"/><path d="M18 22h24"/><path d="M30 26c-8 6-10 14-6 24h12c4-10 2-18-6-24z"/><path d="M14 52c4-4 8-4 12 0M34 52c4-4 8-4 12 0"/>',
+    "Изобилие, забота, рождение нового — дела, людей, урожая.", "Зависимость, удушающая опека, пустота."],
+  ["IV", "Император", '<path d="M16 50h28V30H16z"/><path d="M16 30l4-6h20l4 6"/><path d="M22 24l3-8 5 5 5-5 3 8"/><path d="M24 50V38h12v12M30 6v10"/>',
+    "Власть, порядок, закон, твёрдая рука.", "Тирания, жёсткость, власть ради власти."],
+  ["V", "Иерофант", '<path d="M30 6v44M22 14h16M24 22h12M26 30h8"/><path d="M18 50h24"/><circle cx="30" cy="40" r="4"/>',
+    "Традиция, вера, наставник, клятва.", "Догма, слепое послушание, лицемерие служителей."],
+  ["VI", "Влюблённые", '<path d="M22 30a6 6 0 1 0 0-.1M38 30a6 6 0 1 0 0-.1"/><path d="M22 36v14M38 36v14M22 42l8-4 8 4"/><path d="M30 8c-3-4-9-2-8 3 1 4 8 8 8 8s7-4 8-8c1-5-5-7-8-3z"/>',
+    "Союз, выбор сердцем, притяжение.", "Разлад, неверный выбор, измена."],
+  ["VII", "Колесница", '<path d="M14 30h32v12H14z"/><circle cx="20" cy="46" r="5"/><circle cx="40" cy="46" r="5"/><path d="M20 30V18h20v12M24 18l6-8 6 8"/><path d="M12 12l6 4M48 12l-6 4"/>',
+    "Победа, движение вперёд, воля, что подчиняет обстоятельства.", "Потеря управления, поражение, спешка."],
+  ["VIII", "Сила", '<path d="M18 40c0-10 6-16 12-16s12 6 12 16"/><path d="M22 40c2 6 14 6 16 0"/><circle cx="25" cy="34" r="1.5"/><circle cx="35" cy="34" r="1.5"/><path d="M20 14c3-4 7-4 10 0 3-4 7-4 10 0-3 4-7 4-10 0-3 4-7 4-10 0z"/>',
+    "Внутренняя сила, мужество, укрощённый зверь.", "Слабость, страх, ярость, вырвавшаяся на волю."],
+  ["IX", "Отшельник", '<path d="M26 10l-8 40h20l-4-40z"/><path d="M38 20v32M38 20l6-2"/><path d="M42 18l4 0 0 6-4 0z"/><path d="M44 24v3"/>',
+    "Уединение, поиск истины, свет в темноте.", "Одиночество, изгнание, отказ от помощи."],
+  ["X", "Колесо Судьбы", '<circle cx="30" cy="30" r="18"/><circle cx="30" cy="30" r="10"/><circle cx="30" cy="30" r="2"/><path d="M30 12v36M12 30h36M17 17l26 26M43 17L17 43"/>',
+    "Поворот судьбы, перемена, удача.", "Невезение, круг, из которого не выбраться."],
+  ["XI", "Справедливость", '<path d="M30 8v42M18 50h24M14 18h32"/><path d="M14 18l-6 12h12zM46 18l-6 12h12z"/><path d="M8 30a6 3 0 0 0 12 0M40 30a6 3 0 0 0 12 0"/>',
+    "Правда, суд, равновесие, последствия.", "Несправедливость, подкуп, ложный приговор."],
+  ["XII", "Повешенный", '<path d="M10 10h40M30 10v12"/><circle cx="30" cy="42" r="5"/><path d="M30 22v15M30 22l-6 6 6 2M30 22l6 6"/><path d="M26 47l-4 5M34 47l4 5"/>',
+    "Жертва, пауза, взгляд с другой стороны.", "Бессмысленная жертва, застой, упрямство."],
+  ["XIII", "Смерть", '<path d="M22 22a8 9 0 1 1 16 0v6l-3 2v4H25v-4l-3-2z"/><circle cx="27" cy="23" r="2"/><circle cx="33" cy="23" r="2"/><path d="M28 30h4"/><path d="M14 52L44 8M44 8c-6 0-12 2-16 6"/>',
+    "Конец, после которого придёт новое. Перемена, которой не избежать.", "Страх перемен, гниение, цепляние за мёртвое."],
+  ["XIV", "Умеренность", '<path d="M16 22l6 4v10h-8V26zM44 38l-6 4v10h8V42z"/><path d="M22 30c8 0 12 4 16 10"/><path d="M30 6l2 4 4 1-3 3 1 4-4-2-4 2 1-4-3-3 4-1z"/>',
+    "Мера, исцеление, терпение, смешение противоположностей.", "Излишества, разлад, нетерпение."],
+  ["XV", "Дьявол", '<path d="M20 14l4 8M40 14l-4 8"/><path d="M22 22h16l-2 14h-12z"/><circle cx="27" cy="28" r="1.5"/><circle cx="33" cy="28" r="1.5"/><path d="M18 50h24M24 50v-6M36 50v-6M24 44c0-4 12-4 12 0"/>',
+    "Искушение, сделка, цепи страстей и долгов.", "Освобождение от оков — или падение ещё глубже."],
+  ["XVI", "Башня", '<path d="M22 52V18h16v34M20 18l2-6h16l2 6"/><path d="M27 26h6M27 34h6M26 44h8v8h-8z"/><path d="M44 4l-6 10h6l-6 10"/><path d="M12 20l3 3M10 30l4 1M48 30l-4 1"/>',
+    "Крушение, удар, внезапная правда, что рушит стены.", "Катастрофа, которую пытаются отсрочить."],
+  ["XVII", "Звезда", '<path d="M30 6l4 12 13 .5-10 8 4 12-11-7-11 7 4-12-10-8 13-.5z"/><path d="M14 50c4-4 8-4 12 0s8 4 12 0 8-4 12 0"/>',
+    "Надежда, исцеление, свет после бури.", "Отчаяние, потерянная вера."],
+  ["XVIII", "Луна", '<path d="M38 8a14 14 0 1 0 8 24 12 12 0 0 1-8-24z"/><path d="M12 52l8-10 6 10M48 52l-8-10-6 10"/><path d="M26 40c1 4 7 4 8 0"/>',
+    "Обман, туман, страхи, видения — не всё то, чем кажется.", "Ложь раскрывается, туман рассеивается."],
+  ["XIX", "Солнце", '<circle cx="30" cy="28" r="9"/><path d="M30 8v6M30 42v6M10 28h6M44 28h6M16 14l4 4M40 38l4 4M44 14l-4 4M16 42l4-4"/><path d="M12 52h36"/>',
+    "Радость, успех, ясность, тепло.", "Тень на успехе, гордыня, поздняя радость."],
+  ["XX", "Суд", '<path d="M14 18l20-8v14z"/><path d="M34 12c6 0 10 2 12 6"/><path d="M18 52V38h8v14M34 52V38h8v14"/><path d="M22 34v-6M38 34v-6"/>',
+    "Пробуждение, зов, расплата и второй шанс.", "Сомнения, отказ услышать зов, суд над собой."],
+  ["XXI", "Мир", '<ellipse cx="30" cy="30" rx="14" ry="20"/><path d="M30 18v24M24 26l6 4 6-4"/><circle cx="12" cy="10" r="2"/><circle cx="48" cy="10" r="2"/><circle cx="12" cy="50" r="2"/><circle cx="48" cy="50" r="2"/>',
+    "Завершение, целостность, путь пройден.", "Незавершённое дело, последний шаг, что не сделан."]
+];
+const TAROT_SPREADS = {
+  one: { name: "Одна карта", hint: "Совет на сегодня", pos: ["Совет"] },
+  three: { name: "Три карты", hint: "Прошлое · настоящее · будущее", pos: ["Прошлое", "Настоящее", "Будущее"] },
+  cross: { name: "Крест", hint: "Пять карт о сути дела", pos: ["Суть", "Помеха", "Корни", "Что уходит", "Что грядёт"] }
+};
+const TAROT_SAY = {
+  start: ["Садись, путник. Свеча коротка, а карты не любят ждать.", "Вижу — пришёл с вопросом. Задай его про себя и тяни.", "Туман сегодня густой… Тем лучше: карты говорят правду в тумане."],
+  pick: n => n > 1 ? `Тяни ещё. Осталось ${n}.` : "Последнюю. Не торопись.",
+  open: "Хорошо. Теперь открываем — по одной.",
+  end: ["Карты сказали. Что с этим делать — решать тебе.", "Помни: судьба — это дорога, а не клетка.", "Иди. И не оглядывайся на Чернолесье."]
+};
+const tRand = n => { try { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % n; } catch (_) { return Math.floor(Math.random() * n); } };
+const tPickSay = arr => arr[tRand(arr.length)];
+let TR = { spread: "three", deck: [], drawn: [], open: 0, q: "" };
+function tarotCardSVG(c, back) {
+  if (back) return `<svg viewBox="0 0 120 200" class="tc-svg"><rect x="2" y="2" width="116" height="196" rx="9" class="tb-bg"/><rect x="9" y="9" width="102" height="182" rx="6" class="tb-fr"/><g class="tb-or"><circle cx="60" cy="100" r="30"/><circle cx="60" cy="100" r="22"/><path d="M60 64v72M24 100h72M38 78l44 44M82 78l-44 44"/><path d="M60 40l6 10-6 10-6-10zM60 140l6 10-6 10-6-10z"/><circle cx="60" cy="100" r="5"/></g></svg>`;
+  return `<svg viewBox="0 0 120 200" class="tc-svg"><rect x="2" y="2" width="116" height="196" rx="9" class="tf-bg"/><rect x="8" y="8" width="104" height="184" rx="6" class="tf-fr"/><text x="60" y="30" class="tf-num">${c[0]}</text><g transform="translate(30 58)" class="tf-gl">${c[2]}</g><path d="M22 150h76" class="tf-ln"/><text x="60" y="172" class="tf-nm">${c[1]}</text></svg>`;
+}
+
+/* =====================================================================
+   РЕПЛИКИ МИРРЫ. {n} — имя гостя (или «путник»), {t} — тема вопроса.
+   Для каждой карты: say — толкование прямой карты, rsay — перевёрнутой,
+   q — вопрос гадалки гостю, a — [ответ гостя, реакция Мирры],
+   adv / radv — совет, who — «кто это может быть», change — «можно ли изменить».
+   ===================================================================== */
+const MIRRA = {
+  greet: [
+    "А-а… полог шуршит — значит, пришёл. Садись, садись, {n}. Табурет кривой, зато честный.",
+    "Ветер принёс тебя вместе с запахом дыма. Не стой в дверях — свеча не любит сквозняков.",
+    "Я слышала твои шаги ещё у колодца. Садись. Глаза у меня старые, но видят дальше твоих.",
+    "Гость в ночи — к перемене. Проходи. Руки над огнём погрей, а потом рассказывай."
+  ],
+  enter: [
+    ["Хочу узнать свою судьбу.", "Судьбу… Все хотят её знать, пока не узнают. Ну что ж, карты не врут — врут люди."],
+    ["Мне нужен ответ на один вопрос.", "Один вопрос — это хорошо. Кто приходит с десятью, уходит без единого ответа."],
+    ["Говорят, ты видишь будущее. Это правда?", "Будущее? Я вижу дорогу. А пойдёшь ли ты по ней — решать тебе, не мне."],
+    ["Я просто зашёл погреться.", "Хе… Никто не заходит к Мирре «просто». Даже кошки — и те за ответами."],
+    ["Меня прислали к тебе.", "Прислали… Значит, кто-то за тебя тревожится. Или хочет, чтобы ты кое-что узнал. Посмотрим."]
+  ],
+  askName: "Как тебя звать, гость? Имя — это первая карта, которую ты кладёшь на стол.",
+  nameOk: ["{n}… Хорошее имя. Тяжёлое, но хорошее.", "{n}. Запомню. Я помню всех, кто садился за этот стол.", "{n}? Хм. Имя звенит, как монета о камень."],
+  nameNo: "Не хочешь называться? Мудро. Имена в Веларисе дорого стоят. Буду звать тебя путником.",
+  askTopic: "О чём болит душа, {n}? Скажи, и я спрошу карты именно об этом.",
+  topics: {
+    love: ["О любви", "О сердце… Сердце — самый плохой советчик и самый честный. Посмотрим, что скажут карты."],
+    road: ["О пути", "О дороге. Дороги в Веларисе опасны, {n}. Но стоять на месте — опаснее."],
+    danger: ["Об опасности", "Чуешь беду? Правильно чуешь. Ночь нынче долгая."],
+    deed: ["О деле или службе", "Дело, служба, деньги… Карты и в этом понимают больше, чем казначеи."],
+    kin: ["О близких", "Близкие… Иногда самые далёкие люди — те, что сидят за одним столом."],
+    rot: ["О скверне", "Шш-ш… Не говори это слово громко. Но спросить — спросим."]
+  },
+  topicName: { love: "сердца", road: "твоей дороги", danger: "беды, что рядом", deed: "твоего дела", kin: "твоих близких", rot: "скверны" },
+  askSpread: "Как разложим? Одна карта — совет. Три — прошлое, настоящее, будущее. Крест — для тех, кто не боится правды.",
+  shuffle: ["Смотри на руки, не на лицо. Карты слушают тишину…", "Колода тёплая сегодня. Это к добру — или к большой беде.", "Слышишь? Шуршат. Значит, есть что сказать."],
+  cut: "Теперь сними колоду. Какой рукой?",
+  cutA: [["Левой — от сердца.", "От сердца… Значит, правда будет без прикрас."], ["Правой — от разума.", "Разум — хороший пёс, но плохой хозяин. Ладно."], ["Пусть снимет сама Мирра.", "Доверяешь старухе? Смело. Или глупо. Узнаем."]],
+  pick: ["Тяни, {n}. Та, что зовёт тебя, — та и твоя.", "Не думай. Рука знает раньше головы.", "Ещё одну. Не торопись — они не убегут.", "Последнюю. Слушай пальцы."],
+  reveal: ["Посмотрим, что легло на «{p}»…", "Открываю «{p}». Не отводи глаз.", "«{p}»… Хм. Интересно."],
+  rev: ["Легла вверх ногами. Значит, смысл вывернут наизнанку.", "Перевёрнута. Не пугайся — но и не радуйся раньше времени."],
+  guestQ: [["Что это значит для меня?", "adv"], ["Можно ли это изменить?", "change"], ["Кто это может быть?", "who"], ["Продолжай, Мирра.", ""]],
+  quiet: ["Молчишь… Молчание — тоже ответ. Иногда самый громкий.", "Не хочешь говорить — не надо. Карты и так всё сказали."],
+  next: ["Дальше.", "Следующая ждёт."],
+  end: ["Вот и всё, {n}. Карты сказали — а уж что с этим делать, решать тебе.", "Свеча догорает. Запомни, что услышал, и не пересказывай Ордену.", "Судьба — дорога, а не клетка. Иди, {n}. И не оглядывайся на Чернолесье."],
+  bye: [["Оставить медный грош.", "Грош за правду — честная плата. Да хранит тебя огонь, которого боятся мёртвые."], ["Оставить серебряный.", "Серебро?.. Щедро. Тогда скажу ещё одно: тот, кого ты ищешь, ищет тебя тоже. Иди."], ["Уйти молча.", "Иди-иди. Платят все — рано или поздно. Не мне, так судьбе."], ["Спросить ещё раз.", "Жадный до правды… Ладно. Перетасую."]]
+};
+/* слова для каждой из 22 карт (порядок как в TAROT) */
+const MIRRA_CARDS = [
+  { say: ["Шут. Ты стоишь на краю, {n}, и делаешь шаг — не глядя вниз. Так начинаются великие пути и глупые смерти.", "Шут — это новое. Всё, что было, — пыль. Впереди дорога без карты."],
+    rsay: ["Шут вверх ногами. Ты бежишь — но не вперёд, а прочь. От чего, {n}?"],
+    q: "Скажи, когда ты в последний раз прыгал, не думая?", a: [["Недавно. И не жалею.", "Тогда карта тебя любит. Таких она бережёт… до поры."], ["Давно. Я стал осторожен.", "Осторожность — хорошо. Но иногда она — просто страх в красивом плаще."], ["Никогда.", "Никогда?.. Значит, скоро придётся."]],
+    adv: "Не бойся начинать заново, даже если все вокруг смеются.", radv: "Остановись и посмотри под ноги, прежде чем сделать шаг.",
+    who: "Тот, кто смеётся громче всех, но знает больше, чем говорит.", change: "Дорогу не изменишь — а вот поступь можно. Шаг всегда твой." },
+  { say: ["Маг. Всё нужное уже у тебя в руках, {n}: и нож, и чаша, и слово. Осталось решиться.", "Маг — это воля. Захочешь — сотворишь. Не захочешь — сотворят за тебя."],
+    rsay: ["Маг перевёрнут. Кто-то вокруг тебя показывает фокусы, а ты смотришь не туда."],
+    q: "Что ты умеешь лучше всех — но прячешь?", a: [["Есть одно… но об этом не говорят.", "Дар, значит. Береги его от Ордена, {n}."], ["Ничего особенного.", "Врёшь. Каждому дано что-то. Просто ты ещё не нашёл."], ["Говорить так, чтобы верили.", "Опасный дар. Им строят империи и роют могилы."]],
+    adv: "Действуй сам. Не жди, что кто-то сделает это за тебя.", radv: "Проверь, кому веришь. Чьи-то руки слишком ловки.",
+    who: "Ловкач с тихим голосом и чистыми руками — слишком чистыми.", change: "Измени? Ты и есть тот, кто меняет. Маг — твоя карта." },
+  { say: ["Жрица. Она молчит, {n}, и в молчании больше правды, чем в проповедях Ордена.", "Жрица хранит тайну. Ответ уже у тебя — просто ты не прислушался."],
+    rsay: ["Жрица отвернулась. Кто-то рядом хранит секрет — и он касается тебя."],
+    q: "Ты доверяешь своим снам?", a: [["Да. Они не раз меня спасали.", "Тогда слушай их и дальше. Сны говорят на языке Жрицы."], ["Нет, это просто сны.", "Просто сны… Мёртвые тоже так думали."], ["Мне давно ничего не снится.", "Плохо. Значит, кто-то крадёт твои сны. Береги ночи."]],
+    adv: "Молчи и слушай. Ответ придёт сам — тихо.", radv: "Не всё, что тебе говорят, — правда. Спроси себя, кто выигрывает от тайны.",
+    who: "Женщина, что говорит мало и знает много. Возможно, служит в храме.", change: "Тайну не изменишь. Но можно её узнать — если хватит терпения." },
+  { say: ["Императрица. Изобилие, {n}. Что-то в твоей жизни растёт и зреет — дело, семья, урожай.", "Императрица — мать и земля. Тебя окружат заботой, если позволишь."],
+    rsay: ["Императрица в тени. Забота стала удавкой, {n}. Кто-то любит тебя слишком сильно."],
+    q: "О ком ты заботишься больше, чем о себе?", a: [["О семье.", "Хорошо. Только не забудь, что ты тоже часть семьи."], ["О тех, кто мне служит.", "Редкий хозяин. Они это помнят. И Императрица тоже."], ["Ни о ком.", "Ни о ком… Тогда карта пришла сказать: пора."]],
+    adv: "Посей сейчас — и пожнёшь. Время щедрое.", radv: "Отпусти того, кого держишь слишком крепко.",
+    who: "Женщина в силе: мать, хозяйка, покровительница.", change: "То, что растёт, можно направить — но не остановить." },
+  { say: ["Император. Порядок и твёрдая рука, {n}. Кто-то над тобой — или ты сам — должен взять власть.", "Император. Закон, стены, клятвы. Будь крепок — и стены устоят."],
+    rsay: ["Император перевёрнут. Власть без справедливости. Кто-то давит, {n}, и давит больно."],
+    q: "Ты служишь кому-то — или служат тебе?", a: [["Я служу.", "Тогда служи с поднятой головой. Император презирает рабов."], ["Служат мне.", "Помни: корона тяжелеет каждый день."], ["Никому. Я сам по себе.", "Сам по себе… В Веларисе это опаснее, чем служба."]],
+    adv: "Наведи порядок в своих делах. Твёрдость сейчас — добродетель.", radv: "Не позволяй чужой власти сломать тебя. Ищи союзников.",
+    who: "Мужчина у власти: командир, судья, отец. Может, сам Престол.", change: "Власть меняется, {n}. Всегда. Вопрос лишь — чьими руками." },
+  { say: ["Иерофант. Клятва, вера, наставник. Тебе нужен совет того, кто прошёл этот путь.", "Иерофант — традиция. Старые правила иногда мудрее новых."],
+    rsay: ["Иерофант вниз головой. Догма, ложные проповедники. Кто-то прикрывается верой, {n}."],
+    q: "Ты веришь в Пылающее Сердце?", a: [["Верю.", "Вера — это огонь. Греет. И сжигает. Помни о второе."], ["Нет.", "Тише… Стены у шатра тонкие."], ["Я верю в другое.", "В другое… Хорошо, что не сказал это на площади."]],
+    adv: "Найди наставника. Или стань им для кого-то.", radv: "Не верь словам о святости — смотри на дела.",
+    who: "Священник, учитель или старший в ордене.", change: "Клятвы можно нарушить. Но платить придётся." },
+  { say: ["Влюблённые. Союз, {n}. Сердце выбирает — и выбор этот важнее, чем кажется.", "Влюблённые. Два пути, одна дорога. Скоро придётся выбрать."],
+    rsay: ["Влюблённые разошлись. Разлад, измена или неверный выбор. Будь честен с собой."],
+    q: "Есть ли кто-то, о ком ты думаешь прямо сейчас?", a: [["Есть.", "Я так и знала. Карта не легла бы зря."], ["Нет. Сердце пусто.", "Пусто — значит, ждёт. Скоро заполнится."], ["Не скажу.", "Не говори. Глаза уже сказали."]],
+    adv: "Выбирай сердцем, но смотри открытыми глазами.", radv: "Не делай выбор из страха остаться одному.",
+    who: "Тот, кто ближе, чем кажется. Возможно, уже знает о твоих чувствах.", change: "Сердце не переубедишь. Но можно выбрать, что с ним делать." },
+  { say: ["Колесница. Победа, {n}! Вперёд — и обстоятельства прогнутся под твою волю.", "Колесница мчится. Держи поводья крепко — кони тянут в разные стороны."],
+    rsay: ["Колесница опрокинута. Ты теряешь управление, {n}. Слишком быстро, слишком много."],
+    q: "Что тебя гонит вперёд?", a: [["Месть.", "Месть — быстрый конь. Но он всегда приводит на кладбище."], ["Мечта.", "Мечта — хороший кучер. Держись её."], ["Страх остановиться.", "Честно. Но рано или поздно колеса встанут."]],
+    adv: "Иди вперёд и не сомневайся — победа близко.", radv: "Сбавь ход. Спешка опрокинет тебя в канаву.",
+    who: "Воин или гонец — тот, кто всегда в пути.", change: "Поводья у тебя, {n}. Поверни — если успеешь." },
+  { say: ["Сила. Не меч и не кулак — сила духа. Ты укротишь зверя, {n}, если не испугаешься.", "Сила — это мягкая рука на пасти льва. Терпение побеждает ярость."],
+    rsay: ["Сила вверх ногами. Зверь вырвался, {n}. Твой — или чужой."],
+    q: "Что в тебе страшнее всего — когда ты злишься?", a: [["Я становлюсь холодным.", "Холод страшнее огня. Береги тех, кто рядом."], ["Я теряю себя.", "Тогда эта карта — предупреждение. Держи зверя на цепи."], ["Я не злюсь.", "Ох… Самые тихие — самые страшные."]],
+    adv: "Не дави — убеждай. Мягкость сейчас сильнее стали.", radv: "Не давай гневу решать за тебя.",
+    who: "Тот, кто кажется слабым, а держит в руках чудовище.", change: "Зверя не убьёшь. Но приручить — можно." },
+  { say: ["Отшельник. Фонарь во тьме. Тебе нужно уйти от шума, {n}, чтобы услышать себя.", "Отшельник ищет правду там, где её никто не ищет — в тишине."],
+    rsay: ["Отшельник заперся. Одиночество стало клеткой. Не отталкивай тех, кто стучится."],
+    q: "Когда ты в последний раз был один — по-настоящему?", a: [["Я всегда один.", "Это не одиночество, {n}, это рана. Карта пришла её показать."], ["Не помню.", "Тогда найди время. Ответ ждёт в тишине."], ["Вчера ночью.", "И что ты услышал? …Не говори. Просто помни."]],
+    adv: "Уйди в тишину на время. Ответ найдётся там.", radv: "Прими помощь. Гордость в одиночестве — не мудрость.",
+    who: "Старик с фонарём, монах, отшельник из Чернолесья.", change: "Фонарь можно погасить. Или поднять выше." },
+  { say: ["Колесо Судьбы повернулось, {n}! Перемена близко — и не тебе её останавливать.", "Колесо. Кто был внизу — поднимется. Кто наверху… держись крепче."],
+    rsay: ["Колесо застряло. Невезение, круг, из которого не выбраться — пока сам не сломаешь его."],
+    q: "Тебе часто везёт?", a: [["Везёт. Иногда даже страшно.", "Колесо любит тебя. Но у любви колеса есть цена."], ["Никогда.", "Значит, твой черёд близко. Колесо крутится для всех."], ["Я не верю в удачу.", "Удаче всё равно, веришь ли ты в неё."]],
+    adv: "Лови перемену — она сейчас на твоей стороне.", radv: "Сделай что-то иначе. Иначе круг повторится.",
+    who: "Случайный встречный. Тот, кого ты ещё не знаешь.", change: "Колесо не остановить. Но можно выбрать, на какую спицу встать." },
+  { say: ["Справедливость. Весы качнулись, {n}. Каждому воздастся — и тебе тоже.", "Справедливость. Правда выйдет наружу, хочешь ты того или нет."],
+    rsay: ["Справедливость перевёрнута. Суд неправый, подкуп, ложь на весах."],
+    q: "Есть ли долг, который ты не вернул?", a: [["Есть.", "Верни, {n}. Весы не любят ждать."], ["Нет. Я чист.", "Хорошо, если так. Весы проверят."], ["Мне задолжали.", "Тогда жди. Справедливость медленна, но не забывчива."]],
+    adv: "Поступи честно, даже если это дорого.", radv: "Не надейся на суд. Ищи правду сам.",
+    who: "Судья, инквизитор или тот, кто держит счёт.", change: "Приговор не отменишь. Но можно заслужить милость." },
+  { say: ["Повешенный. Пауза, {n}. Иногда, чтобы увидеть правду, надо повиснуть вниз головой.", "Повешенный — жертва. Отдай малое, чтобы получить большее."],
+    rsay: ["Повешенный дёргается в петле. Жертва впустую, застой, упрямство."],
+    q: "Чем ты готов пожертвовать?", a: [["Многим. Если будет ради чего.", "Тогда карта тебя поняла. Жертва ради цели — не потеря."], ["Ничем.", "Ничем… Тогда судьба возьмёт сама. И не спросит."], ["Собой.", "Тише, {n}. Не говори так в ночь, когда горит свеча."]],
+    adv: "Не спеши. Посмотри на всё с другой стороны.", radv: "Хватит ждать. Твоя жертва никому не нужна.",
+    who: "Тот, кто страдает молча. Возможно — ты сам.", change: "Повиси ещё немного. Петля развяжется сама, когда поймёшь." },
+  { say: ["Смерть… Не бледней, {n}. Эта карта — конец одного и начало другого. Как зима перед весной.", "Смерть. Что-то уходит навсегда. Отпусти — и станет легче."],
+    rsay: ["Смерть перевёрнута. Ты цепляешься за то, что уже мертво, {n}. Это хуже конца."],
+    q: "Ты боишься обескровленных?", a: [["Боюсь.", "Правильно. Боящиеся живут дольше."], ["Нет.", "Нет?.. Значит, ты либо очень смел, либо уже видел их слишком близко."], ["Я боюсь стать одним из них.", "Этого боятся все, {n}. Держи огонь при себе."]],
+    adv: "Закончи то, что тянется слишком долго. Освободи место новому.", radv: "Отпусти. Мёртвое не оживёт, сколько ни держи.",
+    who: "Тот, кто уйдёт. Или тот, кто уже ушёл, но не отпустил.", change: "Конец не изменить. Но можно решить, каким будет начало." },
+  { say: ["Умеренность. Мера во всём, {n}. Смешай воду с вином — и исцелишься.", "Умеренность — терпение лекаря. Рана заживёт, если не торопить."],
+    rsay: ["Умеренность разлита. Излишества, разлад, нетерпение."],
+    q: "Чего у тебя в жизни слишком много?", a: [["Вина.", "Вино хорошо в меру. Карта не зря легла."], ["Тревог.", "Тогда эта карта — лекарство. Дыши, {n}."], ["Врагов.", "Врагов много не бывает — бывает мало друзей."]],
+    adv: "Найди середину. Не рви — сшивай.", radv: "Остановись. Ты берёшь больше, чем можешь унести.",
+    who: "Лекарь, целитель или тот, кто умеет мирить.", change: "Меру можно найти всегда. Даже в последний день." },
+  { say: ["Дьявол. Цепи, {n}. Искушение, сделка, долг. Что держит тебя на привязи?", "Дьявол шепчет сладко. Но цепи на руках — твои, и ключ тоже у тебя."],
+    rsay: ["Дьявол перевёрнут. Цепи слабеют. Ты можешь освободиться — или нырнуть ещё глубже."],
+    q: "Ты заключал сделку, о которой жалеешь?", a: [["Заключал.", "Тогда долг придёт за тобой. Готовься."], ["Нет.", "Пока нет, {n}. Карта предупреждает."], ["Не твоё дело, старуха.", "Хе-хе… Значит, заключал."]],
+    adv: "Посмотри, что тебя держит, и назови это вслух.", radv: "Рви цепи сейчас — пока они ещё ржавые.",
+    who: "Сладкоречивый благодетель. Кредитор. Искуситель.", change: "Сделку можно расторгнуть. Цена — всегда больше, чем кажется." },
+  { say: ["Башня рушится, {n}! Удар, молния, правда, что сносит стены. Не стой под ними.", "Башня. Всё, что строилось на лжи, падёт. Лучше сейчас, чем позже."],
+    rsay: ["Башня шатается, но стоит. Катастрофу пытаются отсрочить — но не отменить."],
+    q: "Что ты строишь на песке?", a: [["Своё положение.", "Тогда готовь запасной путь, {n}."], ["Отношения.", "Правда разрушит их — или укрепит. Третьего не дано."], ["Ничего. Я живу честно.", "Тогда башня рухнет у кого-то рядом. Отойди в сторону."]],
+    adv: "Не держись за то, что падает. Спасай главное.", radv: "Удар всё равно будет. Подготовься сейчас.",
+    who: "Тот, кто принесёт дурную весть. Или правду.", change: "Башню не спасти. Но можно не оказаться под обломками." },
+  { say: ["Звезда, {n}. Надежда после бури. Даже в Веларисе иногда бывают ясные ночи.", "Звезда. Исцеление. Кто-то вспомнит о тебе с добром."],
+    rsay: ["Звезда потускнела. Отчаяние, потерянная вера. Но звёзды гаснут только для тех, кто не смотрит вверх."],
+    q: "На что ты надеешься?", a: [["Что всё наладится.", "Наладится. Звезда редко врёт."], ["Что найду кого-то.", "Найдёшь. Или он найдёт тебя."], ["Я ни на что не надеюсь.", "Тогда эта карта — тебе подарок. Возьми."]],
+    adv: "Верь. Даже немного веры сейчас сдвинет многое.", radv: "Не дай отчаянию решать. Утро придёт.",
+    who: "Чистая душа. Ребёнок, юная дева или поэт.", change: "Звезду не погасишь. Её можно лишь перестать видеть." },
+  { say: ["Луна. Туман, {n}, и в тумане — тени. Не всё то, чем кажется. Кто-то лжёт тебе — или ты себе.", "Луна — видения и страхи. Тенеград знает эту карту лучше всех."],
+    rsay: ["Луна перевёрнута. Туман рассеивается. Ложь выходит на свет."],
+    q: "Кому ты не доверяешь, хоть и улыбаешься ему?", a: [["Есть такой человек.", "Правильно не доверяешь. Луна не легла бы зря."], ["Я доверяю всем.", "Опасно, {n}. В тумане даже свои кажутся чужими."], ["Себе.", "Мудрый ответ. Самый страшный обман — изнутри."]],
+    adv: "Не решай ничего, пока не рассеется туман.", radv: "Правда близко. Смотри внимательно.",
+    who: "Лжец с приятным лицом. Или тень из Тенеграда.", change: "Туман уйдёт сам. Но можно зажечь фонарь." },
+  { say: ["Солнце! Радость, {n}, успех, тепло. Редкая карта в наши тёмные дни.", "Солнце. Всё станет ясно. И это будет хорошо."],
+    rsay: ["Солнце за тучей. Успех будет, но поздний — или с горечью."],
+    q: "Когда ты в последний раз смеялся от души?", a: [["Недавно.", "Хорошо. Береги этот смех — он дороже золота."], ["Не помню.", "Солнце пришло напомнить. Скоро."], ["Сейчас — от твоих вопросов.", "Хе-хе-хе! Вот видишь. Карта уже работает."]],
+    adv: "Иди к свету. Сейчас время радоваться.", radv: "Не гордись раньше времени — и радость придёт.",
+    who: "Тот, кто греет. Ребёнок или верный друг.", change: "Зачем менять Солнце, {n}? Грейся." },
+  { say: ["Суд. Зов, {n}. Пробуждение. Прошлое возвращается — с наградой или с расплатой.", "Суд. Второй шанс. Не упусти его."],
+    rsay: ["Суд перевёрнут. Ты не слышишь зов — или не хочешь слышать."],
+    q: "Есть ли что-то из прошлого, что тебя не отпускает?", a: [["Есть.", "Тогда оно вернётся. Встреть его лицом."], ["Нет. Я всё оставил позади.", "Позади… Прошлое любит ходить за спиной, {n}."], ["Не хочу об этом.", "Не хочешь — а придётся. Суд не спрашивает."]],
+    adv: "Ответь на зов. Это твой второй шанс.", radv: "Перестань судить себя. Прошлое уже случилось.",
+    who: "Тот, кто вернётся из прошлого.", change: "Приговор прошлому вынесен. А будущему — ещё нет." },
+  { say: ["Мир. Завершение, {n}. Круг замкнулся, путь пройден. Редкая и добрая карта.", "Мир — целостность. Ты там, где должен быть."],
+    rsay: ["Мир перевёрнут. Не хватает последнего шага, {n}. Самого трудного."],
+    q: "Что ты хочешь закончить, прежде чем начать новое?", a: [["Старое дело.", "Закончишь. Карта обещает."], ["Старую ссору.", "Мириться трудно. Но эта карта — за мир."], ["Ничего. Я готов.", "Тогда иди, {n}. Мир открыт."]],
+    adv: "Доведи начатое до конца — и отдохни.", radv: "Сделай последний шаг. Не останавливайся у порога.",
+    who: "Странник, что вернулся домой.", change: "Круг замкнут. Новый начнётся сам." }
+];
+
+</script>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const pick = a => a[tRand(a.length)];
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const IN_FRAME = (() => { try { return window.self !== window.top; } catch (_) { return true; } })();
+function toast(t) { const d = document.createElement("div"); d.className = "toast"; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 3200); }
+function store(k, v) { try { if (v === undefined) return localStorage.getItem(k); if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (_) { return null; } }
+
+/* ===================== ШАТЁР (фон) ===================== */
+(function tent() {
+  let s = `<defs>
+    <radialGradient id="lampg"><stop offset="0" stop-color="#ffd890" stop-opacity=".9"/><stop offset=".35" stop-color="#ff9a40" stop-opacity=".35"/><stop offset="1" stop-color="#ff7a20" stop-opacity="0"/></radialGradient>
+    <radialGradient id="vig" cx=".5" cy=".45" r=".75"><stop offset=".45" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".75"/></radialGradient>
+  </defs><rect width="1000" height="640" fill="#2a0c18"/>`;
+  const N = 18;
+  for (let i = 0; i < N; i++) {
+    const x0 = -700 + i * (2400 / N), x1 = x0 + 2400 / N;
+    s += `<path d="M500 -120 L${x0.toFixed(0)} 700 L${x1.toFixed(0)} 700Z" fill="${i % 2 ? "#3d1022" : "#561a2c"}"/>`;
+    s += `<path d="M500 -120 L${x0.toFixed(0)} 700" stroke="#b8893f" stroke-opacity=".35" stroke-width="1.5"/>`;
+  }
+  /* узор-звёзды на ткани */
+  for (let i = 0; i < 26; i++) { const x = 40 + tRand(920), y = 30 + tRand(380); s += `<path d="M${x} ${y - 5}l1.4 3.6 3.6 1.4-3.6 1.4-1.4 3.6-1.4-3.6-3.6-1.4 3.6-1.4z" fill="#d9b36a" opacity="${(.15 + tRand(30) / 100).toFixed(2)}"/>`; }
+  /* драпировка сверху */
+  s += `<path d="M-20 0 Q120 90 260 10 Q380 100 500 18 Q620 100 740 10 Q880 90 1020 0 V-10 H-20Z" fill="#6a1e32"/>
+    <path d="M-20 0 Q120 90 260 10 Q380 100 500 18 Q620 100 740 10 Q880 90 1020 0" fill="none" stroke="#c9a25a" stroke-width="3"/>`;
+  /* бахрома-кисти */
+  for (let x = 0; x <= 1000; x += 22) { const k = (x % 250) / 250, y = 8 + Math.sin(k * Math.PI) * 52 + (x > 500 ? 0 : 0); s += `<path d="M${x} ${y.toFixed(0)}v14" stroke="#c9a25a" stroke-width="2"/><circle cx="${x}" cy="${(y + 16).toFixed(0)}" r="2.6" fill="#e2bf73"/>`; }
+  /* сушёные травы */
+  [[90, 120], [905, 110], [960, 150]].forEach(([x, y]) => { s += `<g opacity=".8"><path d="M${x} 0V${y}" stroke="#6a4a2a" stroke-width="1.5"/>${[0, 1, 2, 3, 4].map(k => `<path d="M${x} ${y} q${-14 + k * 7} 24 ${-8 + k * 4} 52" stroke="#5f6a3a" stroke-width="3" fill="none" stroke-linecap="round"/>`).join("")}</g>`; });
+  /* фонари */
+  const lamp = (x, cls) => `<g class="lamp ${cls}" style="transform-origin:${x}px 0px">
+    <path d="M${x} 0V150" stroke="#8a6a3a" stroke-width="2"/>
+    <circle cx="${x}" cy="195" r="120" fill="url(#lampg)"/>
+    <path d="M${x - 22} 160h44l-6 -10h-32z" fill="#7a5a2a"/>
+    <path d="M${x - 20} 160 L${x - 26} 214 Q${x} 230 ${x + 26} 214 L${x + 20} 160Z" fill="#ffcf7a" opacity=".85"/>
+    <path d="M${x - 20} 160 L${x - 26} 214 M${x} 160 L${x} 226 M${x + 20} 160 L${x + 26} 214" stroke="#6a4a1a" stroke-width="2.4"/>
+    <path d="M${x - 26} 214 Q${x} 232 ${x + 26} 214 l-6 10 h-40z" fill="#7a5a2a"/><path d="M${x} 232v12" stroke="#c9a25a" stroke-width="2"/><circle cx="${x}" cy="248" r="4" fill="#c9a25a"/>
+  </g>`;
+  s += lamp(170, "l") + lamp(830, "r");
+  s += `<rect width="1000" height="640" fill="url(#vig)"/>`;
+  $("#tent").innerHTML = s;
+})();
+
+/* ===================== МИРРА ===================== */
+(function mirra() {
+  const SK = "#8b5636", SKD = "#6b3f25", WR = "#4a2814";
+  $("#stage").innerHTML = `<svg viewBox="0 0 1000 640" id="m" class="look-guest">
+  <defs>
+    <radialGradient id="skin" cx=".45" cy=".4" r=".7"><stop offset="0" stop-color="#a0663f"/><stop offset=".7" stop-color="${SK}"/><stop offset="1" stop-color="${SKD}"/></radialGradient>
+    <linearGradient id="scarf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2c2a6e"/><stop offset=".5" stop-color="#3b2a7a"/><stop offset="1" stop-color="#1c1846"/></linearGradient>
+    <linearGradient id="shawl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a1e2a"/><stop offset="1" stop-color="#3e0c16"/></linearGradient>
+    <pattern id="shp" width="26" height="26" patternUnits="userSpaceOnUse"><path d="M13 3l4 10-4 10-4-10z" fill="none" stroke="#d9a94f" stroke-opacity=".35" stroke-width="1.2"/><circle cx="0" cy="0" r="2" fill="#d9a94f" fill-opacity=".3"/><circle cx="26" cy="26" r="2" fill="#d9a94f" fill-opacity=".3"/></pattern>
+    <radialGradient id="orbg" cx=".38" cy=".35" r=".7"><stop offset="0" stop-color="#e8e2ff"/><stop offset=".35" stop-color="#8c7ad8" stop-opacity=".85"/><stop offset="1" stop-color="#241848" stop-opacity=".95"/></radialGradient>
+    <radialGradient id="orbglow"><stop offset="0" stop-color="#b9a8ff" stop-opacity=".55"/><stop offset="1" stop-color="#b9a8ff" stop-opacity="0"/></radialGradient>
+    <radialGradient id="cglow"><stop offset="0" stop-color="#ffd27a" stop-opacity=".7"/><stop offset="1" stop-color="#ff9a30" stop-opacity="0"/></radialGradient>
+    <radialGradient id="blush" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#b0503a" stop-opacity=".35"/><stop offset="1" stop-color="#b0503a" stop-opacity="0"/></radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f6dc95"/><stop offset=".5" stop-color="#c9963f"/><stop offset="1" stop-color="#8a6420"/></linearGradient>
+  </defs>
+
+  <g class="breathe">
+    <!-- платок сзади -->
+    <path d="M404 316 C384 214 420 128 500 122 C580 128 616 214 596 316 C626 346 652 380 664 440 L336 440 C348 380 374 346 404 316Z" fill="url(#scarf)"/>
+    <path d="M404 316 C384 214 420 128 500 122 C580 128 616 214 596 316" fill="none" stroke="#c9a25a" stroke-width="2" stroke-dasharray="1 7" stroke-linecap="round"/>
+    <!-- тело и шаль -->
+    <path d="M478 296 L476 336 L524 336 L522 296Z" fill="${SKD}"/>
+    <path d="M360 352 C410 326 590 326 640 352 C700 380 736 420 752 460 L248 460 C264 420 300 380 360 352Z" fill="url(#shawl)"/>
+    <path d="M360 352 C410 326 590 326 640 352 C700 380 736 420 752 460 L248 460 C264 420 300 380 360 352Z" fill="url(#shp)"/>
+    <path d="M452 334 L500 392 L548 334" fill="#2a0a12" stroke="#c9a25a" stroke-width="2"/>
+    <path d="M452 334 L500 392 L548 334 L540 334 L500 380 L460 334Z" fill="${SK}"/>
+    <!-- бусы и монисто -->
+    <path d="M462 338 Q500 372 538 338" fill="none" stroke="#2e7a6a" stroke-width="5" stroke-dasharray="0.1 9" stroke-linecap="round"/>
+    <path d="M452 340 Q500 392 548 340" fill="none" stroke="#c9963f" stroke-width="1.6"/>
+    ${[...Array(9)].map((_, i) => { const t = (i + 1) / 10, x = 452 + 96 * t, y = 340 + Math.sin(t * Math.PI) * 36; return `<circle cx="${x.toFixed(1)}" cy="${(y + 7).toFixed(1)}" r="5.2" fill="url(#gold)" stroke="#6a4a1a" stroke-width=".8"/>`; }).join("")}
+    <path d="M440 344 Q500 418 560 344" fill="none" stroke="#9a2a2a" stroke-width="4" stroke-dasharray="0.1 8" stroke-linecap="round"/>
+    <!-- края шали с кистями -->
+    <path d="M300 380 C340 410 360 430 370 460 M700 380 C660 410 640 430 630 460" stroke="#d9a94f" stroke-opacity=".6" stroke-width="2" fill="none"/>
+
+    <!-- седые пряди -->
+    <path d="M444 196 C432 236 436 280 452 312 L460 306 C448 276 446 236 452 204Z" fill="#c9c2b6"/>
+    <path d="M556 196 C568 236 564 280 548 312 L540 306 C552 276 554 236 548 204Z" fill="#bdb5a8"/>
+    <path d="M448 210 C440 246 444 284 456 306" stroke="#9e968a" stroke-width="1.2" fill="none"/>
+    <path d="M552 210 C560 246 556 284 544 306" stroke="#9e968a" stroke-width="1.2" fill="none"/>
+
+    <!-- лицо -->
+    <path d="M444 218 C444 168 470 156 500 156 C530 156 556 168 556 218 C556 268 540 304 500 314 C460 304 444 268 444 218Z" fill="url(#skin)"/>
+    <ellipse cx="470" cy="258" rx="16" ry="11" fill="url(#blush)"/><ellipse cx="530" cy="258" rx="16" ry="11" fill="url(#blush)"/>
+    <!-- морщины -->
+    <g fill="none" stroke="${WR}" stroke-linecap="round" opacity=".55" stroke-width="1.2">
+      <path d="M472 186 Q500 181 528 186"/><path d="M476 193 Q500 189 524 193"/><path d="M482 199 Q500 196 518 199" opacity=".7"/>
+      <path d="M496 204 L497 211 M504 204 L503 211"/>
+      <path d="M456 216 l-6 -2 M456 220 l-7 1 M457 224 l-5 4"/><path d="M544 216 l6 -2 M544 220 l7 1 M543 224 l5 4"/>
+      <path d="M465 231 Q477 238 489 232"/><path d="M511 232 Q523 238 535 231"/>
+      <path d="M467 236 Q477 242 487 238" opacity=".6"/><path d="M513 238 Q523 242 533 236" opacity=".6"/>
+      <path d="M486 254 Q476 270 482 288" stroke-width="1.6"/><path d="M514 254 Q524 270 518 288" stroke-width="1.6"/>
+      <path d="M484 291 Q480 297 482 302 M516 291 Q520 297 518 302"/>
+      <path d="M490 300 Q500 304 510 300"/>
+      <path d="M459 262 Q462 278 470 290 M541 262 Q538 278 530 290" opacity=".5"/>
+    </g>
+    <!-- брови -->
+    <path d="M461 207 Q474 199 489 205" fill="none" stroke="#ddd5c8" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M511 205 Q526 199 539 207" fill="none" stroke="#ddd5c8" stroke-width="3.2" stroke-linecap="round"/>
+    <!-- глаза -->
+    <g class="eye l">
+      <path d="M463 221 Q476 211 490 221 Q476 229 463 221Z" fill="#efe1c6"/>
+      <g class="iris"><circle cx="476.5" cy="220.6" r="5.2" fill="#3a2414"/><circle cx="476.5" cy="220.6" r="2.4" fill="#120804"/><circle cx="478.3" cy="218.8" r="1.3" fill="#fff6d8"/></g>
+      <path d="M460 221 Q476 208 492 220 L499 216" fill="none" stroke="#140804" stroke-width="2.3" stroke-linecap="round"/>
+      <path d="M464 223 Q476 229 489 223" fill="none" stroke="#140804" stroke-width="1" opacity=".7"/>
+    </g>
+    <g class="eye r">
+      <path d="M510 221 Q524 211 537 221 Q524 229 510 221Z" fill="#efe1c6"/>
+      <g class="iris"><circle cx="523.5" cy="220.6" r="5.2" fill="#3a2414"/><circle cx="523.5" cy="220.6" r="2.4" fill="#120804"/><circle cx="525.3" cy="218.8" r="1.3" fill="#fff6d8"/></g>
+      <path d="M540 221 Q524 208 508 220 L501 216" fill="none" stroke="#140804" stroke-width="2.3" stroke-linecap="round" transform="translate(0 0)"/>
+      <path d="M511 223 Q524 229 536 223" fill="none" stroke="#140804" stroke-width="1" opacity=".7"/>
+    </g>
+    <!-- нос -->
+    <path d="M498 214 Q495 240 490 252 Q494 258 500 257 Q506 258 510 252" fill="none" stroke="${WR}" stroke-width="1.6" stroke-linecap="round" opacity=".75"/>
+    <path d="M492 252 q3 3 6 1 M502 253 q3 2 6 -1" fill="none" stroke="#2a1408" stroke-width="1.4" opacity=".7"/>
+    <path d="M500 226 Q503 240 504 250" fill="none" stroke="#b07a52" stroke-width="2" opacity=".45"/>
+    <!-- губы -->
+    <ellipse class="mouth-o" cx="500" cy="281.5" rx="8" ry="3.4" fill="#2a0c08"/>
+    <path d="M485 279 Q492 274.5 500 277.5 Q508 274.5 515 279 Q500 281.5 485 279Z" fill="#7e3c32"/>
+    <path d="M487 280 Q500 289 513 280 Q500 283.5 487 280Z" fill="#8f4a3c"/>
+    <path d="M485 279 Q500 282 515 279" fill="none" stroke="#3a1008" stroke-width="1.1"/>
+    <circle cx="524" cy="266" r="1.8" fill="#3a1a0a"/>
+    <!-- платок спереди + монеты -->
+    <path d="M436 232 C434 176 462 146 500 144 C538 146 566 176 564 232" fill="none" stroke="url(#scarf)" stroke-width="18" stroke-linecap="round"/>
+    <path d="M428 236 C426 170 460 136 500 134 C540 136 574 170 572 236" fill="none" stroke="#c9a25a" stroke-width="2.2"/>
+    <path d="M446 236 C444 182 468 156 500 154 C532 156 556 182 554 236" fill="none" stroke="#c9a25a" stroke-width="1.4" opacity=".8"/>
+    ${[...Array(11)].map((_, i) => { const a = Math.PI * (0.16 + 0.68 * i / 10), x = 500 - Math.cos(a) * 54, y = 214 - Math.sin(a) * 58; return `<path d="M${x.toFixed(1)} ${(y - 4).toFixed(1)}v5" stroke="#c9963f" stroke-width="1"/><circle cx="${x.toFixed(1)}" cy="${(y + 5).toFixed(1)}" r="${i === 5 ? 6.5 : 4.4}" fill="url(#gold)" stroke="#6a4a1a" stroke-width=".7"/>`; }).join("")}
+    <path d="M500 152 l5 9 -5 9 -5 -9z" fill="#b8323a" stroke="#f0d696" stroke-width="1"/>
+    <!-- серьги -->
+    <g fill="none" stroke="url(#gold)" stroke-width="3.2"><circle cx="440" cy="270" r="15"/><circle cx="560" cy="270" r="15"/></g>
+    <circle cx="440" cy="286" r="3.4" fill="#b8323a"/><circle cx="560" cy="286" r="3.4" fill="#b8323a"/>
+  </g>
+
+  <!-- руки на столе -->
+  <g>
+    <path d="M330 470 C360 440 400 432 430 440 L436 470Z" fill="url(#shawl)"/>
+    <path d="M670 470 C640 440 600 432 570 440 L564 470Z" fill="url(#shawl)"/>
+    <g fill="${SK}" stroke="${WR}" stroke-width="1" stroke-opacity=".5">
+      <path d="M418 446 C438 440 466 442 474 452 C478 458 472 462 462 461 L470 466 C474 470 466 474 458 471 L452 470 C446 474 438 474 432 470 C420 468 410 462 418 446Z"/>
+      <path d="M582 446 C562 440 534 442 526 452 C522 458 528 462 538 461 L530 466 C526 470 534 474 542 471 L548 470 C554 474 562 474 568 470 C580 468 590 462 582 446Z"/>
+    </g>
+    <g fill="none" stroke="${WR}" stroke-width=".9" opacity=".5"><path d="M440 452 q8 3 16 1 M436 458 q10 3 20 2"/><path d="M560 452 q-8 3 -16 1 M564 458 q-10 3 -20 2"/></g>
+    <g fill="none" stroke="url(#gold)" stroke-width="3.5"><path d="M414 448 q-4 10 2 20"/><path d="M420 446 q-4 12 2 22"/><path d="M586 448 q4 10 -2 20"/><path d="M580 446 q4 12 -2 22"/></g>
+    <circle cx="463" cy="458" r="3" fill="#2e7a6a" stroke="#f0d696" stroke-width="1.2"/><circle cx="452" cy="467" r="2.4" fill="none" stroke="#f0d696" stroke-width="1.6"/>
+    <circle cx="537" cy="458" r="3" fill="#b8323a" stroke="#f0d696" stroke-width="1.2"/>
+  </g>
+
+  <!-- хрустальный шар -->
+  <g>
+    <circle cx="180" cy="440" r="110" fill="url(#orbglow)" class="orb-in"/>
+    <path d="M140 500 C150 476 210 476 220 500 L230 520 L130 520Z" fill="#5a3a18" stroke="#c9a25a" stroke-width="2"/>
+    <path d="M150 484 C160 470 200 470 210 484" fill="none" stroke="#c9a25a" stroke-width="2"/>
+    <circle cx="180" cy="436" r="50" fill="url(#orbg)"/>
+    <g class="orb-in" opacity=".8"><path d="M160 430 Q180 410 200 432 Q182 452 160 430Z" fill="#fff" fill-opacity=".18"/><circle cx="192" cy="446" r="8" fill="#fff" fill-opacity=".12"/></g>
+    <ellipse cx="164" cy="418" rx="12" ry="7" fill="#fff" opacity=".55" transform="rotate(-35 164 418)"/>
+  </g>
+  <!-- свечи -->
+  <g>
+    <circle cx="820" cy="400" r="120" fill="url(#cglow)"/>
+    <ellipse cx="822" cy="508" rx="56" ry="10" fill="#3a2410"/>
+    <path d="M790 506 V430 Q798 424 806 430 V506Z" fill="#efe0bf"/><path d="M806 430 V506" stroke="#c9b38a" stroke-width="2"/>
+    <path d="M791 432 q2 14 -1 24 q4 -6 6 -2" fill="#efe0bf" stroke="#d8c8a2"/>
+    <path d="M824 506 V452 Q832 446 840 452 V506Z" fill="#e8d7b0"/>
+    <path d="M846 506 V470 Q852 466 858 470 V506Z" fill="#efe0bf"/>
+    <path d="M798 430 V420 M832 452 V444 M852 470 V463" stroke="#2a1408" stroke-width="1.5"/>
+    <path class="flame" d="M798 421 C790 410 796 398 798 388 C801 398 806 410 798 421Z" fill="#ffcf62"/>
+    <path class="flame b" d="M832 445 C826 437 830 428 832 420 C834 428 838 437 832 445Z" fill="#ffd47a"/>
+    <path class="flame" d="M852 464 C847 458 850 450 852 444 C854 450 857 458 852 464Z" fill="#ffd47a"/>
+    <path class="flame b" d="M798 418 C795 412 797 405 798 400 C799 405 801 412 798 418Z" fill="#fff4cf"/>
+  </g>
+  <!-- курильница -->
+  <g>
+    <path d="M690 500 q16 -16 32 0 l-4 10 h-24z" fill="#6a4a1a" stroke="#c9a25a" stroke-width="1.4"/>
+    <path class="smoke" d="M706 488 c-10 -20 12 -30 0 -50 c-10 -18 10 -28 2 -44"/>
+    <path class="smoke b" d="M708 488 c12 -18 -8 -32 4 -52 c10 -16 -6 -26 2 -40"/>
+  </g>
+</svg>`;
+  /* пылинки в свете */
+  let d = ""; for (let i = 0; i < 18; i++) d += `<i style="left:${tRand(100)}%;top:${30 + tRand(70)}%;animation-duration:${8 + tRand(10)}s;animation-delay:-${tRand(12)}s"></i>`;
+  $("#dust").innerHTML = d;
+})();
+const M = () => $("#m");
+function look(where) { const m = M(); if (!m) return; m.classList.toggle("look-down", where === "down"); }
+
+/* ===================== ДИАЛОГОВЫЙ ДВИЖОК ===================== */
+let G = { n: "", name: "", topic: "", spread: "three", drawn: [], deck: [], visits: 0 };
+const fill = t => t.replace(/\{n\}/g, G.name || "путник").replace(/\{t\}/g, MIRRA.topicName[G.topic] || "твоего вопроса");
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+let typing = null;
+function type(text) {
+  const el = $("#line"); el.textContent = ""; M().classList.add("talk");
+  return new Promise(res => {
+    let i = 0; const full = fill(text);
+    const done = () => { clearInterval(typing); typing = null; el.textContent = full; M().classList.remove("talk"); res(); };
+    typing = setInterval(() => { i += 1 + (full[i] === " " ? 1 : 0); el.textContent = full.slice(0, i); if (i >= full.length) done(); }, 24);
+    el.onclick = () => { if (typing) done(); };
+  });
+}
+function echo(t) { $("#echo").textContent = t ? fill(t) : ""; }
+/* Мирра говорит; ждём касания, чтобы продолжить */
+async function say(text, guest) {
+  echo(guest || ""); $("#ctrl").innerHTML = ""; await type(text);
+  const el = $("#line"); el.insertAdjacentHTML("beforeend", `<span class="more">▾</span>`);
+  return new Promise(res => {
+    const go = e => { if (e && e.target.closest(".opt,.fan,input")) return; $("#dlg").removeEventListener("click", go); removeEventListener("keydown", key); res(); };
+    const key = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } };
+    setTimeout(() => { $("#dlg").addEventListener("click", go); addEventListener("keydown", key); }, 60);
+  });
+}
+/* Мирра говорит и ждёт ответа: opts = [[текст, класс?], …] → индекс */
+async function ask(text, opts, guest) {
+  echo(guest || ""); $("#ctrl").innerHTML = ""; await type(text);
+  return choose(opts);
+}
+function choose(opts) {
+  return new Promise(res => {
+    $("#ctrl").innerHTML = `<div class="opts">${opts.map((o, i) => { const [t, c] = Array.isArray(o) ? o : [o, ""]; return `<button type="button" class="opt ${c || ""}" style="--i:${i}" data-o="${i}">${esc(fill(t))}</button>`; }).join("")}</div>`;
+    $("#ctrl").onclick = e => { const b = e.target.closest("[data-o]"); if (!b) return; $("#ctrl").onclick = null; res(+b.dataset.o); };
+    const f = $("#ctrl .opt"); if (f && matchMedia("(hover: hover)").matches) f.focus({ preventScroll: true });
+  });
+}
+const opTxt = o => Array.isArray(o) ? o[0] : o;
+
+/* ===================== СТОЛ ===================== */
+function slotsDraw() {
+  const sp = TAROT_SPREADS[G.spread];
+  $("#slots").className = "slots n" + sp.pos.length;
+  $("#slots").innerHTML = sp.pos.map((p, i) => `<div class="slot" data-slot="${i}"><span>${esc(p)}</span></div>`).join("");
+}
+function fanDraw() {
+  return new Promise(res => {
+    const need = TAROT_SPREADS[G.spread].pos.length;
+    $("#ctrl").innerHTML = `<div class="fan" id="fan">${G.deck.map((ci, k) => `<button type="button" data-k="${k}" style="--k:${k}" aria-label="Карта рубашкой вверх">${tarotCardSVG(null, true)}</button>`).join("")}</div>`;
+    $("#fan").onclick = async e => {
+      const b = e.target.closest("[data-k]"); if (!b || b.classList.contains("taken") || G.drawn.length >= need) return;
+      b.classList.add("taken");
+      const ci = G.deck[+b.dataset.k], rev = tRand(4) === 0, i = G.drawn.length;
+      G.drawn.push({ ci, rev });
+      const sl = $(`.slot[data-slot="${i}"]`); sl.classList.add("has");
+      sl.insertAdjacentHTML("beforeend", `<button type="button" class="card${rev ? " rev" : ""}" data-card="${i}" aria-label="Карта"><span class="fl"><span class="b">${tarotCardSVG(null, true)}</span><span class="f">${tarotCardSVG(TAROT[ci])}</span></span></button>`);
+      const left = need - G.drawn.length;
+      if (left) { $("#line").textContent = fill(MIRRA.pick[Math.min(G.drawn.length, MIRRA.pick.length - 2)]); }
+      else { await wait(500); res(); }
+    };
+  });
+}
+function zoomCard(i) {
+  const d = G.drawn[i], c = TAROT[d.ci], C = MIRRA_CARDS[d.ci], sp = TAROT_SPREADS[G.spread];
+  if (!$(`.card[data-card="${i}"]`).classList.contains("open")) return;
+  const z = document.createElement("div"); z.className = "zoom";
+  z.innerHTML = `<div class="zoom-c"><div class="z-card${d.rev ? " rev" : ""}">${tarotCardSVG(c)}</div><div class="z-t"><h2>${esc(c[1])}<small>${esc(sp.pos[i])}${d.rev ? " · перевёрнута" : ""}</small></h2><p>${esc(d.rev ? c[4] : c[3])}</p><p><i>${esc(fill(d.rev ? C.radv : C.adv))}</i></p></div></div>`;
+  z.onclick = () => z.remove(); document.body.appendChild(z);
+}
+document.addEventListener("click", e => { const c = e.target.closest("[data-card]"); if (c) zoomCard(+c.dataset.card); });
+
+/* ===================== СЦЕНАРИЙ ===================== */
+const SELF = [
+  ["Кто ты такая, Мирра?", "Я? Старуха с колодой и плохими коленями. Когда-то меня звали иначе. Когда-то я танцевала при дворе. Но двор сгорел, а танцы — нет: карты тоже танцуют, {n}."],
+  ["Откуда ты родом?", "С юга, из-за песков, где солнце белое, а ночи пахнут жасмином. Мой табор шёл на север сорок зим назад. Дошла только я."],
+  ["Давно ты гадаешь?", "С тех пор, как бабка вложила мне в руку первую карту. Мне было шесть. Карта была — Луна. Бабка сказала: «Ну, держись, девочка»."],
+  ["Тебя не трогает Орден?", "Трогал. Однажды. Брат-инквизитор пришёл с факелом, а ушёл с раскладом. Теперь приходит раз в месяц — тайком, в капюшоне. Хе-хе."],
+  ["Ты не боишься обескровленных?", "Мёртвые не любят огня и полыни, а у меня и того и другого вдоволь. А живых я боюсь больше, {n}. Живые хитрее."],
+  ["Твои карты правда говорят?", "Карты — это зеркало. Они говорят то, что ты уже знаешь, но боишься сказать. Я лишь читаю вслух."]
+];
+const OVERALL = [
+  "Расклад светлый, {n}. Карты к тебе добры — не растрать их доброту.",
+  "Расклад неровный: свет и тень пополам. Как и вся жизнь в Веларисе.",
+  "Тяжёлый расклад, {n}. Но тяжёлое — не значит безнадёжное. Предупреждён — значит вооружён."
+];
+const POS_LEAD = {
+  "Совет": "Это твой совет.", "Прошлое": "Это то, что уже было.", "Настоящее": "Это то, что сейчас.", "Будущее": "А это — что грядёт.",
+  "Суть": "Вот суть твоего дела.", "Помеха": "Это то, что мешает.", "Корни": "Здесь корни — откуда всё растёт.", "Что уходит": "Это уходит из твоей жизни.", "Что грядёт": "А это — то, что грядёт."
+};
+const TOPIC_TAIL = {
+  love: ["В делах сердца это значит одно: не прячь чувства.", "Для сердца — это знак. Смотри внимательнее на тех, кто рядом."],
+  road: ["Для дороги — смотри, с кем идёшь, а не куда.", "В пути это значит: не сворачивай, пока не увидишь знак."],
+  danger: ["Беда ходит рядом. Эта карта — твой фонарь.", "Опасность реальна. Но и защита у тебя есть."],
+  deed: ["В делах это знак — считай монеты дважды.", "Для службы это значит: держи слово, и оно удержит тебя."],
+  kin: ["Для близких это значит — позови их первым.", "В семье это знак: старые обиды пора отпустить."],
+  rot: ["Скверна чует слабость. Будь сильным, {n}.", "Скверна близко. Держи огонь при себе и не ходи в Чернолесье в одиночку."]
+};
+
+async function intro() {
+  const back = store("velaris-mirra-name");
+  G.visits = +(store("velaris-mirra-visits") || 0) + 1; store("velaris-mirra-visits", String(G.visits));
+  look("guest");
+  if (back && G.visits > 1) {
+    G.name = back;
+    const i = await ask(pick(["Снова ты, {n}? Я знала, что вернёшься. Карты всегда зовут обратно.", "А-а, {n}! Помню тебя. Садись на тот же табурет.", "{n}… Ты был здесь. Карта тогда легла на твоё плечо, помнишь?"]),
+      [["Да, это снова я.", ""], ["Я уже не тот, кем был.", ""], ["Ты меня с кем-то путаешь.", "quiet"]]);
+    if (i === 1) await say("Никто не тот, кем был, {n}. Именно поэтому карты каждый раз ложатся иначе.");
+    if (i === 2) { G.name = ""; store("velaris-mirra-name", null); await say("Путаю? Может быть. Глаза старые. Ну, назовись тогда заново."); await askName(); }
+  } else {
+    await say(pick(MIRRA.greet));
+    await opening();
+    await askName();
+  }
+  await topic();
+}
+async function opening() {
+  const opts = MIRRA.enter.map(x => x[0]).concat(["Сначала скажи, кто ты такая."]);
+  const i = await ask("Ну? Зачем пришёл? Не молчи — молчание я и так слышу каждую ночь.", opts);
+  if (i === opts.length - 1) {
+    await say(SELF[0][1], opts[i]);
+    const j = await ask("Ещё что-то хочешь знать о старой Мирре?", [SELF[1][0], SELF[2][0], ["Нет. Давай к делу.", "quiet"]]);
+    if (j < 2) await say(SELF[j + 1][1], SELF[j + 1][0]);
+    await say("Хватит обо мне. Карты не любят, когда о них забывают.");
+  } else await say(MIRRA.enter[i][1], opts[i]);
+}
+function askName() {
+  return new Promise(async res => {
+    echo(""); $("#ctrl").innerHTML = ""; await type(MIRRA.askName);
+    $("#ctrl").innerHTML = `<div class="name-row"><input id="nm" maxlength="30" placeholder="Ваше имя" autocomplete="off"><button type="button" class="opt gold" id="nm-ok" style="--i:0">Назваться</button><button type="button" class="opt quiet" id="nm-no" style="--i:1">Не называть</button></div>`;
+    const ok = async () => { const v = $("#nm").value.trim().replace(/\s+/g, " ").slice(0, 30); if (!v) { $("#nm").focus(); return; } G.name = cap(v); store("velaris-mirra-name", G.name); await say(pick(MIRRA.nameOk), "Меня зовут " + G.name + "."); res(); };
+    $("#nm-ok").onclick = ok; $("#nm").onkeydown = e => { if (e.key === "Enter") ok(); };
+    $("#nm-no").onclick = async () => { G.name = ""; await say(MIRRA.nameNo, "Имя оставлю при себе."); res(); };
+    if (matchMedia("(hover: hover)").matches) $("#nm").focus();
+  });
+}
+async function topic() {
+  const keys = Object.keys(MIRRA.topics);
+  const i = await ask(MIRRA.askTopic, keys.map(k => MIRRA.topics[k][0]));
+  G.topic = keys[i]; await say(MIRRA.topics[G.topic][1], MIRRA.topics[G.topic][0] + ".");
+  const sk = Object.keys(TAROT_SPREADS);
+  const j = await ask(MIRRA.askSpread, sk.map(k => `${TAROT_SPREADS[k].name} — ${TAROT_SPREADS[k].hint.toLowerCase()}`));
+  G.spread = sk[j];
+  await reading();
+}
+async function reading() {
+  G.drawn = []; slotsDraw(); look("down");
+  const deck = TAROT.map((c, i) => i);
+  for (let i = deck.length - 1; i > 0; i--) { const j = tRand(i + 1); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+  G.deck = deck;
+  await say(pick(MIRRA.shuffle));
+  const c = await ask(MIRRA.cut, MIRRA.cutA.map(x => x[0]));
+  await say(MIRRA.cutA[c][1], MIRRA.cutA[c][0]);
+  echo(""); await type(MIRRA.pick[0]);
+  await fanDraw();
+  $("#ctrl").innerHTML = "";
+  const sp = TAROT_SPREADS[G.spread];
+  for (let i = 0; i < G.drawn.length; i++) await cardTalk(i, sp.pos[i]);
+  look("guest");
+  await finale();
+}
+async function cardTalk(i, pos) {
+  const d = G.drawn[i], c = TAROT[d.ci], C = MIRRA_CARDS[d.ci];
+  document.querySelectorAll(".card.now").forEach(x => x.classList.remove("now"));
+  const el = $(`.card[data-card="${i}"]`); el.classList.add("open", "now"); look("down");
+  await wait(650);
+  await say(pick(MIRRA.reveal).replace("{p}", pos) + " " + (POS_LEAD[pos] || ""));
+  if (d.rev) await say(pick(MIRRA.rev));
+  await say(pick(d.rev ? C.rsay : C.say) + " " + pick(TOPIC_TAIL[G.topic]));
+  look("guest");
+  /* её вопрос гостю */
+  const opts = C.a.map(x => x[0]).concat([["Промолчать.", "quiet"]]);
+  const a = await ask(C.q, opts);
+  if (a < C.a.length) await say(C.a[a][1], C.a[a][0]); else await say(pick(MIRRA.quiet), "…");
+  /* вопросы гостя */
+  let left = MIRRA.guestQ.slice(0, 3), first = true;
+  while (left.length) {
+    const q = await ask(first ? pick(["Спрашивай, если есть что спросить.", "Хочешь спросить меня о чём-то, {n}?", "Карта ещё тёплая. Спрашивай."]) : pick(["Что ещё?", "Ещё вопрос?", "Спрашивай дальше — или пойдём к следующей."]),
+      left.map(x => x[0]).concat([[i < G.drawn.length - 1 ? "Открывай следующую." : "Что же в итоге?", "gold"]]));
+    first = false;
+    if (q === left.length) break;
+    const [qt, key] = left[q]; left.splice(q, 1);
+    const ans = key === "adv" ? (d.rev ? C.radv : C.adv) : C[key];
+    await say(ans, qt);
+  }
+  el.classList.remove("now");
+}
+async function finale() {
+  const r = G.drawn.filter(d => d.rev).length, n = G.drawn.length;
+  await say(OVERALL[r === 0 ? 0 : r * 2 >= n ? 2 : 1]);
+  await say(pick(MIRRA.end));
+  $("#restart").hidden = false;
+  for (;;) {
+    const opts = MIRRA.bye.map(x => x[0]).concat([["Спросить что-то о тебе самой", ""], ["Скопировать расклад", "quiet"]]);
+    const i = await ask("Ну что, {n}? Свеча коротка.", opts);
+    if (i === 3) { await say(MIRRA.bye[3][1], MIRRA.bye[3][0]); return again(); }
+    if (i === opts.length - 1) { copy(); continue; }
+    if (i === opts.length - 2) {
+      const left = SELF.slice(1);
+      const j = await ask("Обо мне? Хе. Ну спрашивай — сегодня я добрая.", left.map(x => x[0]).concat([["Не важно.", "quiet"]]));
+      if (j < left.length) await say(left[j][1], left[j][0]);
+      continue;
+    }
+    await say(MIRRA.bye[i][1], MIRRA.bye[i][0]);
+    const k = await ask("Полог открыт. Иди с огнём.", [["Выйти из шатра", "gold"], ["Остаться и погадать ещё", ""]]);
+    if (k === 0) return leave(); else return again();
+  }
+}
+async function again() {
+  $("#slots").innerHTML = ""; G.drawn = []; look("guest");
+  await topic();
+}
+function trTextM() {
+  const sp = TAROT_SPREADS[G.spread];
+  return `🔮 Гадание у Мирры — «${sp.name}»${G.name ? `, гость: ${G.name}` : ""}\nО чём: ${MIRRA.topics[G.topic][0].toLowerCase()}\n` + G.drawn.map((d, i) => { const c = TAROT[d.ci]; return `${sp.pos[i]}: ${c[1]}${d.rev ? " (перевёрнута)" : ""} — ${d.rev ? c[4] : c[3]}`; }).join("\n");
+}
+function copy() {
+  const t = trTextM();
+  try { navigator.clipboard.writeText(t).then(() => toast("Расклад скопирован — вставьте его в беседу."), () => toast(t)); } catch (_) { toast(t); }
+}
+function leave() {
+  if (IN_FRAME) { try { parent.postMessage({ velaris: "closeOverlay" }, "*"); return; } catch (_) {} }
+  location.href = "index.html" + location.search;
+}
+$("#leave").onclick = leave;
+$("#nope").onclick = leave;
+$("#restart").onclick = () => location.reload();
+$("#enter").onclick = async () => {
+  $("#gate").classList.add("open");
+  document.body.classList.remove("outside");
+  await wait(1700);
+  $("#gate").hidden = true;
+  intro();
+};
+</script>
+</body>
+</html>

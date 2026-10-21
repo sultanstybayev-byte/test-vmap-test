@@ -412,6 +412,57 @@ html.dragging-doc, html.dragging-doc * { cursor: grabbing !important; }
 .q-ava.named { width: auto; height: auto; overflow: visible; border: 0; background: none; box-shadow: none; display: inline-flex; flex-direction: column; align-items: center; gap: 2px; max-width: 80px; }
 .q-ava.named img, .q-ava.named b { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--gold); background: var(--leather); box-shadow: 0 1px 3px rgba(0,0,0,.3); }
 .q-ava em { max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 12px/1.1 var(--font-body); color: var(--text-ink); font-style: normal; }
+/* ---------- Гадалка ---------- */
+.tile.tarot { grid-column: 1 / -1; min-height: 120px; background: radial-gradient(ellipse at 85% 50%, rgba(160,90,200,.28), transparent 55%), linear-gradient(90deg, rgba(30,18,34,.97), rgba(42,29,18,.9)); }
+.sheet:has(.tr) { background: radial-gradient(ellipse at 50% 0%, #3a2440, #1a1018 70%); color: #ead9c0; border-color: #8a6a3a; box-shadow: inset 0 0 0 5px #1a1018, inset 0 0 0 6px rgba(201,162,90,.35), 0 16px 44px var(--shadow); }
+.sheet:has(.tr) .kind { color: #d48fb8; } .sheet:has(.tr) h2 { color: #f0d696; } .sheet:has(.tr) .lead { color: #c9b4a0; } .sheet:has(.tr) .rule { filter: invert(.75); }
+.tr-say { margin: 4px 0 16px; padding: 12px 16px; border-left: 3px solid #b06a9c; background: rgba(0,0,0,.25); font: italic 500 19px/1.45 var(--font-body); color: #f2e2c8; opacity: 1; }
+.tr-say.on { animation: trsay .6s var(--ease) both; } @keyframes trsay { from { opacity: 0; transform: translateY(4px); } }
+.tr-top { display: grid; gap: 10px; margin-bottom: 16px; }
+.tr-spreads { display: flex; flex-wrap: wrap; gap: 8px; }
+.tr-spreads button { flex: 1 1 150px; display: flex; flex-direction: column; gap: 2px; padding: 9px 12px; border: 1px solid rgba(201,162,90,.4); border-radius: 6px; background: rgba(0,0,0,.25); color: #ead9c0; text-align: left; cursor: pointer; }
+.tr-spreads b { font: 700 17px var(--font-display); } .tr-spreads small { font: italic 500 14px var(--font-body); color: #bfa88c; }
+.tr-spreads button[aria-pressed="true"] { border-color: #f0d696; background: rgba(176,106,156,.25); box-shadow: 0 0 14px rgba(240,214,150,.2); }
+.tr-top input { background: rgba(255,248,230,.92); }
+.tr-table { position: relative; min-height: 200px; padding: 18px 10px 14px; border-radius: 10px; background: radial-gradient(ellipse at 50% 40%, #4a1f30, #200c14 75%); box-shadow: inset 0 0 40px rgba(0,0,0,.6); overflow: hidden; overflow: clip; }
+.tr-empty { margin: 60px 0; text-align: center; font: italic 500 18px var(--font-body); color: #bfa88c; }
+.tr-slots { display: flex; justify-content: center; flex-wrap: wrap; gap: 14px; margin-bottom: 16px; }
+.tr-slots.s-cross { display: grid; grid-template-columns: repeat(3, auto); justify-content: center; }
+.tr-slots.s-cross .tr-slot[data-slot="0"] { grid-column: 2; grid-row: 2; } .tr-slots.s-cross .tr-slot[data-slot="1"] { grid-column: 2; grid-row: 1; }
+.tr-slots.s-cross .tr-slot[data-slot="2"] { grid-column: 2; grid-row: 3; } .tr-slots.s-cross .tr-slot[data-slot="3"] { grid-column: 1; grid-row: 2; } .tr-slots.s-cross .tr-slot[data-slot="4"] { grid-column: 3; grid-row: 2; }
+.tr-slot { position: relative; width: clamp(86px, 17vw, 130px); aspect-ratio: 120 / 200; border: 1.5px dashed rgba(240,214,150,.35); border-radius: 9px; }
+.tr-slot > span { position: absolute; left: 0; right: 0; bottom: -20px; text-align: center; font: 700 12.5px var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: #d4b98a; }
+.tr-slots { padding-bottom: 18px; }
+.tr-card { position: absolute; inset: 0; padding: 0; border: 0; background: none; cursor: pointer; perspective: 900px; animation: trland .55s var(--ease) both; }
+@keyframes trland { from { transform: translateY(120px) rotate(8deg) scale(.9); opacity: 0; } }
+.tr-in { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .9s cubic-bezier(.35,.6,.2,1); }
+.tr-card.open .tr-in { transform: rotateY(180deg); }
+.tr-card.open.rev .tr-in { transform: rotateY(180deg) rotateZ(180deg); }
+.tr-b, .tr-f { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; filter: drop-shadow(0 6px 10px rgba(0,0,0,.5)); }
+.tr-f { transform: rotateY(180deg); }
+.tc-svg { display: block; width: 100%; height: 100%; }
+.tb-bg { fill: #3a1430; stroke: #c9a25a; stroke-width: 2; } .tb-fr { fill: none; stroke: rgba(201,162,90,.6); stroke-width: 1.2; }
+.tb-or { fill: none; stroke: #c9a25a; stroke-width: 1.4; opacity: .85; }
+.tf-bg { fill: #f1e2bf; stroke: #8a6a3a; stroke-width: 2; } .tf-fr { fill: none; stroke: #7a2414; stroke-width: 1.2; }
+.tf-num { font: 700 16px "Cormorant SC", Georgia, serif; fill: #7a2414; text-anchor: middle; }
+.tf-nm { font: 700 13.5px "Cormorant SC", Georgia, serif; fill: #2a1a0c; text-anchor: middle; letter-spacing: .03em; }
+.tf-gl { fill: none; stroke: #3a2210; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; } .tf-ln { stroke: rgba(122,36,20,.5); }
+.tr-fan { position: relative; height: clamp(140px, 24vw, 190px); margin: 6px auto 0; max-width: 760px; transition: opacity .6s, transform .6s; }
+.tr-fan.gone { opacity: 0; transform: translateY(40px); pointer-events: none; height: 0; margin: 0; }
+.tr-c { position: absolute; left: 50%; bottom: 0; width: clamp(64px, 11vw, 92px); aspect-ratio: 120 / 200; padding: 0; border: 0; background: none; cursor: pointer; transform-origin: 50% 260%; transform: translateX(-50%) rotate(calc((var(--k) - (var(--n) - 1) / 2) * 3.4deg)); transition: transform .5s var(--ease), opacity .4s; filter: drop-shadow(0 4px 6px rgba(0,0,0,.5)); }
+.tr-c:hover { transform: translateX(-50%) rotate(calc((var(--k) - (var(--n) - 1) / 2) * 3.4deg)) translateY(-14px); }
+.tr-c.taken { opacity: 0; pointer-events: none; transform: translateX(-50%) rotate(calc((var(--k) - (var(--n) - 1) / 2) * 3.4deg)) translateY(-80px); }
+.tr-fan.shuffling .tr-c { animation: trsh 1s ease both; animation-delay: calc(var(--k) * 18ms); }
+@keyframes trsh { 0% { transform: translateX(-50%) rotate(0) translateY(0); } 40% { transform: translateX(calc(-50% + (var(--k) - 11) * 6px)) rotate(0) translateY(-10px); } 70% { transform: translateX(-50%) rotate(0); } }
+.tr-read { display: grid; gap: 8px; margin-top: 16px; }
+.tr-r { padding: 10px 14px; border-left: 3px solid #c9a25a; border-radius: 0 6px 6px 0; background: rgba(0,0,0,.28); animation: trsay .6s var(--ease) both; }
+.tr-r b { font: 700 17px var(--font-display); color: #f0d696; } .tr-r b i { font: italic 600 13px var(--font-body); color: #e08a8a; }
+.tr-r.rev { border-left-color: #b0392a; } .tr-r p { margin: 4px 0 0; color: #ead9c0; }
+.tr-act { margin-top: 6px; } .tr-act .btn.ghost { background: rgba(255,248,230,.15); color: #f0d696; border-color: rgba(201,162,90,.6); }
+@media (max-width: 560px) { .tr-slots { gap: 8px; } .tr-slots.s-cross { gap: 6px 8px; } .tr-slot { width: min(25vw, 96px); } .tr-slot > span { font-size: 10px; letter-spacing: .04em; }
+  .tr-c { width: 56px; transform: translateX(-50%) rotate(calc((var(--k) - (var(--n) - 1) / 2) * 2.6deg)); transform-origin: 50% 330%; }
+  .tr-c:hover { transform: translateX(-50%) rotate(calc((var(--k) - (var(--n) - 1) / 2) * 2.6deg)); }
+  .tr-c.taken { transform: translateX(-50%) rotate(calc((var(--k) - (var(--n) - 1) / 2) * 2.6deg)) translateY(-60px); } .tr-fan { height: 130px; } }
 </style>
 </head>
 <body>
@@ -1189,6 +1240,134 @@ const facNames = c => facsOf(c).map(id => id === "none" ? "Странник" : (
 
 
 /* =====================================================================
+   ГАДАЛКА: расклад карт Таро (22 Старших Аркана).
+   Колоду тасуют, игрок сам тянет карты из веера, гадалка переворачивает
+   их по одной и толкует — прямое и перевёрнутое положение.
+   ===================================================================== */
+const TAROT = [
+  ["0", "Шут", '<path d="M8 52h22l6-10h16"/><circle cx="24" cy="22" r="5"/><path d="M24 27v12l-6 10M24 39l7 8M24 31l9-6M33 25l8-8M41 17l4 2-2 4"/><path d="M46 8l1.5 3 3 .5-2.2 2 .6 3-2.9-1.5-2.9 1.5.6-3-2.2-2 3-.5z"/>',
+    "Новое начало, шаг в неизвестность, доверие пути.", "Безрассудство, глупый риск, бегство от выбора."],
+  ["I", "Маг", '<path d="M30 8c-4 0-6 3-6 5s2 5 6 5 6-3 6-5-2-5-6-5zM30 8c4 0 6-3 6-5M30 18v16"/><path d="M14 40h32M18 40v10M42 40v10"/><path d="M24 46l2-4h8l2 4M30 34l-8-6M30 34l8-6"/><circle cx="20" cy="48" r="1.5"/><circle cx="40" cy="48" r="1.5"/>',
+    "Воля, мастерство, всё нужное уже в руках.", "Обман, фокусы, сила, обращённая во зло."],
+  ["II", "Жрица", '<path d="M18 52V14M42 52V14"/><path d="M30 12a9 9 0 1 0 0 0zM24 12a7 7 0 0 1 12 0"/><path d="M22 28h16v18H22z"/><path d="M26 33h8M26 38h8M26 43h5"/>',
+    "Тайное знание, интуиция, молчание, которое говорит громче слов.", "Скрытые мотивы, секреты, что обернутся против вас."],
+  ["III", "Императрица", '<path d="M18 22l4-8 4 6 4-8 4 8 4-6 4 8z"/><path d="M18 22h24"/><path d="M30 26c-8 6-10 14-6 24h12c4-10 2-18-6-24z"/><path d="M14 52c4-4 8-4 12 0M34 52c4-4 8-4 12 0"/>',
+    "Изобилие, забота, рождение нового — дела, людей, урожая.", "Зависимость, удушающая опека, пустота."],
+  ["IV", "Император", '<path d="M16 50h28V30H16z"/><path d="M16 30l4-6h20l4 6"/><path d="M22 24l3-8 5 5 5-5 3 8"/><path d="M24 50V38h12v12M30 6v10"/>',
+    "Власть, порядок, закон, твёрдая рука.", "Тирания, жёсткость, власть ради власти."],
+  ["V", "Иерофант", '<path d="M30 6v44M22 14h16M24 22h12M26 30h8"/><path d="M18 50h24"/><circle cx="30" cy="40" r="4"/>',
+    "Традиция, вера, наставник, клятва.", "Догма, слепое послушание, лицемерие служителей."],
+  ["VI", "Влюблённые", '<path d="M22 30a6 6 0 1 0 0-.1M38 30a6 6 0 1 0 0-.1"/><path d="M22 36v14M38 36v14M22 42l8-4 8 4"/><path d="M30 8c-3-4-9-2-8 3 1 4 8 8 8 8s7-4 8-8c1-5-5-7-8-3z"/>',
+    "Союз, выбор сердцем, притяжение.", "Разлад, неверный выбор, измена."],
+  ["VII", "Колесница", '<path d="M14 30h32v12H14z"/><circle cx="20" cy="46" r="5"/><circle cx="40" cy="46" r="5"/><path d="M20 30V18h20v12M24 18l6-8 6 8"/><path d="M12 12l6 4M48 12l-6 4"/>',
+    "Победа, движение вперёд, воля, что подчиняет обстоятельства.", "Потеря управления, поражение, спешка."],
+  ["VIII", "Сила", '<path d="M18 40c0-10 6-16 12-16s12 6 12 16"/><path d="M22 40c2 6 14 6 16 0"/><circle cx="25" cy="34" r="1.5"/><circle cx="35" cy="34" r="1.5"/><path d="M20 14c3-4 7-4 10 0 3-4 7-4 10 0-3 4-7 4-10 0-3 4-7 4-10 0z"/>',
+    "Внутренняя сила, мужество, укрощённый зверь.", "Слабость, страх, ярость, вырвавшаяся на волю."],
+  ["IX", "Отшельник", '<path d="M26 10l-8 40h20l-4-40z"/><path d="M38 20v32M38 20l6-2"/><path d="M42 18l4 0 0 6-4 0z"/><path d="M44 24v3"/>',
+    "Уединение, поиск истины, свет в темноте.", "Одиночество, изгнание, отказ от помощи."],
+  ["X", "Колесо Судьбы", '<circle cx="30" cy="30" r="18"/><circle cx="30" cy="30" r="10"/><circle cx="30" cy="30" r="2"/><path d="M30 12v36M12 30h36M17 17l26 26M43 17L17 43"/>',
+    "Поворот судьбы, перемена, удача.", "Невезение, круг, из которого не выбраться."],
+  ["XI", "Справедливость", '<path d="M30 8v42M18 50h24M14 18h32"/><path d="M14 18l-6 12h12zM46 18l-6 12h12z"/><path d="M8 30a6 3 0 0 0 12 0M40 30a6 3 0 0 0 12 0"/>',
+    "Правда, суд, равновесие, последствия.", "Несправедливость, подкуп, ложный приговор."],
+  ["XII", "Повешенный", '<path d="M10 10h40M30 10v12"/><circle cx="30" cy="42" r="5"/><path d="M30 22v15M30 22l-6 6 6 2M30 22l6 6"/><path d="M26 47l-4 5M34 47l4 5"/>',
+    "Жертва, пауза, взгляд с другой стороны.", "Бессмысленная жертва, застой, упрямство."],
+  ["XIII", "Смерть", '<path d="M22 22a8 9 0 1 1 16 0v6l-3 2v4H25v-4l-3-2z"/><circle cx="27" cy="23" r="2"/><circle cx="33" cy="23" r="2"/><path d="M28 30h4"/><path d="M14 52L44 8M44 8c-6 0-12 2-16 6"/>',
+    "Конец, после которого придёт новое. Перемена, которой не избежать.", "Страх перемен, гниение, цепляние за мёртвое."],
+  ["XIV", "Умеренность", '<path d="M16 22l6 4v10h-8V26zM44 38l-6 4v10h8V42z"/><path d="M22 30c8 0 12 4 16 10"/><path d="M30 6l2 4 4 1-3 3 1 4-4-2-4 2 1-4-3-3 4-1z"/>',
+    "Мера, исцеление, терпение, смешение противоположностей.", "Излишества, разлад, нетерпение."],
+  ["XV", "Дьявол", '<path d="M20 14l4 8M40 14l-4 8"/><path d="M22 22h16l-2 14h-12z"/><circle cx="27" cy="28" r="1.5"/><circle cx="33" cy="28" r="1.5"/><path d="M18 50h24M24 50v-6M36 50v-6M24 44c0-4 12-4 12 0"/>',
+    "Искушение, сделка, цепи страстей и долгов.", "Освобождение от оков — или падение ещё глубже."],
+  ["XVI", "Башня", '<path d="M22 52V18h16v34M20 18l2-6h16l2 6"/><path d="M27 26h6M27 34h6M26 44h8v8h-8z"/><path d="M44 4l-6 10h6l-6 10"/><path d="M12 20l3 3M10 30l4 1M48 30l-4 1"/>',
+    "Крушение, удар, внезапная правда, что рушит стены.", "Катастрофа, которую пытаются отсрочить."],
+  ["XVII", "Звезда", '<path d="M30 6l4 12 13 .5-10 8 4 12-11-7-11 7 4-12-10-8 13-.5z"/><path d="M14 50c4-4 8-4 12 0s8 4 12 0 8-4 12 0"/>',
+    "Надежда, исцеление, свет после бури.", "Отчаяние, потерянная вера."],
+  ["XVIII", "Луна", '<path d="M38 8a14 14 0 1 0 8 24 12 12 0 0 1-8-24z"/><path d="M12 52l8-10 6 10M48 52l-8-10-6 10"/><path d="M26 40c1 4 7 4 8 0"/>',
+    "Обман, туман, страхи, видения — не всё то, чем кажется.", "Ложь раскрывается, туман рассеивается."],
+  ["XIX", "Солнце", '<circle cx="30" cy="28" r="9"/><path d="M30 8v6M30 42v6M10 28h6M44 28h6M16 14l4 4M40 38l4 4M44 14l-4 4M16 42l4-4"/><path d="M12 52h36"/>',
+    "Радость, успех, ясность, тепло.", "Тень на успехе, гордыня, поздняя радость."],
+  ["XX", "Суд", '<path d="M14 18l20-8v14z"/><path d="M34 12c6 0 10 2 12 6"/><path d="M18 52V38h8v14M34 52V38h8v14"/><path d="M22 34v-6M38 34v-6"/>',
+    "Пробуждение, зов, расплата и второй шанс.", "Сомнения, отказ услышать зов, суд над собой."],
+  ["XXI", "Мир", '<ellipse cx="30" cy="30" rx="14" ry="20"/><path d="M30 18v24M24 26l6 4 6-4"/><circle cx="12" cy="10" r="2"/><circle cx="48" cy="10" r="2"/><circle cx="12" cy="50" r="2"/><circle cx="48" cy="50" r="2"/>',
+    "Завершение, целостность, путь пройден.", "Незавершённое дело, последний шаг, что не сделан."]
+];
+const TAROT_SPREADS = {
+  one: { name: "Одна карта", hint: "Совет на сегодня", pos: ["Совет"] },
+  three: { name: "Три карты", hint: "Прошлое · настоящее · будущее", pos: ["Прошлое", "Настоящее", "Будущее"] },
+  cross: { name: "Крест", hint: "Пять карт о сути дела", pos: ["Суть", "Помеха", "Корни", "Что уходит", "Что грядёт"] }
+};
+const TAROT_SAY = {
+  start: ["Садись, путник. Свеча коротка, а карты не любят ждать.", "Вижу — пришёл с вопросом. Задай его про себя и тяни.", "Туман сегодня густой… Тем лучше: карты говорят правду в тумане."],
+  pick: n => n > 1 ? `Тяни ещё. Осталось ${n}.` : "Последнюю. Не торопись.",
+  open: "Хорошо. Теперь открываем — по одной.",
+  end: ["Карты сказали. Что с этим делать — решать тебе.", "Помни: судьба — это дорога, а не клетка.", "Иди. И не оглядывайся на Чернолесье."]
+};
+const tRand = n => { try { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % n; } catch (_) { return Math.floor(Math.random() * n); } };
+const tPickSay = arr => arr[tRand(arr.length)];
+let TR = { spread: "three", deck: [], drawn: [], open: 0, q: "" };
+function tarotCardSVG(c, back) {
+  if (back) return `<svg viewBox="0 0 120 200" class="tc-svg"><rect x="2" y="2" width="116" height="196" rx="9" class="tb-bg"/><rect x="9" y="9" width="102" height="182" rx="6" class="tb-fr"/><g class="tb-or"><circle cx="60" cy="100" r="30"/><circle cx="60" cy="100" r="22"/><path d="M60 64v72M24 100h72M38 78l44 44M82 78l-44 44"/><path d="M60 40l6 10-6 10-6-10zM60 140l6 10-6 10-6-10z"/><circle cx="60" cy="100" r="5"/></g></svg>`;
+  return `<svg viewBox="0 0 120 200" class="tc-svg"><rect x="2" y="2" width="116" height="196" rx="9" class="tf-bg"/><rect x="8" y="8" width="104" height="184" rx="6" class="tf-fr"/><text x="60" y="30" class="tf-num">${c[0]}</text><g transform="translate(30 58)" class="tf-gl">${c[2]}</g><path d="M22 150h76" class="tf-ln"/><text x="60" y="172" class="tf-nm">${c[1]}</text></svg>`;
+}
+function tarotHTML() {
+  return `${head("Гадалка", "Шатёр гадалки", "Старая Мирра раскладывает карты при свече. За медный грош скажет правду — а за серебряный и ту, что не хочешь слышать.")}
+    <div class="tr wide">
+      <div class="tr-say" id="tr-say">${esc(tPickSay(TAROT_SAY.start))}</div>
+      <div class="tr-top">
+        <div class="tr-spreads">${Object.entries(TAROT_SPREADS).map(([k, s]) => `<button type="button" data-trs="${k}" aria-pressed="${TR.spread === k}"><b>${s.name}</b><small>${s.hint}</small></button>`).join("")}</div>
+        <input type="text" id="tr-q" placeholder="Вопрос к картам (необязательно)" value="${esc(TR.q)}">
+        <button type="button" class="btn" data-trgo>Перетасовать колоду</button>
+      </div>
+      <div class="tr-table" id="tr-table"><p class="tr-empty">На бархате пока пусто. Выберите расклад и попросите перетасовать колоду.</p></div>
+      <div class="tr-read" id="tr-read"></div>
+    </div>`;
+}
+function trSay(t) { const s = $("#tr-say"); if (!s) return; s.classList.remove("on"); void s.offsetWidth; s.textContent = t; s.classList.add("on"); }
+function trShuffle() {
+  const deck = TAROT.map((c, i) => i);
+  for (let i = deck.length - 1; i > 0; i--) { const j = tRand(i + 1); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+  TR.deck = deck; TR.drawn = []; TR.open = 0;
+  const sp = TAROT_SPREADS[TR.spread], tbl = $("#tr-table"); $("#tr-read").innerHTML = "";
+  tbl.innerHTML = `<div class="tr-slots s-${TR.spread}">${sp.pos.map((p, i) => `<div class="tr-slot" data-slot="${i}"><span>${esc(p)}</span></div>`).join("")}</div>
+    <div class="tr-fan shuffling">${deck.map((ci, k) => `<button type="button" class="tr-c" data-trk="${k}" style="--k:${k};--n:${deck.length}" aria-label="Карта рубашкой вверх">${tarotCardSVG(null, true)}</button>`).join("")}</div>`;
+  trSay("Карты шуршат в её пальцах… " + TAROT_SAY.pick(sp.pos.length));
+  setTimeout(() => { const f = tbl.querySelector(".tr-fan"); if (f) f.classList.remove("shuffling"); }, 1100);
+}
+function trDraw(btn) {
+  const sp = TAROT_SPREADS[TR.spread]; if (TR.drawn.length >= sp.pos.length || btn.classList.contains("taken")) return;
+  const k = +btn.dataset.trk, ci = TR.deck[k], rev = tRand(4) === 0; /* перевёрнута примерно каждая четвёртая */
+  TR.drawn.push({ ci, rev }); btn.classList.add("taken");
+  const slot = document.querySelector(`.tr-slot[data-slot="${TR.drawn.length - 1}"]`);
+  slot.insertAdjacentHTML("beforeend", `<button type="button" class="tr-card${rev ? " rev" : ""}" data-tropen="${TR.drawn.length - 1}" aria-label="Открыть карту"><span class="tr-in"><span class="tr-b">${tarotCardSVG(null, true)}</span><span class="tr-f">${tarotCardSVG(TAROT[ci])}</span></span></button>`);
+  const left = sp.pos.length - TR.drawn.length;
+  if (left) trSay(TAROT_SAY.pick(left));
+  else { trSay(TAROT_SAY.open); const f = document.querySelector(".tr-fan"); if (f) f.classList.add("gone"); setTimeout(() => trOpenNext(), 700); }
+}
+function trOpenNext() {
+  const sp = TAROT_SPREADS[TR.spread]; if (TR.open >= TR.drawn.length) return;
+  const i = TR.open++, d = TR.drawn[i], c = TAROT[d.ci], el = document.querySelector(`[data-tropen="${i}"]`);
+  if (el) el.classList.add("open");
+  $("#tr-read").insertAdjacentHTML("beforeend", `<div class="tr-r${d.rev ? " rev" : ""}" style="--d:${i}"><b>${esc(sp.pos[i])}: ${esc(c[1])}${d.rev ? " <i>перевёрнута</i>" : ""}</b><p>${esc(d.rev ? c[4] : c[3])}</p></div>`);
+  if (TR.open < TR.drawn.length) setTimeout(trOpenNext, 900);
+  else setTimeout(() => {
+    trSay(tPickSay(TAROT_SAY.end));
+    $("#tr-read").insertAdjacentHTML("beforeend", `<div class="actions tr-act"><button type="button" class="btn ghost" data-trcopy>Скопировать расклад</button><button type="button" class="btn ghost" data-trgo>Разложить заново</button></div>`);
+  }, 700);
+}
+function trText() {
+  const sp = TAROT_SPREADS[TR.spread];
+  return `🔮 Расклад гадалки — «${sp.name}»${TR.q ? `\nВопрос: ${TR.q}` : ""}\n` + TR.drawn.map((d, i) => { const c = TAROT[d.ci]; return `${sp.pos[i]}: ${c[1]}${d.rev ? " (перевёрнута)" : ""} — ${d.rev ? c[4] : c[3]}`; }).join("\n");
+}
+document.addEventListener("click", e => {
+  const t = e.target, b = t.closest && t.closest("[data-trs],[data-trgo],[data-trk],[data-tropen],[data-trcopy]"); if (!b) return;
+  if (b.dataset.trs) { TR.spread = b.dataset.trs; document.querySelectorAll("[data-trs]").forEach(x => x.setAttribute("aria-pressed", String(x === b))); return; }
+  if (b.hasAttribute("data-trgo")) { const q = $("#tr-q"); TR.q = q ? q.value.trim() : ""; trShuffle(); const tb = $("#tr-table"); if (tb && tb.getBoundingClientRect().top > innerHeight * .6) tb.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
+  if (b.dataset.trk) return trDraw(b);
+  if (b.dataset.tropen) { const i = +b.dataset.tropen; if (i === TR.open && TR.drawn.length === TAROT_SPREADS[TR.spread].pos.length) trOpenNext(); return; }
+  if (b.hasAttribute("data-trcopy")) { const txt = trText(); navigator.clipboard.writeText(txt).then(() => toast("Расклад скопирован — вставьте его в беседу."), () => toast(txt)); }
+});
+
+
+/* =====================================================================
    ОБЛОЖКИ КНИГ: 20 узоров тиснения и набор знаков для обложки.
    Узор рисуется золотом поверх кожи (viewBox 440×620), знак — отдельно.
    ===================================================================== */
@@ -1313,6 +1492,7 @@ const ICON = {
   skverna: '<path d="M12 3c3.6 4 5.6 7.2 5.6 10.2a5.6 5.6 0 0 1-11.2 0C6.4 10.2 8.4 7 12 3z"/><path d="M12 9v4l-2 2M12 13l2.5 1.5"/>',
   magic: '<path d="M12 3l1.6 5.4L19 10l-5.4 1.6L12 17l-1.6-5.4L5 10l5.4-1.6z"/><path d="M19 16l.7 2.3L22 19l-2.3.7L19 22l-.7-2.3L16 19l2.3-.7z"/>',
   scripts: '<path d="M6 3h10l2 2v16l-3-2-3 2-3-2-3 2V5z"/><path d="M9 8h6M9 12h6"/>',
+  tarot: '<rect x="6" y="3" width="9" height="14" rx="1.5" transform="rotate(-12 10 10)"/><rect x="10" y="6" width="9" height="14" rx="1.5" transform="rotate(10 14 13)"/><path d="M15 11.5l.8 1.6 1.7.3-1.2 1.2.3 1.7-1.6-.8-1.6.8.3-1.7-1.2-1.2 1.7-.3z"/>',
   docs: '<path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4M10 11h6M10 15h6"/><path d="M4 6v15h11"/>',
   lock: '<rect x="5" y="11" width="14" height="10" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
   quill: '<path d="M20 4c-7 1-12 6-13 13l-3 3"/><path d="M20 4c0 6-4 11-10 12"/>',
@@ -1381,6 +1561,7 @@ const SECTIONS = {
   ]},
   pisaniya: { title: "Писания и кодексы", tabs: D.scripts.map(s => [s.id, s.tab, () => head(s.kind, s.name) + blocks(s.b)]) },
   vestnik: { title: "Вестник Велариса", tabs: [["all", "Все выпуски", () => vestnikHTML()]] },
+  gadalka: { title: "Гадалка", tabs: [["t", "Расклад", () => tarotHTML()]] },
   dokumenty: { title: "Документы", tabs: [["all", "Документы", () => docsHubHTML()]] }
 };
 
@@ -1388,7 +1569,8 @@ const SECTIONS = {
 const GROUPS = [
   ["Главное", [["atlas", "Атлас земель", "Интерактивная карта Велариса", mapHref(""), "big map"], ["vestnik", "Вестник Велариса", "Свежие новости империи", "#vestnik", "big news"]]],
   ["Мир", [["rules", "Правила", "Беседы, анкета, бой, NPC", "#pravila"], ["world", "О мире", "Империя, двор, быт, соседи, NPC", "#mir"], ["power", "Фракции", "Кто правит и кто в тени", "#vlast"], ["quests", "Квесты", "Доска заданий", "#kvesty"]]],
-  ["Знания", [["skverna", "Скверна", "Обескровленные и стадии", "#skverna"], ["magic", "Магия и Дар", "След, запрет, артефакты", "#magiya"], ["scripts", "Писания", "Догмат, кодексы, Слово", "#pisaniya"], ["docs", "Документы", "Письма, книги и бумаги", "#dokumenty"]]]
+  ["Знания", [["skverna", "Скверна", "Обескровленные и стадии", "#skverna"], ["magic", "Магия и Дар", "След, запрет, артефакты", "#magiya"], ["scripts", "Писания", "Догмат, кодексы, Слово", "#pisaniya"], ["docs", "Документы", "Письма, книги и бумаги", "#dokumenty"]]],
+  ["Шатёр", [["tarot", "Гадалка", "Шатёр старой Мирры: сядь за её стол, и она разложит карты", "gadalka.html", "big tarot"]]]
 ];
 /* Гостям (кто не состоит в группе) открыты только карта, правила и мир */
 const GUEST_TILES = new Set(["atlas", "rules", "world"]), GUEST_SECTIONS = new Set(["pravila", "mir"]), GUEST_HIDDEN_TABS = new Set(["anketa-req"]);
@@ -1865,6 +2047,7 @@ document.addEventListener("click", e => {
   }
   const home = t.closest("[data-home]"); if (home) { e.preventDefault(); history.pushState(null, "", location.pathname + KEEP); render(); scrollTo(0, 0); return; }
   const tb = t.closest("[data-tab]"); if (tb) return setTab(tb.dataset.tab);
+  const gd = t.closest('a[href="gadalka.html"]'); if (gd) { e.preventDefault(); openOverlay("gadalka.html" + KEEP); return; }
   const ml = t.closest('a[href^="karta.html"]');
   if (ml) { e.preventDefault(); const hh = (ml.getAttribute("href").split("#")[1] || ""); location.hash = hh.startsWith("mesto-") ? "karta-" + hh.slice(6) : "karta"; return; }
   const go = t.closest("[data-go]"); if (go) { location.hash = go.dataset.go; return; }
