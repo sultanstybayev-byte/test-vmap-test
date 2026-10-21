@@ -247,6 +247,8 @@ html.shared #app, html.shared .bg { display: none; }
 .dbtns { display: flex; flex-wrap: wrap; gap: 5px; margin-top: auto; padding-top: 6px; }
 .dbtns button { padding: 6px 9px; border: 1px solid rgba(111,85,50,.5); border-radius: 3px; background: rgba(255,252,240,.7); color: var(--text-ink); font: 700 13.5px/1 var(--font-display); cursor: pointer; }
 .dbtns button:hover { background: var(--leather); color: var(--gold-hi); }
+.dbtns .danger, .btn.danger { color: var(--blood); border-color: rgba(142,47,28,.5); }
+.dbtns .danger:hover { background: var(--blood); color: #f6e7c2; }
 </style>
 </head>
 <body>
@@ -444,8 +446,8 @@ async function ghWrite(c, path, obj, sha, message) {
 /* список документов: для мастера — свежий через GitHub, для игроков — с сайта */
 async function dbList(fresh) {
   const c = ghCfg();
-  if (fresh && c.token) { const { data } = await ghRead(c, "docs/index.json"); return (data && data.docs) || []; }
-  try { const r = await fetch("docs/index.json?t=" + Date.now(), { cache: "no-store" }); if (!r.ok) return []; const j = await r.json(); return j.docs || []; } catch (_) { return []; }
+  if (fresh && c.token) { const { data } = await ghRead(c, "docs/index.json"); return ((data && data.docs) || []).filter(d => !d.deleted); }
+  try { const r = await fetch("docs/index.json?t=" + Date.now(), { cache: "no-store" }); if (!r.ok) return []; const j = await r.json(); return (j.docs || []).filter(d => !d.deleted); } catch (_) { return []; }
 }
 /* изменить список: mutate(docs) правит массив; повтор, если кто-то успел записать раньше */
 async function dbUpdate(mutate, message) {
@@ -464,7 +466,8 @@ async function dbAdopt() {
   const c = ghCfg(); if (!c.token) return;
   const r = await ghApi(c, "docs"); if (!r.ok) return;
   const files = (await r.json()).map(f => /^(\d+)\.json$/.exec(f.name)).filter(Boolean).map(m => +m[1]);
-  const known = new Set((await dbList(true)).map(d => d.no));
+  const { data: idx } = await ghRead(c, "docs/index.json");
+  const known = new Set(((idx && idx.docs) || []).map(d => d.no));
   const missing = files.filter(n => !known.has(n)); if (!missing.length) return;
   const add = [];
   for (const n of missing) { try { const { data } = await ghRead(c, `docs/${n}.json`); if (data) add.push({ no: n, kind: data.kind, title: data.title || "Документ", note: data.note || "", public: false, created: "", updated: "" }); } catch (_) {} }
@@ -474,6 +477,17 @@ async function dbSetPublic(no, pub) {
   return dbUpdate(docs => { const d = docs.find(x => x.no === +no); if (d) d.public = pub; }, `Документ №${no}: ${pub ? "открыт игрокам" : "скрыт"}`);
 }
 const dbToday = () => new Date().toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
+/* Удалить документ: файл стирается, а в списке остаётся пометка «удалён»,
+   чтобы его номер больше никому не достался и старые ссылки не вели на чужой документ */
+async function dbDelete(no) {
+  const c = ghCfg(); no = +no;
+  const { sha } = await ghRead(c, `docs/${no}.json`);
+  if (sha) {
+    const r = await ghApi(c, `docs/${no}.json`, { method: "DELETE", body: JSON.stringify({ message: `Документ №${no} удалён`, sha }) });
+    if (!r.ok && r.status !== 404) throw new Error(ghErr(r.status));
+  }
+  await dbUpdate(docs => { const d = docs.find(x => x.no === no); if (d) { Object.keys(d).forEach(k => { if (k !== "no") delete d[k]; }); d.deleted = true; } else docs.push({ no, deleted: true }); }, `Документ №${no}: удалён из списка`);
+}
 
 
 /* =====================================================================
@@ -1373,7 +1387,7 @@ function pubHTML(tool) {
     <div class="fld"><label>Название в списке документов</label><input type="text" data-dmeta="docTitle" value="${esc(h.docTitle || "")}" placeholder="${esc(d.auto)}"></div>
     <div class="fld"><label>Сводка для игроков</label><textarea data-dmeta="note" rows="3" placeholder="При каких обстоятельствах и кем получено. Например: найдено у курьера на тракте к Кальдерону; досталось Эрику и Лире.">${esc(h.note || "")}</textarea><small>Видна в списке документов, но не внутри самого документа.</small></div>
     <div class="actions">${no
-      ? `<button type="button" class="btn" data-pubgo="update">Сохранить изменения</button><button type="button" class="btn ghost" data-pubtoggle>${h.isPublic ? "Скрыть от игроков" : "Открыть игрокам"}</button><button type="button" class="btn ghost" data-pubshow="${no}">Ссылка</button>`
+      ? `<button type="button" class="btn" data-pubgo="update">Сохранить изменения</button><button type="button" class="btn ghost" data-pubtoggle>${h.isPublic ? "Скрыть от игроков" : "Открыть игрокам"}</button><button type="button" class="btn ghost" data-pubshow="${no}">Ссылка</button><button type="button" class="btn ghost danger" data-pubdel>Удалить</button>`
       : `<button type="button" class="btn" data-pubgo="new"${tok ? "" : " disabled"}>Создать документ</button>`}</div>
     ${no ? `<button type="button" class="pub-long" data-pubgo="new">Сохранить копией под новым номером</button>` : `<small class="pub-note">Документ получит номер и ссылку, но останется скрытым. Открыть его игрокам можно одной кнопкой — здесь или в главном меню, раздел «Документы».</small>`}
     <div class="pub-out" hidden><div class="pub-row"><input type="text" readonly aria-label="Ссылка на документ"><button type="button" class="btn ghost" data-pubcopy>Копировать</button></div><small class="pub-msg"></small></div>
@@ -1438,11 +1452,19 @@ document.addEventListener("input", e => {
 });
 const copyText = (txt, ok) => navigator.clipboard.writeText(txt).then(() => toast(ok || "Скопировано."), () => toast(txt));
 document.addEventListener("click", e => {
-  const b = e.target.closest && e.target.closest("[data-pubgo],[data-pubtoggle],[data-pubcopy],[data-pubshow],[data-ghsave],[data-ghforget]");
+  const b = e.target.closest && e.target.closest("[data-pubgo],[data-pubtoggle],[data-pubdel],[data-pubcopy],[data-pubshow],[data-ghsave],[data-ghforget]");
   if (!b) return;
   const box = pubBox(b), tool = box && box.dataset.pub;
   if (b.dataset.pubgo) return publish(tool, b.dataset.pubgo, b);
   if (b.hasAttribute("data-pubtoggle")) return pubToggle(tool, b);
+  if (b.hasAttribute("data-pubdel")) {
+    const h = PUB[tool]().holder, no = h.pubNo;
+    if (!window.confirm(`Удалить документ №${no} «${docTitleOf(PUB[tool]())}»? Он пропадёт у игроков, ссылка перестанет работать. Текст останется здесь как черновик.`)) return;
+    b.disabled = true;
+    dbDelete(no).then(() => { delete h.pubNo; h.isPublic = false; pubSave(tool); pubRedraw(tool, false); toast(`Документ №${no} удалён. Текст остался черновиком — его можно создать заново под новым номером.`); })
+      .catch(err => { b.disabled = false; pubSay(box, null, "Не получилось удалить: " + err.message); });
+    return;
+  }
   if (b.dataset.pubshow) { pubSay(box, shortUrl(b.dataset.pubshow), PUB[tool]().holder.isPublic ? "Ссылку можно отправлять игрокам." : "Документ скрыт: по ссылке его увидят только администраторы."); return; }
   if (b.hasAttribute("data-pubcopy")) { copyText(box.querySelector(".pub-out input").value); return; }
   if (b.hasAttribute("data-ghsave") || b.hasAttribute("data-ghforget")) {
@@ -1471,7 +1493,7 @@ function docCard(d) {
     <header><span class="dno">№${d.no}</span><span class="dkind">${esc(DOC_KINDS[d.kind] || "Документ")}</span><span class="dstat${d.public ? " on" : ""}">${d.public ? "открыт" : "скрыт"}</span></header>
     <h4>${esc(d.title || "Без названия")}</h4>${d.note ? `<p>${esc(d.note)}</p>` : ""}
     ${d.updated || d.created ? `<small>${esc(d.updated || d.created)}</small>` : ""}
-    <div class="dbtns"><button type="button" data-dopen="${d.no}">Открыть</button><button type="button" data-dedit="${d.no}">Изменить</button><button type="button" data-dtoggle="${d.no}">${d.public ? "Скрыть" : "Открыть игрокам"}</button><button type="button" data-dlink="${d.no}">Ссылка</button></div>
+    <div class="dbtns"><button type="button" data-dopen="${d.no}">Открыть</button><button type="button" data-dedit="${d.no}">Изменить</button><button type="button" data-dtoggle="${d.no}">${d.public ? "Скрыть" : "Открыть игрокам"}</button><button type="button" data-dlink="${d.no}">Ссылка</button><button type="button" class="danger" data-ddel="${d.no}">Удалить</button></div>
   </article>`;
 }
 function docsDraw() {
@@ -1492,7 +1514,7 @@ function newDocState(tool) {
 }
 const draftDirty = tool => { const h = PUB[tool]().holder; if (h.pubNo) return false; if (tool === "pisma") return !!(LW.body || "").trim(); if (tool === "kniga") return BK.pages.some(p => (p.t || "").trim()); return STK.sheets.some(s => (s.body || "").trim()); };
 document.addEventListener("click", async e => {
-  const b = e.target.closest && e.target.closest("[data-newdoc],[data-newkind],[data-dopen],[data-dedit],[data-dtoggle],[data-dlink]");
+  const b = e.target.closest && e.target.closest("[data-newdoc],[data-newkind],[data-dopen],[data-dedit],[data-dtoggle],[data-dlink],[data-ddel]");
   if (!b) return;
   if (b.hasAttribute("data-newdoc")) { const k = b.parentElement.querySelector(".dl-kinds"); k.hidden = !k.hidden; return; }
   if (b.dataset.newkind) {
@@ -1500,7 +1522,16 @@ document.addEventListener("click", async e => {
     if (draftDirty(tool) && !window.confirm("Несохранённый черновик в этом редакторе будет заменён новым документом. Продолжить?")) return;
     newDocState(tool); location.hash = tool; return;
   }
-  const no = +(b.dataset.dopen || b.dataset.dedit || b.dataset.dtoggle || b.dataset.dlink);
+  const no = +(b.dataset.dopen || b.dataset.dedit || b.dataset.dtoggle || b.dataset.dlink || b.dataset.ddel);
+  if (b.dataset.ddel) {
+    const d = DOCS.find(x => x.no === no);
+    if (!window.confirm(`Удалить документ №${no} «${d ? d.title : ""}»? Он пропадёт у игроков, ссылка перестанет работать. Это нельзя отменить.`)) return;
+    b.disabled = true;
+    try { await dbDelete(no); DOCS = DOCS.filter(x => x.no !== no); docsDraw(); toast(`Документ №${no} удалён.`);
+      ["pisma", "kniga", "stopka"].forEach(t => { const h = PUB[t]().holder; if (h.pubNo === no) { delete h.pubNo; h.isPublic = false; pubSave(t); } }); }
+    catch (err) { b.disabled = false; toast("Не получилось удалить: " + err.message); }
+    return;
+  }
   if (b.dataset.dopen) { location.hash = String(no); return; }
   if (b.dataset.dlink) { const d = DOCS.find(x => x.no === no); copyText(shortUrl(no), d && d.public ? "Ссылка скопирована." : "Ссылка скопирована. Документ скрыт — игроки его пока не увидят."); return; }
   if (b.dataset.dtoggle) {
