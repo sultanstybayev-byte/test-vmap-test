@@ -63,8 +63,14 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .btn.dark { background: var(--leather); color: var(--gold-hi); }
 #zoom { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) 16px; background: rgba(10,6,2,.88); opacity: 0; visibility: hidden; cursor: zoom-out; transition: opacity .3s, visibility 0s .3s; }
 #zoom.on { opacity: 1; visibility: visible; transition: opacity .3s, visibility 0s; }
-#zoom img { max-width: 100%; max-height: 100%; border-radius: 4px; box-shadow: 0 20px 60px rgba(0,0,0,.6); transform: scale(.97); transition: transform .4s var(--ease); }
+#zoom img { max-width: 100%; max-height: calc(100vh - 40px); max-height: calc(100dvh - 40px); width: auto; height: auto; cursor: zoom-in; border-radius: 4px; box-shadow: 0 20px 60px rgba(0,0,0,.6); transform: scale(.97); transition: transform .4s var(--ease); }
 #zoom.on img { transform: none; }
+#zoom.big { display: block; overflow: auto; padding: 0; cursor: grab; overscroll-behavior: contain; }
+#zoom.big.drag { cursor: grabbing; }
+#zoom.big img { display: block; max-width: none; max-height: none; margin: 40px auto; cursor: zoom-out; transition: none; }
+.zx { position: fixed; top: max(12px, env(safe-area-inset-top, 0px)); right: 14px; z-index: 2; width: 44px; height: 44px; display: grid; place-items: center; border: 1px solid var(--gold); border-radius: 50%; background: var(--leather); cursor: pointer; }
+.zx svg { width: 16px; height: 16px; stroke: var(--gold-hi); stroke-width: 2; fill: none; stroke-linecap: round; }
+.zhint { position: fixed; left: 50%; bottom: max(12px, env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); padding: 6px 12px; border-radius: 4px; background: rgba(23,17,11,.85); color: var(--parchment-deep); font: italic 500 15px/1.3 var(--font-body); pointer-events: none; white-space: nowrap; }
 .f2 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; }
 .fld label { display: block; margin-bottom: 4px; font: 700 13px/1.3 var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); }
 .fld small { display: block; margin-top: 3px; font: italic 500 14.5px/1.35 var(--font-body); color: var(--text-muted); }
@@ -115,6 +121,81 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--gold); outl
 .lw-font { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 0 0 6px; }
 .lw-font label.btn { padding: 8px 14px; font-size: 15px; }
 .lw-font small { flex: 1 1 200px; font: italic 500 14.5px/1.35 var(--font-body); color: var(--text-muted); }
+/* ---------- Книга и стопка ---------- */
+.btn:disabled { opacity: .45; cursor: default; transform: none; filter: none; }
+.ws-holder { padding: 16px 10px 12px; border-radius: 4px; background: radial-gradient(ellipse at 50% 40%, #3d2a18, #160f09 80%); color: var(--parchment); }
+.ws-nav { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 12px; }
+.ws-nav button { width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--gold); background: var(--leather); color: var(--gold-hi); font: 400 26px/1 var(--font-body); cursor: pointer; display: grid; place-items: center; padding-bottom: 4px; }
+.ws-nav button:disabled { opacity: .35; cursor: default; }
+.ws-count { min-width: 150px; text-align: center; font: 700 16px/1.2 var(--font-display); letter-spacing: .05em; }
+.ws-link { margin-top: 10px; } .ws-link small { display: block; margin-top: 4px; font: italic 500 14.5px/1.35 var(--font-body); color: var(--text-muted); }
+.bk-stage { user-select: none; -webkit-user-select: none; }
+.bk-box { position: relative; width: 100%; cursor: pointer; touch-action: pan-y; }
+.bk-scale { position: absolute; top: 0; transform-origin: 0 0; }
+.bk { position: relative; width: 100%; height: 100%; perspective: 2600px; transition: transform .7s cubic-bezier(.35,.6,.2,1); }
+.bk.noanim, .bk.noanim * { transition: none !important; }
+.bk.spread .leaf { position: absolute; top: 0; left: 440px; width: 440px; height: 620px; transform-origin: 0 50%; transform-style: preserve-3d; transition: transform .85s cubic-bezier(.35,.6,.2,1); }
+.bk.spread .leaf.flipped { transform: rotateY(-180deg); }
+.leaf > .face { position: absolute; inset: 0; overflow: hidden; backface-visibility: hidden; -webkit-backface-visibility: hidden; box-shadow: 0 12px 30px rgba(0,0,0,.45); }
+.leaf > .face.backf { transform: rotateY(180deg); }
+.leaf > .face::after, .sface > .face::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(0,0,0,.3), rgba(0,0,0,.07) 5%, transparent 13%); }
+.leaf > .face.backf::after { background: linear-gradient(270deg, rgba(0,0,0,.3), rgba(0,0,0,.07) 5%, transparent 13%); }
+.bk.single .sface { position: absolute; inset: 0; transform-origin: 0 50%; transition: transform .8s cubic-bezier(.35,.6,.2,1), opacity .45s .35s; }
+.bk.single .sface > .face { position: absolute; inset: 0; overflow: hidden; box-shadow: 0 12px 30px rgba(0,0,0,.45); }
+.bk.single .sface.gone { transform: perspective(2200px) rotateY(-100deg); opacity: 0; pointer-events: none; }
+.face.cover { background-color: var(--lea); background-image: var(--grain), radial-gradient(ellipse at 35% 25%, rgba(255,235,200,.13), transparent 60%), radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.5)); }
+.cv-frame { position: absolute; inset: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 40px 34px; text-align: center; border: 2px solid #c9a25a; outline: 1px solid rgba(201,162,90,.55); outline-offset: -9px; }
+.cv-c { position: absolute; width: 58px; height: 58px; background: no-repeat center / contain; }
+.cv-c.tl { top: 4px; left: 4px; } .cv-c.tr { top: 4px; right: 4px; transform: scaleX(-1); } .cv-c.bl { bottom: 4px; left: 4px; transform: scaleY(-1); } .cv-c.br { bottom: 4px; right: 4px; transform: scale(-1); }
+.cv-em { width: 86px; height: 86px; stroke: #d9b56a; fill: none; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 1px 0 rgba(0,0,0,.6)); }
+.face.cover h2 { margin: 0; font: 400 40px/1.15 "Ruslan Display", "Cormorant SC", Georgia, serif; color: #ebc978; text-shadow: 0 1px 0 rgba(0,0,0,.7), 0 0 14px rgba(240,200,110,.22); text-wrap: balance; }
+.face.cover p { margin: 0; font: italic 500 21px/1.3 var(--font-body); color: #d9b56a; }
+.face.backc .cv-em { width: 54px; height: 54px; opacity: .7; }
+.face.endp { background-color: var(--lea); background-image: radial-gradient(ellipse at 30% 20%, rgba(255,240,210,.14), transparent 45%), repeating-radial-gradient(circle at 18% 28%, rgba(240,214,150,.10) 0 5px, transparent 5px 13px), repeating-radial-gradient(circle at 74% 76%, rgba(0,0,0,.18) 0 7px, transparent 7px 17px), repeating-radial-gradient(circle at 60% 15%, rgba(240,214,150,.06) 0 3px, transparent 3px 9px); }
+.face.pg { color: var(--ink); background: var(--grain), radial-gradient(ellipse at center, transparent 55%, var(--pv)), linear-gradient(180deg, var(--pt), var(--pb)); }
+.face.pg.burnt { box-shadow: inset 0 0 46px rgba(60,28,8,.6), 0 12px 30px rgba(0,0,0,.45); }
+.pg-text { position: absolute; inset: 46px 44px 60px; overflow: hidden; }
+.pg-text p { margin: 0 0 .4em; text-indent: 1.3em; text-align: left; }
+.pg-text p.dc { text-indent: 0; }
+.pg-h { margin: 0; text-align: center; font: inherit; font-size: 1.32em; line-height: 1.2; }
+.pg-vine { display: block; width: 72%; height: 16px; margin: 4px auto 12px; background: no-repeat center / contain; opacity: .85; }
+.pg-dc { float: left; width: 2.7em; height: 2.7em; margin: .2em .45em 0 0; display: grid; place-items: center; padding-top: .1em; background: no-repeat center / contain; font: normal 400 1.75em/1 "Ruslan Display", Georgia, serif; color: #7a2414; text-shadow: 1px 1px 0 rgba(255,240,200,.7); }
+.pg-no { position: absolute; left: 0; right: 0; bottom: 22px; text-align: center; font: italic 500 16px/1 var(--font-body); color: var(--ink); opacity: .7; }
+.bk-pages { margin: 6px 0 12px; }
+.bk-page { margin-bottom: 10px; padding: 10px; border: 1px solid rgba(111,85,50,.35); border-radius: 4px; background: rgba(255,252,240,.35); }
+.bk-page header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.bk-page header b { font: 700 15px/1 var(--font-display); letter-spacing: .06em; }
+.bk-warn { font: italic 600 14px/1.2 var(--font-body); color: var(--blood); }
+.bk-ops { margin-left: auto; display: flex; gap: 4px; }
+.bk-ops button { width: 30px; height: 30px; border: 1px solid rgba(111,85,50,.45); border-radius: 3px; background: rgba(255,252,240,.6); color: var(--text-ink); cursor: pointer; font-size: 16px; }
+.bk-ops button:disabled { opacity: .35; cursor: default; }
+.bk-page input { margin-bottom: 6px; }
+.st-bar { margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px dashed rgba(111,85,50,.45); }
+.st-bar .fld { margin-bottom: 10px; max-width: 520px; }
+.st-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.st-tabs button { padding: 8px 12px; border: 1px solid rgba(111,85,50,.5); border-radius: 3px; background: rgba(255,252,240,.6); color: var(--text-ink); font: 700 15px/1 var(--font-display); cursor: pointer; }
+.st-tabs button[aria-pressed="true"] { background: var(--leather); border-color: var(--leather); color: var(--gold-hi); }
+.st-tabs .st-add { border-style: dashed; background: transparent; }
+.st-ops { display: flex; flex-wrap: wrap; gap: 6px; }
+.st-ops .btn, .st-extra .btn { padding: 8px 12px; font-size: 14.5px; }
+.st-extra { margin-top: 14px; padding-top: 12px; border-top: 1px dashed rgba(111,85,50,.45); }
+.st-stage { user-select: none; -webkit-user-select: none; }
+.st-pile { position: relative; width: 100%; height: 520px; touch-action: pan-y; }
+.st-wait { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; font: italic 500 18px var(--font-body); color: var(--parchment-deep); }
+.st-sheet { position: absolute; left: 50%; top: 50%; max-width: 94%; max-height: 96%; transform: translate(-50%, -50%) translate(var(--x), var(--y)) rotate(var(--r)); filter: drop-shadow(0 8px 16px rgba(0,0,0,.5)); transition: transform .38s cubic-bezier(.35,.6,.2,1), opacity .38s; cursor: pointer; }
+.st-sheet.under { cursor: default; }
+.st-sheet.out { transform: translate(-50%, -50%) translate(55%, -8%) rotate(16deg); opacity: 0; }
+.st-sheet.noanim { transition: none; }
+#viewer { position: fixed; inset: 0; z-index: 45; display: flex; flex-direction: column; overflow: auto; padding: max(12px, env(safe-area-inset-top, 0px)) max(14px, env(safe-area-inset-right, 0px)) max(14px, env(safe-area-inset-bottom, 0px)) max(14px, env(safe-area-inset-left, 0px)); background: radial-gradient(ellipse at 50% 40%, #3a2817, #120c07 78%); color: var(--parchment); }
+.vw-top { position: relative; display: flex; align-items: center; justify-content: center; min-height: 44px; margin-bottom: 8px; padding: 0 52px; }
+.vw-top b { font: 700 22px/1.15 var(--font-display); letter-spacing: .04em; color: var(--gold-hi); text-align: center; }
+.vw-x { position: absolute; right: 0; top: 0; width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid var(--gold); border-radius: 50%; background: var(--leather); cursor: pointer; }
+.vw-x svg { width: 16px; height: 16px; stroke: var(--gold-hi); stroke-width: 2; fill: none; stroke-linecap: round; }
+.vw-body { flex: 1; display: flex; flex-direction: column; justify-content: center; width: 100%; max-width: 1320px; margin: 0 auto; }
+#viewer[hidden] { display: none; }
+html.vw-open, html.vw-open body { overflow: hidden; }
+html.shared #app, html.shared .bg { display: none; }
+.ws-bad { max-width: 34ch; margin: 0 auto; text-align: center; font: italic 500 20px/1.5 var(--font-body); }
 </style>
 </head>
 <body>
@@ -127,7 +208,7 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--gold); outl
   </div>
 </main>
 <div class="toast" id="toast" role="status"></div>
-<div id="zoom" role="dialog" aria-modal="true" aria-label="Картинка"><img alt=""></div>
+<div id="zoom" role="dialog" aria-modal="true" aria-label="Картинка"><button type="button" class="zx" aria-label="Закрыть"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><img alt=""><span class="zhint">Нажмите на картинку, чтобы приблизить</span></div>
 
 <script>
 /* Гербы и фракции — те же, что на карте */
@@ -323,8 +404,11 @@ const LW_PRESETS = {
     body: "Жду у старой мельницы на закате. Возьми фонарь — и ничего не говори брату.", close: "", sign: "Л.", ps: "", seal: "none", wax: "red", dropcap: false, corners: false, folds: true, blots: true } }
 };
 const LW_BASE = { sigHand: "", size: 1, title: "", sub: "", initial: "", wobble: true, backdrop: true, seed: 7 };
-let LW = (() => { try { const s = JSON.parse(localStorage.getItem(LW_KEY)); if (s && s.kind) return Object.assign({}, LW_BASE, LW_PRESETS.guild.s, s); } catch (_) {} return Object.assign({}, LW_BASE, LW_PRESETS.guild.s); })();
-const lwSave = () => { try { localStorage.setItem(LW_KEY, JSON.stringify(LW)); } catch (_) {} };
+const lwLoad = () => { try { const s = JSON.parse(localStorage.getItem(LW_KEY)); if (s && s.kind) return Object.assign({}, LW_BASE, LW_PRESETS.guild.s, s); } catch (_) {} return Object.assign({}, LW_BASE, LW_PRESETS.guild.s); };
+let LW = lwLoad();
+/* lwHost — когда редактор письма встроен в другой инструмент (стопка бумаг), сохранение и перерисовку берёт на себя он */
+let lwHost = null;
+const lwSave = () => { if (lwHost) return lwHost.save(); try { localStorage.setItem(LW_KEY, JSON.stringify(LW)); } catch (_) {} };
 
 /* ---------- редактор ---------- */
 const handOpts = cur => {
@@ -332,7 +416,7 @@ const handOpts = cur => {
   const o = ([k, h]) => `<option value="${k}"${k === cur ? " selected" : ""} style="font-family:'${h.f}'">${esc(h.name)}</option>`;
   return own.map(o).join("") + (user.length ? `<optgroup label="Свои шрифты">${user.map(o).join("")}</optgroup>` : "");
 };
-function letterHTML() {
+function letterHTML(extra = "") {
   const opt = (obj, cur, lab = v => v.name || v[0]) => Object.entries(obj).map(([k, v]) => `<option value="${k}"${k === cur ? " selected" : ""}>${esc(lab(v))}</option>`).join("");
   const seg = (attr, items, cur) => `<div class="lw-seg">${items.map(([k, t]) => `<button type="button" ${attr}="${k}" aria-pressed="${String(k) === String(cur)}">${esc(t)}</button>`).join("")}</div>`;
   const inp = (k, label, ph) => `<div class="fld"><label for="lw-${k}">${label}</label><input type="text" id="lw-${k}" data-lw="${k}" value="${esc(LW[k])}" placeholder="${esc(ph || "")}"></div>`;
@@ -373,12 +457,12 @@ function letterHTML() {
   <div class="lw-prev">
     <div class="lw-cv"><canvas id="lw-cv" aria-label="Предпросмотр письма"></canvas></div>
     <div class="actions"><button type="button" class="btn" id="lw-dl">Скачать картинку</button><button type="button" class="btn ghost" id="lw-copy">Копировать</button><button type="button" class="btn ghost" id="lw-open">Открыть крупно</button></div>
-    <small class="lw-hint">На телефоне: «Открыть крупно», затем зажмите картинку пальцем и сохраните.</small>
+    <small class="lw-hint">На телефоне: «Открыть крупно», затем зажмите картинку пальцем и сохраните.</small>${extra}
   </div>
 </div>`;
 }
-function letterInit() { lwFonts().then(lwDraw); lwDraw(); lwUserReady.then(() => { if ($("#lw-hand") && Object.values(LW_HANDS).some(h => h.user)) lwRefreshForm(); lwFonts().then(lwDraw); }); }
-function lwRefreshForm() { const y = scrollY; $("#sheet").innerHTML = letterHTML(); scrollTo(0, y); lwDraw(); }
+function letterInit() { if (lwHost) { lwHost = null; LW = lwLoad(); $("#sheet").innerHTML = letterHTML(); } lwFonts().then(lwDraw); lwDraw(); lwUserReady.then(() => { if ($("#lw-hand") && Object.values(LW_HANDS).some(h => h.user)) lwRefreshForm(); lwFonts().then(lwDraw); }); }
+function lwRefreshForm() { const y = scrollY; $("#sheet").innerHTML = lwHost ? lwHost.html() : letterHTML(); scrollTo(0, y); lwDraw(); }
 
 document.addEventListener("input", e => {
   const t = e.target; if (!t.dataset || t.dataset.lw == null) return;
@@ -396,7 +480,7 @@ document.addEventListener("change", e => {
       .catch(() => toast("Не получилось прочитать этот файл как шрифт."));
     return;
   }
-  if (t.id === "lw-preset" && t.value) { LW = Object.assign({}, LW_BASE, { seed: LW.seed }, LW_PRESETS[t.value].s); lwSave(); lwFonts().then(lwDraw); lwRefreshForm(); return; }
+  if (t.id === "lw-preset" && t.value) { LW = Object.assign({}, LW_BASE, { seed: LW.seed }, LW_PRESETS[t.value].s); if (lwHost) lwHost.set(LW); lwSave(); lwFonts().then(lwDraw); lwRefreshForm(); return; }
   if (t.dataset && t.dataset.lwc) { LW[t.dataset.lwc] = t.checked; lwSave(); lwDraw(); }
 });
 document.addEventListener("click", e => {
@@ -453,7 +537,12 @@ let lwTok = 0, lwRaf = 0;
 function lwDraw() { if (lwRaf) return; lwRaf = requestAnimationFrame(() => { lwRaf = 0; lwRender(); }); }
 async function lwRender() {
   const cv = $("#lw-cv"); if (!cv) return;
-  const tok = ++lwTok, L = LW, P = LW_PAPERS[L.paper] || LW_PAPERS.parch, H = LW_HANDS[L.hand] || LW_HANDS.marck;
+  const tok = ++lwTok;
+  await lwPaint(cv, LW, 2, () => tok !== lwTok);
+}
+/* Рисует письмо L на холсте cv в масштабе S. stale() — «уже не нужно» (пользователь успел изменить письмо). */
+async function lwPaint(cv, L, S = 2, stale = () => false) {
+  const P = LW_PAPERS[L.paper] || LW_PAPERS.parch, H = LW_HANDS[L.hand] || LW_HANDS.marck;
   let ink = (LW_INKS[L.ink] || LW_INKS.black)[1];
   if (P.dark && ["black", "sepia", "blue", "red"].includes(L.ink)) ink = LW_INKS.silver[1];
   const red = P.dark ? "#c0503a" : "#7a2414";
@@ -462,7 +551,7 @@ async function lwRender() {
   const fs = [17, 20, 24][L.size] * H.k, lh = fs * H.lh;
   const SH = LW_HANDS[L.sigHand], sigF = SH ? SH.f : (L.hand === "kurale" || L.hand === "oldst") ? "Marck Script" : H.f, sigK = SH ? SH.k / H.k : 1;
   const font = (sz, fam = H.f, ital = H.ital) => `${ital ? "italic " : ""}${sz.toFixed(1)}px "${fam}", "Marck Script", cursive`;
-  const M = L.backdrop ? 46 : 8, S = 2;
+  const M = L.backdrop ? 46 : 8;
   const wax = LW_WAX[L.wax] || LW_WAX.red;
   const seal = L.seal && L.seal !== "none" ? L.seal : "";
   const need = [];
@@ -471,7 +560,7 @@ async function lwRender() {
   if (L.dropcap) need.push(lwImg(LW_SVG.illum()));
   if (seal && EMBLEMS[seal]) need.push(lwImg(LW_SVG.emblem(seal, wax[3], 1.7)), lwImg(LW_SVG.emblem(seal, wax[2], 1.7)), lwImg(LW_SVG.emblem(seal, wax[1], 1.7)));
   const imgs = await Promise.all(need);
-  if (tok !== lwTok) return;
+  if (stale()) return;
   const I = {}; let k = 0;
   if (L.corners) I.corner = imgs[k++];
   if (L.kind === "decree") { I.vine = imgs[k++]; I.crest = imgs[k++]; }
@@ -736,22 +825,412 @@ function lwSeal(c, op, wax, I, L, rnd) {
 }
 
 
+/* =====================================================================
+   КНИГА и СТОПКА БУМАГ — листаются мышью, пальцем и стрелками.
+   Готовое можно отдать игрокам ссылкой: всё содержимое зашито в саму ссылку.
+   ===================================================================== */
+
+/* ---------- ссылка для игроков ---------- */
+const wsB64 = u8 => { let s = ""; for (let i = 0; i < u8.length; i += 32768) s += String.fromCharCode.apply(null, u8.subarray(i, i + 32768)); return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); };
+const wsUnB64 = t => { const s = atob(t.replace(/-/g, "+").replace(/_/g, "/")), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; };
+async function wsPack(obj) {
+  const raw = new TextEncoder().encode(JSON.stringify(obj));
+  if (window.CompressionStream) {
+    try { const st = new Blob([raw]).stream().pipeThrough(new CompressionStream("deflate-raw")); return "z" + wsB64(new Uint8Array(await new Response(st).arrayBuffer())); } catch (_) {}
+  }
+  return "j" + wsB64(raw);
+}
+async function wsUnpack(s) {
+  const u = wsUnB64(s.slice(1));
+  if (s[0] === "z") { const st = new Blob([u]).stream().pipeThrough(new DecompressionStream("deflate-raw")); return JSON.parse(await new Response(st).text()); }
+  return JSON.parse(new TextDecoder().decode(u));
+}
+async function wsShare(kind, data, usesUserFont) {
+  const url = location.href.split("#")[0] + "#" + kind + "=" + await wsPack(data);
+  const box = $("#ws-link");
+  if (box) { box.hidden = false; box.querySelector("input").value = url; }
+  const done = () => toast("Ссылка скопирована — отправьте её игрокам." + (usesUserFont ? " Свой шрифт в ссылку не попадает: у игроков будет запасной." : ""));
+  try { await navigator.clipboard.writeText(url); done(); } catch (_) { if (box) { const i = box.querySelector("input"); i.focus(); i.select(); } toast("Скопируйте ссылку из поля ниже."); }
+}
+const wsLinkBox = btn => `<div class="ws-link" id="ws-link" hidden><input type="text" readonly aria-label="Ссылка для игроков"><small>Эту ссылку можно отправить в беседу ВК. Всё содержимое уже внутри неё — менять что-то на сайте не нужно.</small></div>`;
+
+/* ---------- полноэкранный просмотр ---------- */
+function wsViewer(title, closable) {
+  let v = $("#viewer");
+  if (!v) { v = document.createElement("div"); v.id = "viewer"; document.body.appendChild(v); }
+  v.innerHTML = `<div class="vw-top"><b>${esc(title)}</b>${closable ? `<button type="button" class="vw-x" aria-label="Закрыть"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>` : ""}</div><div class="vw-body"></div>`;
+  v.hidden = false; document.documentElement.classList.add("vw-open");
+  return v.querySelector(".vw-body");
+}
+function wsCloseViewer() { const v = $("#viewer"); if (v) { v.hidden = true; v.innerHTML = ""; } document.documentElement.classList.remove("vw-open"); wsActive = null; }
+let wsActive = null; /* листалка, которую сейчас слушают стрелки */
+document.addEventListener("click", e => { if (e.target.closest(".vw-x")) wsCloseViewer(); });
+addEventListener("keydown", e => {
+  if (!wsActive || /input|textarea|select/i.test((document.activeElement || {}).tagName || "")) return;
+  if (e.key === "ArrowRight") { wsActive.next(); e.preventDefault(); }
+  if (e.key === "ArrowLeft") { wsActive.prev(); e.preventDefault(); }
+  if (e.key === "Escape" && $("#viewer") && !$("#viewer").hidden && $(".vw-x")) wsCloseViewer();
+});
+function wsSwipe(el, next, prev) {
+  let x0 = null, y0 = 0;
+  el.addEventListener("pointerdown", e => { x0 = e.clientX; y0 = e.clientY; });
+  el.addEventListener("pointerup", e => {
+    if (x0 == null) return; const dx = e.clientX - x0, dy = e.clientY - y0; x0 = null;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) { dx < 0 ? next() : prev(); el._swiped = Date.now(); }
+  });
+}
+
+/* =====================================================================
+   КНИГА
+   ===================================================================== */
+const BK_KEY = "velaris-book-v1", BK_MAX = 10, BK_W = 440, BK_H = 620;
+const BK_COVERS = { brown: ["Бурая кожа", "#4c301b"], red: ["Багровая", "#5f1b16"], green: ["Тёмно-зелёная", "#203627"], blue: ["Синяя", "#1d2a42"], black: ["Чёрная", "#1d1814"] };
+const BK_SAMPLE = {
+  title: "Записки лекаря", sub: "Нижний Хельград", cover: "brown", emblem: "souls", hand: "bad", ink: "sepia", paper: "parch", size: 1, dropcap: true, nums: true,
+  pages: [
+    { h: "Вместо предисловия", t: "Я пишу это для того, кто найдёт тетрадь после меня. Если вы читаете эти строки — значит, я не успел её сжечь, а Орден не успел найти.\nВсё, что здесь записано, я видел своими глазами в Нижнем Хельграде, в год, когда колокола звонили каждую ночь." },
+    { h: "Первый больной", t: "Его привели на рассвете: лёгкий жар, зуд и округлые красные пятна по всему телу. Отец уверял, что это болотная лихорадка.\nЯ дал ему отвар и отпустил домой. Это была моя первая ошибка." },
+    { h: "Признаки", t: "На третий день он вернулся сам — в плаще, натянутом на глаза: свет резал его, как нож. Голова раскалывалась, а имя сестры он вспомнить не смог.\nК пятому дню кожа стала похожа на ожог, и он закричал, когда я зажёг лампу. Огня они боятся больше смерти." },
+    { h: "Орден", t: "На шестой день он перестал дышать. Я знал, что будет дальше, и всё же позвал не стражу, а священника.\nПришёл Орден — с факелами и молитвой. Старший спросил, кто прикасался к больному. Я солгал. Дом сожгли до заката." },
+    { h: "Что помогает", t: "Я перепробовал всё: полынь, серебро, кровопускание, молитвы. Ничто не исцеляет.\nЕдинственное, что я знаю точно: чем раньше заметишь пятна, тем больше времени останется, чтобы попрощаться." },
+    { h: "Последняя запись", t: "Сегодня утром я нашёл у себя на запястье округлое красное пятно. Оно зудит.\nЕсли эта тетрадь попадёт к вам — отнесите её тем, кто ищет лекарство, а не костёр." }
+  ]
+};
+const BK_EMPTY = { title: "Без названия", sub: "", cover: "brown", emblem: "none", hand: "marck", ink: "black", paper: "parch", size: 1, dropcap: true, nums: true, pages: [{ h: "", t: "" }] };
+let BK = (() => { try { const s = JSON.parse(localStorage.getItem(BK_KEY)); if (s && s.pages) return s; } catch (_) {} return JSON.parse(JSON.stringify(BK_SAMPLE)); })();
+const bkSave = () => { try { localStorage.setItem(BK_KEY, JSON.stringify(BK)); } catch (_) {} };
+const svgUrl = s => `url('data:image/svg+xml;charset=utf-8,${encodeURIComponent(s).replace(/'/g, "%27")}')`;
+
+function bkFaces(B) {
+  const f = [["cover"], ["endp"]];
+  B.pages.forEach((_, i) => f.push(["page", i]));
+  if (B.pages.length % 2) f.push(["blank"]);
+  f.push(["endp"], ["back"]);
+  return f;
+}
+function bkFaceHTML(face, B, side) {
+  const P = LW_PAPERS[B.paper] || LW_PAPERS.parch, H = LW_HANDS[B.hand] || LW_HANDS.marck;
+  let ink = (LW_INKS[B.ink] || LW_INKS.black)[1]; if (P.dark && ["black", "sepia", "blue", "red"].includes(B.ink)) ink = LW_INKS.silver[1];
+  const lea = (BK_COVERS[B.cover] || BK_COVERS.brown)[1];
+  const em = B.emblem && EMBLEMS[B.emblem] ? `<svg class="cv-em" viewBox="0 0 24 24" aria-hidden="true">${EMBLEMS[B.emblem]}</svg>` : "";
+  const paper = `--pt:${P.top};--pb:${P.bot};--pv:${P.vign};--ink:${ink}`;
+  const cc = svgUrl(LW_SVG.corner("#d9b56a"));
+  if (face[0] === "cover") return `<div class="face cover ${side}" style="--lea:${lea}"><div class="cv-frame">${["tl", "tr", "bl", "br"].map(c => `<i class="cv-c ${c}" style="background-image:${cc}"></i>`).join("")}${em}<h2>${esc(B.title || "")}</h2>${B.sub ? `<p>${esc(B.sub)}</p>` : ""}</div></div>`;
+  if (face[0] === "back") return `<div class="face cover backc ${side}" style="--lea:${lea}"><div class="cv-frame">${em}</div></div>`;
+  if (face[0] === "endp") return `<div class="face endp ${side}" style="--lea:${lea}"></div>`;
+  if (face[0] === "blank") return `<div class="face pg ${side}${P.burnt ? " burnt" : ""}" style="${paper}"></div>`;
+  const i = face[1], p = B.pages[i] || { h: "", t: "" };
+  const fs = 19 * H.k * [.86, 1, 1.16][B.size || 1];
+  const paras = String(p.t || "").split("\n").map(x => x.trim()).filter(Boolean);
+  const body = paras.map((t, j) => {
+    if (j === 0 && B.dropcap && p.h && /^[«"]?[A-Za-zА-Яа-яЁё]/.test(t)) {
+      const at = t.search(/[A-Za-zА-Яа-яЁё]/);
+      return `<p class="dc"><span class="pg-dc" style="background-image:${svgUrl(LW_SVG.illum())}">${esc(t[at].toUpperCase())}</span>${esc(t.slice(0, at) + t.slice(at + 1))}</p>`;
+    }
+    return `<p>${esc(t)}</p>`;
+  }).join("");
+  return `<div class="face pg ${side}${P.burnt ? " burnt" : ""}" style="${paper}"><div class="pg-text" style="font-family:'${H.f}','Marck Script',cursive;${H.ital ? "font-style:italic;" : ""}font-size:${fs.toFixed(1)}px;line-height:${H.lh}" data-fs="${fs.toFixed(1)}">${p.h ? `<div class="pg-h">${esc(p.h)}</div><i class="pg-vine" style="background-image:${svgUrl(LW_SVG.vine(ink))}"></i>` : ""}${body}</div>${B.nums ? `<div class="pg-no">— ${i + 1} —</div>` : ""}</div>`;
+}
+/* Книга-листалка внутри элемента host */
+function bookView(host, B, opt = {}) {
+  host.classList.add("bk-stage");
+  host.innerHTML = `<div class="bk-box"><div class="bk-scale"><div class="bk"></div></div></div><nav class="ws-nav"><button type="button" class="ws-prev" aria-label="Назад">‹</button><span class="ws-count"></span><button type="button" class="ws-next" aria-label="Вперёд">›</button></nav>`;
+  const box = host.querySelector(".bk-box"), scale = host.querySelector(".bk-scale"), bk = host.querySelector(".bk");
+  let faces = [], mode = "", pos = 0, data = B;
+  const leaves = () => faces.length / 2;
+  const maxPos = () => mode === "spread" ? leaves() : faces.filter(f => f[0] !== "endp" && f[0] !== "blank").length - 1;
+  const singleFaces = () => faces.filter(f => f[0] !== "endp" && f[0] !== "blank");
+  function build() {
+    faces = bkFaces(data);
+    const w = host.clientWidth || 600;
+    mode = w < 600 ? "single" : "spread";
+    bk.className = "bk " + mode;
+    if (mode === "spread") {
+      let h = "";
+      for (let k = 0; k < leaves(); k++) h += `<div class="leaf" data-k="${k}">${bkFaceHTML(faces[2 * k], data, "front")}${bkFaceHTML(faces[2 * k + 1], data, "backf")}</div>`;
+      bk.innerHTML = h;
+    } else bk.innerHTML = singleFaces().map((f, j) => `<div class="sface" data-j="${j}">${bkFaceHTML(f, data, "solo")}</div>`).join("");
+    pos = Math.min(pos, maxPos());
+    fit(); apply(true);
+    (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(fitText);
+    lwFontsFor([LW_HANDS[data.hand] && LW_HANDS[data.hand].f]).then(fitText);
+  }
+  function fitText() {
+    let over = [];
+    bk.querySelectorAll(".pg-text").forEach(t => {
+      let fs = +t.dataset.fs; t.style.fontSize = fs + "px";
+      while (t.scrollHeight > t.clientHeight + 1 && fs > +t.dataset.fs * .7) { fs -= .5; t.style.fontSize = fs + "px"; }
+      const o = t.scrollHeight > t.clientHeight + 1; t.classList.toggle("over", o);
+      const pg = t.closest(".face"), no = pg && pg.querySelector(".pg-no"); if (o && no) over.push(no.textContent);
+    });
+    if (opt.onOver) opt.onOver([...new Set(over)]);
+  }
+  function fit() {
+    const W = mode === "spread" ? BK_W * 2 : BK_W, avail = host.clientWidth || 600;
+    const maxH = opt.full ? Math.max(240, innerHeight - 150) : (opt.maxH || 560);
+    const k = Math.min(avail / W, maxH / BK_H, 1.4);
+    scale.style.transform = `scale(${k})`; scale.style.width = W + "px"; scale.style.height = BK_H + "px";
+    box.style.height = BK_H * k + "px"; scale.style.left = (avail - W * k) / 2 + "px";
+  }
+  function apply(instant) {
+    if (instant) bk.classList.add("noanim");
+    if (mode === "spread") {
+      const L = leaves();
+      bk.querySelectorAll(".leaf").forEach(l => { const k = +l.dataset.k, fl = k < pos; l.classList.toggle("flipped", fl); l.style.zIndex = fl ? k + 1 : L - k; });
+      bk.style.transform = pos === 0 ? `translateX(${-BK_W / 2}px)` : pos === L ? `translateX(${BK_W / 2}px)` : "none";
+    } else {
+      const n = singleFaces().length;
+      bk.querySelectorAll(".sface").forEach(f => { const j = +f.dataset.j; f.classList.toggle("gone", j < pos); f.style.zIndex = n - j; });
+    }
+    if (instant) { void bk.offsetWidth; requestAnimationFrame(() => bk.classList.remove("noanim")); }
+    count();
+  }
+  function count() {
+    let t;
+    if (mode === "spread") {
+      if (pos === 0) t = "Обложка"; else if (pos === leaves()) t = "Конец";
+      else { const nums = [faces[2 * pos - 1], faces[2 * pos]].filter(f => f && f[0] === "page").map(f => f[1] + 1); t = nums.length ? "Стр. " + nums.join("–") + " из " + data.pages.length : "Форзац"; }
+    } else { const f = singleFaces()[pos]; t = f[0] === "cover" ? "Обложка" : f[0] === "back" ? "Конец" : "Стр. " + (f[1] + 1) + " из " + data.pages.length; }
+    host.querySelector(".ws-count").textContent = t;
+    host.querySelector(".ws-prev").disabled = pos === 0; host.querySelector(".ws-next").disabled = pos === maxPos();
+  }
+  function turn(d) {
+    const np = Math.max(0, Math.min(maxPos(), pos + d)); if (np === pos) return;
+    if (mode === "spread") { const k = d > 0 ? pos : np, l = bk.querySelector(`.leaf[data-k="${k}"]`); if (l) { l.style.zIndex = 500; } }
+    pos = np; apply(false);
+    if (mode === "spread") { const k = d > 0 ? pos - 1 : pos, l = bk.querySelector(`.leaf[data-k="${k}"]`); if (l) { l.style.zIndex = 500; clearTimeout(l._t); l._t = setTimeout(() => apply(false), 900); } }
+  }
+  const api = {
+    next: () => turn(1), prev: () => turn(-1),
+    set(nb) { data = nb; build(); },
+    showPage(i) {
+      if (i < 0) pos = 0;
+      else if (mode === "spread") { const j = 2 + i; pos = Math.ceil(j / 2); }
+      else pos = 1 + i;
+      pos = Math.min(pos, maxPos()); apply(false);
+    }
+  };
+  host.querySelector(".ws-prev").onclick = api.prev; host.querySelector(".ws-next").onclick = api.next;
+  box.addEventListener("click", e => {
+    if (box._swiped && Date.now() - box._swiped < 300) return;
+    const r = box.getBoundingClientRect(), x = (e.clientX - r.left) / r.width;
+    if (x > .5) api.next(); else api.prev();
+  });
+  wsSwipe(box, api.next, api.prev);
+  let lastW = 0; const ro = new ResizeObserver(() => { const w = host.clientWidth; if (Math.abs(w - lastW) > 2) { const was = mode; lastW = w; if ((w < 600 ? "single" : "spread") !== was) build(); else fit(); } });
+  ro.observe(host);
+  build(); wsActive = api;
+  return api;
+}
+function lwFontsFor(fams) {
+  if (!document.fonts || !document.fonts.load) return Promise.resolve();
+  return Promise.all(fams.filter(Boolean).concat(["Ruslan Display"]).map(f => document.fonts.load(`24px "${f}"`, "АаЖж").catch(() => {}))).catch(() => {});
+}
+
+/* ---------- редактор книги ---------- */
+let bkPrev = null, bkT = 0, bkFocus = 0;
+function bookHTML() {
+  const opt = (obj, cur) => Object.entries(obj).map(([k, v]) => `<option value="${k}"${k === cur ? " selected" : ""}>${esc(v.name || v[0])}</option>`).join("");
+  const ems = [["none", "Без знака"]].concat(FACTIONS.filter(f => EMBLEMS[f.id]).map(f => [f.id, f.name]));
+  const chk = (k, t) => `<label class="lw-chk"><input type="checkbox" data-bkk="${k}"${BK[k] ? " checked" : ""}> ${t}</label>`;
+  const inp = (k, label) => `<div class="fld"><label for="bk-${k}">${label}</label><input type="text" id="bk-${k}" data-bk="${k}" value="${esc(BK[k])}"></div>`;
+  return `<div class="lw wide">
+  <div class="lw-ctl">
+    <p class="lw-lead">Книга до ${BK_MAX} страниц, которую листают как настоящую. Готовую книгу отдайте игрокам ссылкой.</p>
+    <div class="fld"><label for="bk-preset">Начать с</label><select id="bk-preset"><option value="">— выбрать —</option><option value="sample">Образец: «Записки лекаря»</option><option value="empty">Пустая книга</option></select></div>
+    <h3>Обложка</h3>
+    ${inp("title", "Название")}${inp("sub", "Подзаголовок или автор")}
+    <div class="fld"><label>Цвет кожи</label><div class="lw-wax">${Object.entries(BK_COVERS).map(([k, c]) => `<button type="button" data-bkc="${k}" aria-pressed="${k === BK.cover}" title="${c[0]}" aria-label="${c[0]}" style="--w:${c[1]};--h:${c[1]}"></button>`).join("")}</div></div>
+    <div class="fld"><label for="bk-emblem">Знак на обложке</label><select id="bk-emblem" data-bk="emblem">${ems.map(([k, t]) => `<option value="${k}"${k === BK.emblem ? " selected" : ""}>${esc(t)}</option>`).join("")}</select></div>
+    <h3>Страницы</h3>
+    <div class="lw-2">
+      <div class="fld"><label for="bk-paper">Бумага</label><select id="bk-paper" data-bk="paper">${opt(LW_PAPERS, BK.paper)}</select></div>
+      <div class="fld"><label for="bk-ink">Чернила</label><select id="bk-ink" data-bk="ink">${opt(LW_INKS, BK.ink)}</select></div>
+      <div class="fld"><label for="bk-hand">Почерк</label><select id="bk-hand" data-bk="hand">${handOpts(BK.hand)}</select></div>
+      <div class="fld"><label>Размер букв</label><div class="lw-seg">${[[0, "Мелко"], [1, "Средне"], [2, "Крупно"]].map(([k, t]) => `<button type="button" data-bks="${k}" aria-pressed="${k === (BK.size ?? 1)}">${t}</button>`).join("")}</div></div>
+    </div>
+    <div class="lw-chks">${chk("dropcap", "Буквица в главах")}${chk("nums", "Номера страниц")}</div>
+    <div class="bk-pages">${BK.pages.map((p, i) => `<section class="bk-page" data-i="${i}">
+      <header><b>Страница ${i + 1}</b><span class="bk-warn" data-warn="${i}" hidden>не помещается — сократите</span><span class="bk-ops"><button type="button" data-bkop="up" data-i="${i}" aria-label="Выше"${i ? "" : " disabled"}>↑</button><button type="button" data-bkop="down" data-i="${i}" aria-label="Ниже"${i < BK.pages.length - 1 ? "" : " disabled"}>↓</button><button type="button" data-bkop="del" data-i="${i}" aria-label="Удалить"${BK.pages.length > 1 ? "" : " disabled"}>×</button></span></header>
+      <input type="text" data-bkp="${i}" data-bkf="h" value="${esc(p.h)}" placeholder="Заголовок главы (необязательно)" aria-label="Заголовок страницы ${i + 1}">
+      <textarea data-bkp="${i}" data-bkf="t" rows="5" placeholder="Текст страницы. Новый абзац — с новой строки." aria-label="Текст страницы ${i + 1}">${esc(p.t)}</textarea>
+    </section>`).join("")}</div>
+    ${BK.pages.length < BK_MAX ? `<button type="button" class="btn ghost" id="bk-add">+ Добавить страницу (${BK.pages.length} из ${BK_MAX})</button>` : `<p class="lw-lead">Это максимум — ${BK_MAX} страниц.</p>`}
+  </div>
+  <div class="lw-prev">
+    <div id="bk-prev" class="ws-holder"></div>
+    <div class="actions"><button type="button" class="btn" id="bk-link">Ссылка для игроков</button><button type="button" class="btn ghost" id="bk-full">На весь экран</button></div>
+    ${wsLinkBox()}
+    <small class="lw-hint">Листать: клик по правой или левой половине книги, свайп или стрелки ← →.</small>
+  </div>
+</div>`;
+}
+function bookInit() {
+  bkPrev = bookView($("#bk-prev"), BK, { maxH: 520, onOver: bkWarn });
+  bkPrev.showPage(bkFocus);
+  lwUserReady.then(() => { if (Object.values(LW_HANDS).some(h => h.user) && $("#bk-hand") && !$("#bk-hand optgroup")) bookRefresh(); });
+}
+function bkWarn(over) { document.querySelectorAll("[data-warn]").forEach(w => { w.hidden = !over.includes("— " + (+w.dataset.warn + 1) + " —"); }); }
+function bookRefresh() { const y = scrollY; $("#sheet").innerHTML = bookHTML(); scrollTo(0, y); bookInit(); }
+function bkUpdate(focus) { bkSave(); if (focus != null) bkFocus = focus; clearTimeout(bkT); bkT = setTimeout(() => { if (bkPrev && $("#bk-prev")) { bkPrev.set(BK); if (focus != null) bkPrev.showPage(focus); } }, 220); }
+document.addEventListener("input", e => {
+  const t = e.target; if (!t.dataset) return;
+  if (t.dataset.bk) { BK[t.dataset.bk] = t.value; if (t.dataset.bk === "paper") { const d = LW_PAPERS[t.value].dark; if (d && ["black", "sepia", "blue", "red"].includes(BK.ink)) BK.ink = "silver"; if (!d && BK.ink === "silver") BK.ink = "black"; bkSave(); bookRefresh(); return; } bkUpdate(t.dataset.bk === "title" || t.dataset.bk === "sub" || t.dataset.bk === "emblem" ? -1 : null); }
+  if (t.dataset.bkp != null) { BK.pages[+t.dataset.bkp][t.dataset.bkf] = t.value; bkUpdate(+t.dataset.bkp); }
+});
+document.addEventListener("focusin", e => { const t = e.target; if (t.dataset && t.dataset.bkp != null && bkPrev && $("#bk-prev")) { bkFocus = +t.dataset.bkp; bkPrev.showPage(bkFocus); } });
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.id === "bk-preset" && t.value) { BK = JSON.parse(JSON.stringify(t.value === "sample" ? BK_SAMPLE : BK_EMPTY)); bkFocus = 0; bkSave(); bookRefresh(); return; }
+  if (t.dataset && t.dataset.bkk) { BK[t.dataset.bkk] = t.checked; bkUpdate(); }
+});
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-bkc],[data-bks],[data-bkop],#bk-add,#bk-link,#bk-full");
+  if (!b) return;
+  if (b.dataset.bkc) { BK.cover = b.dataset.bkc; b.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); bkUpdate(-1); return; }
+  if (b.dataset.bks) { BK.size = +b.dataset.bks; b.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); bkUpdate(); return; }
+  if (b.dataset.bkop) {
+    const i = +b.dataset.i, P = BK.pages;
+    if (b.dataset.bkop === "up" && i > 0) { [P[i - 1], P[i]] = [P[i], P[i - 1]]; bkFocus = i - 1; }
+    if (b.dataset.bkop === "down" && i < P.length - 1) { [P[i + 1], P[i]] = [P[i], P[i + 1]]; bkFocus = i + 1; }
+    if (b.dataset.bkop === "del" && P.length > 1 && confirmDel(i)) { P.splice(i, 1); bkFocus = Math.max(0, i - 1); }
+    bkSave(); bookRefresh(); return;
+  }
+  if (b.id === "bk-add" && BK.pages.length < BK_MAX) { BK.pages.push({ h: "", t: "" }); bkFocus = BK.pages.length - 1; bkSave(); bookRefresh(); const ta = document.querySelectorAll(".bk-page textarea"); ta[ta.length - 1].focus(); return; }
+  if (b.id === "bk-link") { wsShare("kniga", BK, LW_HANDS[BK.hand] && LW_HANDS[BK.hand].user); return; }
+  if (b.id === "bk-full") { const v = wsViewer(BK.title || "Книга", true); const a = bookView(v, BK, { full: true }); a.showPage(bkFocus); return; }
+});
+const confirmDel = i => { const p = BK.pages[i]; return !(p.h || p.t) || window.confirm("Удалить страницу " + (i + 1) + "?"); };
+
+/* =====================================================================
+   СТОПКА БУМАГ — несколько писем, которые перекладывают по одному
+   ===================================================================== */
+const ST_KEY = "velaris-stack-v1", ST_MAX = 10;
+const stDefault = () => ({ title: "Найденные бумаги", cur: 0, sheets: ["guild", "note", "secret"].map(k => Object.assign({}, LW_BASE, LW_PRESETS[k].s)) });
+let STK = (() => { try { const s = JSON.parse(localStorage.getItem(ST_KEY)); if (s && s.sheets && s.sheets.length) return s; } catch (_) {} return stDefault(); })();
+const stSave = () => { try { localStorage.setItem(ST_KEY, JSON.stringify(STK)); } catch (_) {} };
+const stHost = { html: () => stackHTML(), save: stSave, set(o) { STK.sheets[STK.cur] = o; } };
+function stackHTML() {
+  const tabs = STK.sheets.map((s, i) => `<button type="button" data-sti="${i}" aria-pressed="${i === STK.cur}">Лист ${i + 1}</button>`).join("");
+  const extra = `<div class="st-extra"><div class="actions"><button type="button" class="btn" id="st-view">Смотреть стопку</button><button type="button" class="btn ghost" id="st-link">Ссылка для игроков</button></div>${wsLinkBox()}</div>`;
+  return `<div class="st-bar wide">
+    <div class="fld"><label for="st-title">Название стопки</label><input type="text" id="st-title" value="${esc(STK.title)}" placeholder="Например: Бумаги из сундука"></div>
+    <div class="fld"><label>Листы — выберите, какой править</label><div class="st-tabs">${tabs}${STK.sheets.length < ST_MAX ? `<button type="button" id="st-add" class="st-add">+ лист</button>` : ""}</div></div>
+    <div class="st-ops"><button type="button" class="btn ghost" data-stop="left"${STK.cur ? "" : " disabled"}>← Раньше</button><button type="button" class="btn ghost" data-stop="right"${STK.cur < STK.sheets.length - 1 ? "" : " disabled"}>Позже →</button><button type="button" class="btn ghost" data-stop="del"${STK.sheets.length > 1 ? "" : " disabled"}>Убрать лист ${STK.cur + 1}</button></div>
+  </div>` + letterHTML(extra);
+}
+function stackInit() {
+  lwHost = stHost; STK.cur = Math.min(STK.cur || 0, STK.sheets.length - 1); LW = STK.sheets[STK.cur];
+  $("#sheet").innerHTML = stackHTML();
+  lwFonts().then(lwDraw); lwDraw();
+}
+document.addEventListener("input", e => { if (e.target.id === "st-title") { STK.title = e.target.value; stSave(); } });
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-sti],[data-stop],#st-add,#st-view,#st-link");
+  if (!b) return;
+  const go = i => { STK.cur = i; LW = STK.sheets[i]; stSave(); lwRefreshForm(); lwFonts().then(lwDraw); };
+  if (b.dataset.sti != null) return go(+b.dataset.sti);
+  if (b.id === "st-add" && STK.sheets.length < ST_MAX) { const c = Object.assign({}, STK.sheets[STK.cur], { body: "", greet: "", close: "", sign: "", ps: "", place: "", seed: (STK.sheets.length * 37 + 11) % 9973 }); STK.sheets.push(c); return go(STK.sheets.length - 1); }
+  if (b.dataset.stop) {
+    const i = STK.cur, S = STK.sheets;
+    if (b.dataset.stop === "left" && i > 0) { [S[i - 1], S[i]] = [S[i], S[i - 1]]; return go(i - 1); }
+    if (b.dataset.stop === "right" && i < S.length - 1) { [S[i + 1], S[i]] = [S[i], S[i + 1]]; return go(i + 1); }
+    if (b.dataset.stop === "del" && S.length > 1 && window.confirm("Убрать лист " + (i + 1) + " из стопки?")) { S.splice(i, 1); return go(Math.max(0, i - 1)); }
+    return;
+  }
+  if (b.id === "st-view") { stackView(wsViewer(STK.title || "Стопка бумаг", true), STK.sheets); return; }
+  if (b.id === "st-link") { wsShare("stopka", { title: STK.title, sheets: STK.sheets }, STK.sheets.some(s => (LW_HANDS[s.hand] || {}).user || (LW_HANDS[s.sigHand] || {}).user)); }
+});
+/* Листалка стопки: верхний лист уходит под низ стопки */
+async function stackView(host, sheets) {
+  host.classList.add("st-stage");
+  host.innerHTML = `<div class="st-pile"><p class="st-wait">Раскладываю бумаги…</p></div><nav class="ws-nav"><button type="button" class="ws-prev" aria-label="Назад">‹</button><span class="ws-count"></span><button type="button" class="ws-next" aria-label="Вперёд">›</button></nav>`;
+  const pile = host.querySelector(".st-pile");
+  await lwFontsFor(sheets.flatMap(s => [(LW_HANDS[s.hand] || {}).f, (LW_HANDS[s.sigHand] || {}).f, "Marck Script", "Old Standard TT"]));
+  const urls = [];
+  for (const s of sheets) {
+    const cv = document.createElement("canvas");
+    await lwPaint(cv, Object.assign({}, s, { backdrop: false }), 1.5);
+    urls.push(await new Promise(r => cv.toBlob(b => r(URL.createObjectURL(b)), "image/png")));
+  }
+  pile.innerHTML = urls.map((u, i) => `<img class="st-sheet" src="${u}" alt="Лист ${i + 1}" draggable="false" style="--r:${((lwHash(i, 5) - .5) * 6).toFixed(2)}deg;--x:${((lwHash(i, 6) - .5) * 18).toFixed(1)}px;--y:${((lwHash(i, 7) - .5) * 12).toFixed(1)}px">`).join("");
+  const imgs = [...pile.querySelectorAll(".st-sheet")], n = imgs.length;
+  let order = imgs.map((_, i) => i), pos = 0, busy = false;
+  const fit = () => { const h = host.closest("#viewer") ? innerHeight - 150 : 520; pile.style.height = Math.max(260, h) + "px"; };
+  const lay = () => { order.forEach((idx, depth) => { const im = imgs[idx]; im.style.zIndex = n - depth; im.classList.toggle("under", depth > 0); }); host.querySelector(".ws-count").textContent = `Лист ${pos + 1} из ${n}`; };
+  const next = () => {
+    if (busy || n < 2) return; busy = true;
+    const top = imgs[order[0]]; top.classList.add("out");
+    setTimeout(() => { order.push(order.shift()); pos = (pos + 1) % n; lay(); top.classList.remove("out"); busy = false; }, 380);
+  };
+  const prev = () => {
+    if (busy || n < 2) return; busy = true;
+    const last = order.pop(), im = imgs[last]; order.unshift(last); pos = (pos - 1 + n) % n;
+    im.classList.add("out", "noanim"); lay(); void im.offsetWidth; im.classList.remove("noanim");
+    requestAnimationFrame(() => { im.classList.remove("out"); setTimeout(() => busy = false, 380); });
+  };
+  host.querySelector(".ws-prev").onclick = prev; host.querySelector(".ws-next").onclick = next;
+  pile.addEventListener("click", e => { if (pile._swiped && Date.now() - pile._swiped < 300) return; if (e.target.classList.contains("st-sheet")) next(); });
+  wsSwipe(pile, next, prev);
+  fit(); lay(); addEventListener("resize", fit);
+  wsActive = { next, prev };
+}
+
+/* ---------- открытие по ссылке игрока ---------- */
+async function wsOpenShared(kind, packed) {
+  document.documentElement.classList.add("shared");
+  try {
+    const d = await wsUnpack(packed);
+    if (kind === "kniga") { BKShared = d; bookView(wsViewer(d.title || "Книга", false), d, { full: true }); }
+    else stackView(wsViewer(d.title || "Бумаги", false), d.sheets || []);
+  } catch (_) { wsViewer("Ссылка повреждена", false).innerHTML = `<p class="ws-bad">Не получилось открыть: ссылка обрезана или скопирована не полностью. Попросите мастера прислать её ещё раз.</p>`; }
+}
+let BKShared = null;
+
+
 /* ---------- Инструменты мастерской ----------
    Новый инструмент: добавьте строку в TOOLS — [адрес, название, функция-разметка, функция-запуск]. */
 const TOOLS = [
-  ["pisma", "Письма и указы", letterHTML, letterInit]
+  ["pisma", "Письма и указы", letterHTML, letterInit],
+  ["kniga", "Книга", bookHTML, bookInit],
+  ["stopka", "Стопка бумаг", stackHTML, stackInit]
 ];
 function route() {
-  const id = location.hash.slice(1), t = TOOLS.find(x => x[0] === id) || TOOLS[0];
+  const id = location.hash.slice(1), sh = id.match(/^(kniga|stopka)=(.+)$/);
+  if (sh) return wsOpenShared(sh[1], sh[2]);
+  if (document.documentElement.classList.contains("shared")) { document.documentElement.classList.remove("shared"); wsCloseViewer(); }
+  wsCloseViewer();
+  const t = TOOLS.find(x => x[0] === id) || TOOLS[0];
   $("#rail").innerHTML = TOOLS.map(x => `<button type="button" data-tool="${x[0]}" aria-selected="${x === t}">${esc(x[1])}</button>`).join("") + `<div class="soon">Скоро здесь появятся новые инструменты</div>`;
   $("#sheet").innerHTML = t[2](); if (t[3]) t[3]();
   document.title = t[1] + " — Мастерская Велариса";
 }
 document.addEventListener("click", e => {
   const b = e.target.closest("[data-tool]"); if (b) { location.hash = b.dataset.tool; return; }
-  if (e.target.closest("#zoom")) $("#zoom").classList.remove("on");
+  const z = e.target.closest("#zoom");
+  if (z) {
+    if (z._dragged) { z._dragged = false; return; }
+    const img = z.querySelector("img");
+    if (e.target === img) {
+      /* приблизить в настоящий размер — к тому месту, куда нажали */
+      if (!z.classList.contains("big")) {
+        const r = img.getBoundingClientRect(), fx = (e.clientX - r.left) / r.width, fy = (e.clientY - r.top) / r.height;
+        z.classList.add("big"); z.querySelector(".zhint").textContent = "Тяните, чтобы двигать. Нажмите ещё раз — отдалить";
+        z.scrollLeft = img.offsetLeft + img.offsetWidth * fx - z.clientWidth / 2; z.scrollTop = img.offsetTop + img.offsetHeight * fy - z.clientHeight / 2;
+      } else { z.classList.remove("big"); z.querySelector(".zhint").textContent = "Нажмите на картинку, чтобы приблизить"; }
+      return;
+    }
+    z.classList.remove("on", "big"); z.querySelector(".zhint").textContent = "Нажмите на картинку, чтобы приблизить";
+  }
 });
-addEventListener("keydown", e => { if (e.key === "Escape") $("#zoom").classList.remove("on"); });
+addEventListener("keydown", e => { if (e.key === "Escape") $("#zoom").classList.remove("on", "big"); });
+/* перетаскивание мышью в режиме приближения (пальцем листается само) */
+(() => {
+  const z = $("#zoom"); let st = null;
+  z.addEventListener("pointerdown", e => { if (!z.classList.contains("big") || e.pointerType !== "mouse" || e.target.closest(".zx")) return; st = { x: e.clientX, y: e.clientY, l: z.scrollLeft, t: z.scrollTop, m: false }; e.preventDefault(); });
+  addEventListener("pointermove", e => { if (!st) return; const dx = e.clientX - st.x, dy = e.clientY - st.y; if (Math.abs(dx) + Math.abs(dy) > 4) { st.m = true; z.classList.add("drag"); } z.scrollLeft = st.l - dx; z.scrollTop = st.t - dy; });
+  addEventListener("pointerup", () => { if (!st) return; if (st.m) z._dragged = true; st = null; z.classList.remove("drag"); });
+})();
 addEventListener("hashchange", route);
 route();
 </script>
