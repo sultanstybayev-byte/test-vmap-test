@@ -405,6 +405,10 @@ html.dragging-doc, html.dragging-doc * { cursor: grabbing !important; }
 .mybanner { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 9px 16px; border: 1px solid rgba(201,162,90,.6); border-radius: 999px; background: rgba(23,17,11,.75); color: var(--gold-hi); font: 700 16px/1 var(--font-display); text-decoration: none; letter-spacing: .03em; }
 .mybanner svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; }
 .mybanner.fresh { border-color: #c4503c; box-shadow: 0 0 18px rgba(196,80,60,.35); }
+.q-who { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 8px 0 4px; }
+.q-who > span { margin-right: 4px; font: 700 12px/1 var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); }
+.q-ava { display: block; width: 30px; height: 30px; border-radius: 50%; overflow: hidden; border: 2px solid var(--gold); background: var(--leather); box-shadow: 0 1px 3px rgba(0,0,0,.3); text-decoration: none; }
+.q-ava img { width: 100%; height: 100%; object-fit: cover; display: block; } .q-ava b { display: grid; place-items: center; width: 100%; height: 100%; color: var(--gold-hi); font: 700 14px/1 var(--font-display); }
 </style>
 </head>
 <body>
@@ -1086,8 +1090,9 @@ function applyQuestStates(st) {
   let changed = false;
   for (let i = QUESTS.length - 1; i >= 0; i--) {
     const q = QUESTS[i], s = st[q.n]; if (!s) continue;
-    if (s.st === "done") { QUEST_ARCHIVE.unshift({ n: q.n, g: q.g, d: q.d, end: s.end || "", date: s.date || "" }); QUESTS.splice(i, 1); changed = true; }
-    else if (!!q.busy !== (s.st === "busy")) { q.busy = s.st === "busy"; changed = true; }
+    if ((s.who || []).length) { q.who = s.who.slice(); changed = true; }
+    if (s.st === "done") { QUEST_ARCHIVE.unshift({ n: q.n, g: q.g, d: q.d, end: s.end || "", date: s.date || "", who: q.who }); QUESTS.splice(i, 1); changed = true; }
+    else if (s.st && !!q.busy !== (s.st === "busy")) { q.busy = s.st === "busy"; changed = true; }
   }
   return changed;
 }
@@ -1113,6 +1118,12 @@ async function plUpdate(mutate, message) {
   throw new Error("Список игроков менялся одновременно с вами. Попробуйте ещё раз.");
 }
 const plName = p => p ? (p.char ? `${p.char} (${p.name})` : p.name) : "";
+/* круглые аватарки участников (для меню и карты) */
+function whoHTML(ids, players) {
+  if (!ids || !ids.length) return "";
+  const by = new Map((players || []).map(p => [p.id, p]));
+  return `<div class="q-who"><span>Участники</span>${ids.map(id => { const p = by.get(id), t = p ? (p.char ? p.char + " — " + p.name : p.name) : "участник"; return `<a class="q-ava" href="https://vk.com/id${id}" target="_blank" rel="noopener" title="${esc(t)}">${p && p.photo ? `<img src="${esc(p.photo)}" alt="${esc(t)}">` : `<b>${esc(((p && (p.char || p.name)) || "?").charAt(0))}</b>`}</a>`; }).join("")}</div>`;
+}
 
 
 /* =====================================================================
@@ -1320,6 +1331,7 @@ const GROUPS = [
 /* Гостям (кто не состоит в группе) открыты только карта, правила и мир */
 const GUEST_TILES = new Set(["atlas", "rules", "world"]), GUEST_SECTIONS = new Set(["pravila", "mir"]), GUEST_HIDDEN_TABS = new Set(["anketa-req"]);
 const MEMBER = isMember(), ADMIN = isAdmin();
+var QPLAYERS = [];
 function homeHTML() {
   let i = 0;
   return `<header class="crest">
@@ -1421,11 +1433,11 @@ let qFilter = "all-groups", qFree = false;
 function questCard(q) {
   const places = q.places.filter(id => PLACES.some(p => p.id === id));
   return `<article class="quest${q.busy ? " busy" : ""}"><header><div><b>${esc(q.n)}</b><span class="qg">${esc(groupName[q.g])}</span>${q.tag ? `<span class="qg qt">${esc(q.tag)}</span>` : ""}</div>
-    ${q.busy ? `<span class="qs busy">Занят</span>` : `<span class="qs">Свободен</span>`}</header><p>${esc(q.d)}</p>
+    ${q.busy ? `<span class="qs busy">Занят</span>` : `<span class="qs">Свободен</span>`}</header><p>${esc(q.d)}</p>${whoHTML(q.who, QPLAYERS)}
     <dl class="kv"><dt>Кому</dt><dd>${esc(q.rec)}</dd><dt>Длительность</dt><dd>${esc(q.dur)}</dd><dt>Где</dt><dd>${esc(q.loc)}${places.length ? " · " + places.map(id => mapLink(id, "на карте: " + placeName(id))).join(", ") : ""}</dd><dt>Влияние</dt><dd>${esc(IMP[q.imp])}</dd></dl></article>`;
 }
 function questList() {
-  if (qFilter === "archive") return QUEST_ARCHIVE.map(a => `<article class="quest"><header><div><b>${esc(a.n)}</b></div><span class="qs done">Завершён</span></header>${a.d ? `<p>${esc(a.d)}</p>` : ""}<p class="note"><b>Итог.</b> ${esc(a.end)}</p></article>`).join("");
+  if (qFilter === "archive") return QUEST_ARCHIVE.map(a => `<article class="quest"><header><div><b>${esc(a.n)}</b></div><span class="qs done">Завершён</span></header>${a.d ? `<p>${esc(a.d)}</p>` : ""}<p class="note"><b>Итог.</b> ${esc(a.end)}</p>${whoHTML(a.who, QPLAYERS)}</article>`).join("");
   const l = QUESTS.filter(q => (qFilter === "all-groups" || q.g === qFilter) && (!qFree || !q.busy));
   return l.length ? l.map(questCard).join("") : `<p class="note">Свободных квестов в этом разделе нет.</p>`;
 }
@@ -1814,7 +1826,7 @@ addEventListener("popstate", render);
 })();
 render();
 /* статусы и итоги квестов из Мастерской (docs/quests.json) */
-qsLoad(ADMIN && !!ghCfg().token).then(st => { if (applyQuestStates(st) && route === "kvesty") render(); }).catch(() => {});
+Promise.all([qsLoad(ADMIN && !!ghCfg().token), plLoad(false).catch(() => ({ list: [] }))]).then(([st, P]) => { QPLAYERS = P.list || []; if (applyQuestStates(st) && route === "kvesty") render(); }).catch(() => {});
 </script>
 </body>
 </html>

@@ -484,6 +484,10 @@ span.pchip { cursor: default; } span.pchip:hover { transform: none; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
 }
+.q-who { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 8px 0 4px; }
+.q-who > span { margin-right: 4px; font: 700 11.5px/1 var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); }
+.q-ava { display: block; width: 28px; height: 28px; border-radius: 50%; overflow: hidden; border: 2px solid var(--gold); background: var(--leather); text-decoration: none; }
+.q-ava img { width: 100%; height: 100%; object-fit: cover; display: block; } .q-ava b { display: grid; place-items: center; width: 100%; height: 100%; color: var(--gold-hi); font: 700 13px/1 var(--font-display); }
 
 [hidden]{display:none!important} body{margin:0}
 </style>
@@ -1595,12 +1599,17 @@ function powerBlock(p) {
 /* ---------- Quests ---------- */
 let questFilter = "all-groups", questFree = false;
 const pips4 = n => `<span class="pips">${[1, 2, 3, 4].map(i => `<i style="--n:${i}" data-on="${i <= n ? 1 : 0}"></i>`).join("")}</span>`;
+function mapWho(ids) {
+  if (!ids || !ids.length) return "";
+  const by = new Map((window.QPLAYERS || []).map(p => [p.id, p]));
+  return `<div class="q-who"><span>Участники</span>${ids.map(id => { const p = by.get(id), t = p ? (p.char ? p.char + " — " + p.name : p.name) : "участник"; return `<a class="q-ava" href="https://vk.com/id${id}" target="_blank" rel="noopener" title="${esc(t)}">${p && p.photo ? `<img src="${esc(p.photo)}" alt="${esc(t)}">` : `<b>${esc(((p && (p.char || p.name)) || "?").charAt(0))}</b>`}</a>`; }).join("")}</div>`;
+}
 function questCard(q, showGroup) {
   const places = q.places.filter(id => byId[id]);
   return `<article class="quest${q.busy ? " busy" : ""}" id="${q.id}">
     <header><div><b>${esc(q.n)}</b>${showGroup ? `<span class="qg">${esc(groupName[q.g])}</span>` : ""}${q.tag ? `<span class="qg qtag">${esc(q.tag)}</span>` : ""}</div>
       ${q.busy ? `<span class="qbusy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Занят</span>` : `<span class="qfree">Свободен</span>`}</header>
-    <p>${esc(q.d)}</p>
+    <p>${esc(q.d)}</p>${mapWho(q.who)}
     <dl class="qm"><dt>Кому</dt><dd>${esc(q.rec)}</dd><dt>Длительность</dt><dd>${esc(q.dur)}</dd><dt>Где</dt><dd>${esc(q.loc)}</dd></dl>
     <div class="qfoot"><div class="meter"><span class="lbl">Влияние</span>${q.imp ? pips4(q.imp) : ""}<span class="word">${IMP[q.imp]}</span></div>
       ${places.length ? `<button class="qmap" type="button" data-ping="${places.join(" ")}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6-5.6-6-10.5a6 6 0 0 1 12 0C18 15.4 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.2"/></svg>На карте</button>` : ""}</div>
@@ -1608,7 +1617,7 @@ function questCard(q, showGroup) {
 }
 function questsListHTML() {
   if (questFilter === "archive") {
-    return `<div class="qlist">${QUEST_ARCHIVE.map(a => `<article class="quest done"><header><div><b>${esc(a.n)}</b>${a.g ? `<span class="qg">${esc(groupName[a.g])}</span>` : ""}</div><span class="qdone">Завершён</span></header>${a.d ? `<p>${esc(a.d)}</p>` : ""}<p class="qend"><span>Итог.</span> ${esc(a.end)}</p></article>`).join("")}</div>
+    return `<div class="qlist">${QUEST_ARCHIVE.map(a => `<article class="quest done"><header><div><b>${esc(a.n)}</b>${a.g ? `<span class="qg">${esc(groupName[a.g])}</span>` : ""}</div><span class="qdone">Завершён</span></header>${a.d ? `<p>${esc(a.d)}</p>` : ""}<p class="qend"><span>Итог.</span> ${esc(a.end)}</p>${mapWho(a.who)}</article>`).join("")}</div>
       <p class="note">Здесь не все квесты, что были, а только те, что закончились относительно недавно.</p>`;
   }
   let list = QUESTS.filter(q => questFilter === "all-groups" || q.g === questFilter);
@@ -2245,11 +2254,14 @@ $("#b-quests").addEventListener("click", () => { if (view === "quests") closePan
   if (!member) $("#b-quests").style.display = "none";
   window.MAP_ADMIN = !!tok || role === "admin" || role === "editor";
   /* статусы и итоги квестов из Мастерской: занятые помечаются, завершённые уходят в архив */
-  fetch("docs/quests.json?t=" + Date.now(), { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(j => {
+  const get = f => fetch("docs/" + f + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.ok ? r.json() : null).catch(() => null);
+  Promise.all([get("quests.json"), get("players.json")]).then(([j, P]) => {
+    window.QPLAYERS = (P && P.list) || [];
     const st = j && j.states; if (!st) return; let ch = false;
     for (let i = QUESTS.length - 1; i >= 0; i--) { const q = QUESTS[i], s = st[q.n]; if (!s) continue;
-      if (s.st === "done") { QUEST_ARCHIVE.unshift({ n: q.n, g: q.g, d: q.d, end: s.end || "" }); QUESTS.splice(i, 1); ch = true; }
-      else if (!!q.busy !== (s.st === "busy")) { q.busy = s.st === "busy"; ch = true; } }
+      if ((s.who || []).length) { q.who = s.who.slice(); ch = true; }
+      if (s.st === "done") { QUEST_ARCHIVE.unshift({ n: q.n, g: q.g, d: q.d, end: s.end || "", who: q.who }); QUESTS.splice(i, 1); ch = true; }
+      else if (s.st && !!q.busy !== (s.st === "busy")) { q.busy = s.st === "busy"; ch = true; } }
     if (ch && view === "quests") showQuests();
   }).catch(() => {});
 })();

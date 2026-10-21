@@ -329,6 +329,35 @@ html.shared #app, html.shared .bg { display: none; }
 .pl-row.left { opacity: .55; }
 @media (max-width: 640px) { .pl-row { grid-template-columns: 36px 1fr auto; } .pl-char { grid-column: 2 / -1; } }
 .qa-q { margin-bottom: 10px; }
+.dia { display: flex; flex-wrap: wrap; gap: 10px; padding: 4px 2px; }
+.dia button { width: 34px; height: 34px; padding: 0; border: 0; background: none; cursor: pointer; display: grid; place-items: center; }
+.dia i { width: 24px; height: 24px; transform: rotate(45deg); background: var(--c); border: 1.5px solid rgba(60,40,15,.55); box-shadow: inset 0 0 0 2px rgba(255,255,255,.25), 0 2px 4px rgba(0,0,0,.25); transition: transform .2s; }
+.dia button:hover i { transform: rotate(45deg) scale(1.1); }
+.dia button[aria-pressed="true"] i { outline: 2px solid var(--blood); outline-offset: 3px; transform: rotate(45deg) scale(1.08); }
+.dia-name { font: italic 600 13px var(--font-body); letter-spacing: 0; text-transform: none; color: var(--text-ink); }
+.lw-cv { position: relative; }
+#lw-cv { cursor: zoom-in; }
+.cv-tools { position: absolute; top: 8px; right: 8px; display: flex; gap: 6px; }
+.cv-tools button { width: 34px; height: 34px; display: grid; place-items: center; padding: 0; border: 1px solid rgba(201,162,90,.7); border-radius: 50%; background: rgba(23,17,11,.78); cursor: pointer; transition: background .2s; }
+.cv-tools button:hover { background: var(--leather); }
+.cv-tools svg { width: 17px; height: 17px; stroke: var(--gold-hi); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.pub .pub-row { display: none; }
+.pub .pub-out { margin-top: 6px; }
+.lw-chk1 { margin-top: -4px; grid-template-columns: 1fr; }
+.qa-who { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; }
+.qa-who-l { margin-right: 4px; font: 700 12.5px/1 var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); }
+.ava { position: relative; width: 34px; height: 34px; border-radius: 50%; overflow: visible; }
+.ava img, .ava b { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold); background: var(--leather); color: var(--gold-hi); font: 700 15px/1 var(--font-display); box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+.ava button { position: absolute; top: -5px; right: -5px; width: 17px; height: 17px; padding: 0; border: 0; border-radius: 50%; background: var(--blood); color: #fff; font-size: 12px; line-height: 1; cursor: pointer; opacity: 0; transition: opacity .2s; }
+.ava:hover button, .ava:focus-within button { opacity: 1; }
+@media (hover: none) { .ava button { opacity: 1; } }
+.ava-add { width: 34px; height: 34px; padding: 0; border: 2px dashed rgba(111,85,50,.55); border-radius: 50%; background: rgba(255,252,240,.6); color: var(--text-muted); font: 400 22px/1 var(--font-body); cursor: pointer; }
+.ava-add:hover { border-color: var(--blood); color: var(--blood); }
+.qa-pick { margin-top: 8px; max-width: 420px; }
+.qa-res { display: grid; gap: 2px; margin-top: 4px; }
+.qa-res button { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border: 1px solid transparent; border-radius: 4px; background: rgba(255,252,240,.6); color: var(--text-ink); text-align: left; cursor: pointer; font: 600 15px/1.2 var(--font-body); }
+.qa-res button:hover { border-color: rgba(111,85,50,.4); background: #fffaf0; }
+.qa-res img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; } .qa-res i { margin-left: auto; font: italic 600 12.5px var(--font-body); color: #3f5a2c; } .qa-res p { margin: 4px 0; font-style: italic; color: var(--text-muted); }
 </style>
 </head>
 <body>
@@ -812,8 +841,9 @@ function applyQuestStates(st) {
   let changed = false;
   for (let i = QUESTS.length - 1; i >= 0; i--) {
     const q = QUESTS[i], s = st[q.n]; if (!s) continue;
-    if (s.st === "done") { QUEST_ARCHIVE.unshift({ n: q.n, g: q.g, d: q.d, end: s.end || "", date: s.date || "" }); QUESTS.splice(i, 1); changed = true; }
-    else if (!!q.busy !== (s.st === "busy")) { q.busy = s.st === "busy"; changed = true; }
+    if ((s.who || []).length) { q.who = s.who.slice(); changed = true; }
+    if (s.st === "done") { QUEST_ARCHIVE.unshift({ n: q.n, g: q.g, d: q.d, end: s.end || "", date: s.date || "", who: q.who }); QUESTS.splice(i, 1); changed = true; }
+    else if (s.st && !!q.busy !== (s.st === "busy")) { q.busy = s.st === "busy"; changed = true; }
   }
   return changed;
 }
@@ -839,6 +869,12 @@ async function plUpdate(mutate, message) {
   throw new Error("Список игроков менялся одновременно с вами. Попробуйте ещё раз.");
 }
 const plName = p => p ? (p.char ? `${p.char} (${p.name})` : p.name) : "";
+/* круглые аватарки участников (для меню и карты) */
+function whoHTML(ids, players) {
+  if (!ids || !ids.length) return "";
+  const by = new Map((players || []).map(p => [p.id, p]));
+  return `<div class="q-who"><span>Участники</span>${ids.map(id => { const p = by.get(id), t = p ? (p.char ? p.char + " — " + p.name : p.name) : "участник"; return `<a class="q-ava" href="https://vk.com/id${id}" target="_blank" rel="noopener" title="${esc(t)}">${p && p.photo ? `<img src="${esc(p.photo)}" alt="${esc(t)}">` : `<b>${esc(((p && (p.char || p.name)) || "?").charAt(0))}</b>`}</a>`; }).join("")}</div>`;
+}
 
 
 /* =====================================================================
@@ -920,6 +956,11 @@ const handOpts = cur => {
   return own.map(o).join("") + (user.length ? `<optgroup label="Свои шрифты">${user.map(o).join("")}</optgroup>` : "");
 };
 let lwExtra = () => "";
+/* ромбы-образцы цвета вместо выпадающих списков */
+const LW_PAPER_SW = { parch: "#e2c98f", light: "#f4ecd6", old: "#bf9659", dark: "#2b231b" };
+function lwDiamonds(attr, obj, cur, color, label) {
+  return `<div class="fld"><label>${label} <span class="dia-name">· ${esc((obj[cur] || {}).name || (obj[cur] || [])[0] || "")}</span></label><div class="dia">${Object.entries(obj).map(([k, v]) => `<button type="button" ${attr}="${k}" aria-pressed="${k === cur}" title="${esc(v.name || v[0])}" aria-label="${esc(v.name || v[0])}"><i style="--c:${color(k, v)}"></i></button>`).join("")}</div></div>`;
+}
 function letterHTML(extra = lwExtra()) {
   const opt = (obj, cur, lab = v => v.name || v[0]) => Object.entries(obj).map(([k, v]) => `<option value="${k}"${k === cur ? " selected" : ""}>${esc(lab(v))}</option>`).join("");
   const seg = (attr, items, cur) => `<div class="lw-seg">${items.map(([k, t]) => `<button type="button" ${attr}="${k}" aria-pressed="${String(k) === String(cur)}">${esc(t)}</button>`).join("")}</div>`;
@@ -929,24 +970,23 @@ function letterHTML(extra = lwExtra()) {
   const showTitle = LW.kind === "decree" || LW.kind === "secret";
   return `<div class="lw wide">
   <div class="lw-ctl">
-    <p class="lw-lead">Письма, указы и записки для квестов. Заполните поля — справа сразу видно, как выйдет. Готовую картинку можно скачать или скопировать и вставить в беседу ВК.</p>
     <div class="fld"><label for="lw-preset">Образец</label><select id="lw-preset"><option value="">— выбрать образец —</option>${opt(LW_PRESETS, "")}</select></div>
     <h3>Вид</h3>
     ${seg("data-lwk", Object.entries(LW_KINDS), LW.kind)}
     <div class="lw-2">
-      <div class="fld"><label for="lw-paper">Бумага</label><select id="lw-paper" data-lw="paper">${opt(LW_PAPERS, LW.paper)}</select></div>
-      <div class="fld"><label for="lw-ink">Чернила</label><select id="lw-ink" data-lw="ink">${opt(LW_INKS, LW.ink)}</select></div>
+      ${lwDiamonds("data-lwpaper", LW_PAPERS, LW.paper, k => LW_PAPER_SW[k], "Бумага")}
+      ${lwDiamonds("data-lwink", LW_INKS, LW.ink, (k, v) => v[1], "Чернила")}
       <div class="fld"><label for="lw-hand">Почерк текста</label><select id="lw-hand" data-lw="hand">${handOpts(LW.hand)}</select></div>
       <div class="fld"><label for="lw-sighand">Почерк подписи</label><select id="lw-sighand" data-lw="sigHand"><option value="">Как в тексте</option>${handOpts(LW.sigHand)}</select></div>
       <div class="fld lw-full"><label>Размер букв</label>${seg("data-lws", [[0, "Мелко"], [1, "Средне"], [2, "Крупно"]], LW.size)}</div>
     </div>
-    <div class="lw-font"><label class="btn ghost" for="lw-file">+ Свой шрифт</label><input type="file" id="lw-file" accept=".ttf,.otf,.woff,.woff2" hidden><small>Файл .ttf или .otf — он сразу появится в списке почерков и запомнится в этом браузере.</small></div>
     <h3>Текст</h3>
     ${showTitle ? inp("title", LW.kind === "decree" ? "Заголовок" : "Штамп", LW.kind === "decree" ? "Указ" : "Тайно") : ""}
     ${LW.kind === "decree" ? inp("sub", "Под заголовком", "Именем Его Величества…") : ""}
     ${inp("place", LW.kind === "decree" ? "Где и когда дано" : "Место и дата", "Кальдерон, " + lwToday())}
     ${LW.kind === "decree" ? "" : inp("greet", "Обращение", "Дорогой друг,")}
-    <div class="fld"><label for="lw-body">Текст письма</label><textarea id="lw-body" data-lw="body" rows="8">${esc(LW.body)}</textarea><small>Новый абзац — с новой строки.</small></div>
+    <div class="fld"><label for="lw-body">Текст письма</label><textarea id="lw-body" data-lw="body" rows="8" placeholder="Новый абзац — с новой строки">${esc(LW.body)}</textarea></div>
+    <div class="lw-chks lw-chk1">${chk("dropcap", "Расписная буквица в начале")}</div>
     ${LW.kind === "decree" ? "" : inp("close", "Прощание", "С почтением,")}
     ${inp("sign", "Подпись", "Имя")}
     ${inp("ps", "P.S. (необязательно)", "")}
@@ -956,15 +996,14 @@ function letterHTML(extra = lwExtra()) {
     ${LW.seal === "none" ? "" : `<div class="fld"><label>Сургуч</label><div class="lw-wax">${Object.entries(LW_WAX).map(([k, w]) => `<button type="button" data-lwx="${k}" aria-pressed="${k === LW.wax}" title="${w[0]}" aria-label="${w[0]}" style="--w:${w[1]};--h:${w[2]}"></button>`).join("")}</div></div>`}
     <h3>Оформление</h3>
     <div class="fld"><div class="lw-dsg">${LW_DESIGNS.map((d, i) => `<button type="button" data-lwd="${i}" aria-pressed="${lwDesignOf(LW) === i}" title="${esc(d[0])}"><span class="lw-dsg-p" style="background-image:url('data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 470'><rect width='360' height='470' fill='#ecdaae'/><g fill='#3b2a18' stroke='#3b2a18' stroke-linecap='round' stroke-linejoin='round'>${d[1](360, 470, "#3b2a18", "#7a2414", EMBLEMS.crown)}</g><g stroke='#8a7350' stroke-width='5' opacity='.45'><path d='M80 170H280M80 200H270M80 230H280M80 260H230'/></g></svg>`).replace(/'/g, "%27")}')"></span><small>${esc(d[0])}</small></button>`).join("")}</div></div>
-    <div class="fld"><label>Огонь</label><div class="lw-seg">${LW_BURN.map((t, i) => `<button type="button" data-lwb="${i}" aria-pressed="${(+LW.burn || 0) === i}">${t}</button>`).join("")}</div><small>${["", "Опалённые края и уголки.", "Прожжённые дыры: часть текста сгорела."][+LW.burn || 0]}</small></div>
+    <div class="fld"><label>Огонь</label><div class="lw-seg">${LW_BURN.map((t, i) => `<button type="button" data-lwb="${i}" aria-pressed="${(+LW.burn || 0) === i}">${t}</button>`).join("")}</div></div>
     <h3>Украшения</h3>
-    <div class="lw-chks">${chk("dropcap", "Расписная буквица")}${chk("folds", "Сгибы")}${chk("blots", "Кляксы")}${chk("wobble", "Живой почерк")}${chk("backdrop", "Тёмный фон вокруг")}</div>
+    <div class="lw-chks">${chk("folds", "Сгибы")}${chk("blots", "Кляксы")}${chk("wobble", "Живой почерк")}${chk("backdrop", "Тёмный фон вокруг")}</div>
     <button type="button" class="btn ghost" id="lw-reseed">Другие пятна и кляксы</button>
   </div>
   <div class="lw-prev">
-    <div class="lw-cv"><canvas id="lw-cv" aria-label="Предпросмотр письма"></canvas></div>
-    <div class="actions"><button type="button" class="btn" id="lw-dl">Скачать картинку</button><button type="button" class="btn ghost" id="lw-copy">Копировать</button><button type="button" class="btn ghost" id="lw-open">Открыть крупно</button></div>
-    <small class="lw-hint">На телефоне: «Открыть крупно», затем зажмите картинку пальцем и сохраните.</small>${extra}
+    <div class="lw-cv"><canvas id="lw-cv" aria-label="Предпросмотр письма — нажмите, чтобы открыть крупно" title="Открыть крупно"></canvas>
+      <div class="cv-tools"><button type="button" id="lw-dl" title="Скачать картинку" aria-label="Скачать картинку"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></button><button type="button" id="lw-copy" title="Копировать картинку" aria-label="Копировать картинку"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg></button></div></div>${extra}
   </div>
 </div>`;
 }
@@ -991,10 +1030,12 @@ document.addEventListener("change", e => {
   if (t.dataset && t.dataset.lwc) { LW[t.dataset.lwc] = t.checked; lwSave(); lwDraw(); }
 });
 document.addEventListener("click", e => {
-  const t = e.target, b = t.closest && t.closest("[data-lwd],[data-lwb],[data-lwk],[data-lws],[data-lwx],#lw-reseed,#lw-dl,#lw-copy,#lw-open");
+  const t = e.target, b = t.closest && t.closest("[data-lwpaper],[data-lwink],#lw-cv,[data-lwd],[data-lwb],[data-lwk],[data-lws],[data-lwx],#lw-reseed,#lw-dl,#lw-copy,#lw-open");
   if (!b) return;
   if (b.dataset.lwk) { LW.kind = b.dataset.lwk; if (LW.kind === "decree" && !LW.title) LW.title = "Указ"; if (LW.kind === "secret" && !LW.title) LW.title = "Тайно"; lwSave(); lwRefreshForm(); return; }
   if (b.dataset.lws) { LW.size = +b.dataset.lws; lwSave(); b.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); lwDraw(); return; }
+  if (b.dataset.lwpaper) { const v = b.dataset.lwpaper, dark = LW_PAPERS[v].dark; LW.paper = v; if (dark && ["black", "sepia", "blue", "red"].includes(LW.ink)) LW.ink = "silver"; if (!dark && LW.ink === "silver") LW.ink = "black"; lwSave(); lwRefreshForm(); return; }
+  if (b.dataset.lwink) { LW.ink = b.dataset.lwink; lwSave(); lwRefreshForm(); return; }
   if (b.dataset.lwd != null) { LW.design = +b.dataset.lwd; LW.corners = false; lwSave(); b.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); lwDraw(); return; }
   if (b.dataset.lwb != null) { LW.burn = +b.dataset.lwb; lwSave(); lwRefreshForm(); return; }
   if (b.dataset.lwx) { LW.wax = b.dataset.lwx; lwSave(); b.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); lwDraw(); return; }
@@ -1003,13 +1044,13 @@ document.addEventListener("click", e => {
   const name = "pismo-" + (LW.sign || "velaris").replace(/[^\wа-яё]+/gi, "-").toLowerCase() + ".png";
   if (b.id === "lw-dl") {
     cv.toBlob(bl => { const u = URL.createObjectURL(bl), a = document.createElement("a"); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000);
-      toast("Картинка сохраняется. Если ничего не скачалось — нажмите «Открыть крупно»."); }, "image/png");
+      toast("Картинка сохраняется. Если не скачалась — нажмите на письмо и сохраните его оттуда."); }, "image/png");
   }
   if (b.id === "lw-copy") {
-    const fail = () => toast("Браузер не дал скопировать. Нажмите «Открыть крупно» → правой кнопкой → «Копировать картинку».");
+    const fail = () => toast("Браузер не дал скопировать. Нажмите на письмо → правой кнопкой → «Копировать картинку».");
     try { cv.toBlob(bl => { navigator.clipboard.write([new ClipboardItem({ "image/png": bl })]).then(() => toast("Скопировано. Вставьте в беседу: Ctrl+V."), fail); }, "image/png"); } catch (_) { fail(); }
   }
-  if (b.id === "lw-open") { const z = $("#zoom"); z.querySelector("img").src = cv.toDataURL("image/png"); z.classList.add("on"); }
+  if (b.id === "lw-cv" || b.id === "lw-open") { const z = $("#zoom"); z.querySelector("img").src = cv.toDataURL("image/png"); z.classList.add("on"); }
 });
 
 /* ---------- шрифты и картинки ---------- */
@@ -1770,23 +1811,22 @@ function bookHTML() {
   const inp = (k, label) => `<div class="fld"><label for="bk-${k}">${label}</label><input type="text" id="bk-${k}" data-bk="${k}" value="${esc(BK[k])}"></div>`;
   return `<div class="lw wide">
   <div class="lw-ctl">
-    <p class="lw-lead">Книга до ${BK_MAX} страниц, которую листают как настоящую. Готовую книгу отдайте игрокам ссылкой.</p>
     <div class="fld"><label for="bk-preset">Начать с</label><select id="bk-preset"><option value="">— выбрать —</option><option value="sample">Образец: «Записки лекаря»</option><option value="empty">Пустая книга</option></select></div>
     <h3>Обложка</h3>
     ${inp("title", "Название")}${inp("sub", "Подзаголовок или автор")}
     <div class="fld"><label>Цвет кожи</label><div class="lw-wax">${Object.entries(BK_COVERS).map(([k, c]) => `<button type="button" data-bkc="${k}" aria-pressed="${k === BK.cover}" title="${c[0]}" aria-label="${c[0]}" style="--w:${c[1]};--h:${c[1]}"></button>`).join("")}</div></div>
     <div class="fld"><label>Узор обложки</label><div class="cv-pick">${BK_STYLES.map((st, i) => `<button type="button" data-bkst="${i + 1}" aria-pressed="${(BK.coverStyle || 1) === i + 1}" title="${esc(st[0])}" aria-label="${esc(st[0])}" style="--lea:${(BK_COVERS[BK.cover] || BK_COVERS.brown)[1]}">${coverArt(i + 1)}<span>${i + 1}</span></button>`).join("")}</div><small>${esc((BK_STYLES[(BK.coverStyle || 1) - 1] || BK_STYLES[0])[0])}</small></div>
     <div class="fld"><label>Знак на обложке</label><div class="ic-pick"><button type="button" data-bkic="none" aria-pressed="${!BK.coverImg && (!BK.emblem || BK.emblem === "none")}" title="Без знака">∅</button>${bkIconList().map(([k, t]) => `<button type="button" data-bkic="${k}" aria-pressed="${!BK.coverImg && BK.emblem === k}" title="${esc(t)}" aria-label="${esc(t)}"><svg viewBox="0 0 24 24">${bkIconSvg(k)}</svg></button>`).join("")}</div></div>
-    <div class="fld"><label>Свой рисунок вместо знака</label><div class="cv-own">${BK.coverImg ? `<img src="${esc(BK.coverImg)}" alt="">` : ""}<label class="btn ghost" for="bk-img">${BK.coverImg ? "Заменить рисунок" : "Загрузить рисунок"}</label><input type="file" id="bk-img" accept="image/*" hidden>${BK.coverImg ? `<div class="lw-seg">${[["round", "Круг"], ["rect", "Прямоугольник"]].map(([k, t]) => `<button type="button" data-bkshape="${k}" aria-pressed="${(BK.imgShape || "round") === k}">${t}</button>`).join("")}</div><button type="button" class="btn ghost" data-bkimgdel>Убрать рисунок</button>` : ""}</div><small>Картинка (герб, портрет, печать) уменьшится и встанет в центр обложки в золотой рамке.</small></div>
+    <div class="fld"><label>Свой рисунок вместо знака</label><div class="cv-own">${BK.coverImg ? `<img src="${esc(BK.coverImg)}" alt="">` : ""}<label class="btn ghost" for="bk-img">${BK.coverImg ? "Заменить рисунок" : "Загрузить рисунок"}</label><input type="file" id="bk-img" accept="image/*" hidden>${BK.coverImg ? `<div class="lw-seg">${[["round", "Круг"], ["rect", "Прямоугольник"]].map(([k, t]) => `<button type="button" data-bkshape="${k}" aria-pressed="${(BK.imgShape || "round") === k}">${t}</button>`).join("")}</div><button type="button" class="btn ghost" data-bkimgdel>Убрать рисунок</button>` : ""}</div></div>
     <h3>Страницы</h3>
     <div class="lw-2">
-      <div class="fld"><label for="bk-paper">Бумага</label><select id="bk-paper" data-bk="paper">${opt(LW_PAPERS, BK.paper)}</select></div>
-      <div class="fld"><label for="bk-ink">Чернила</label><select id="bk-ink" data-bk="ink">${opt(LW_INKS, BK.ink)}</select></div>
+      ${lwDiamonds("data-bkpaper", LW_PAPERS, BK.paper, k => LW_PAPER_SW[k], "Бумага")}
+      ${lwDiamonds("data-bkink", LW_INKS, BK.ink, (k, v) => v[1], "Чернила")}
       <div class="fld"><label for="bk-hand">Почерк</label><select id="bk-hand" data-bk="hand">${handOpts(BK.hand)}</select></div>
       <div class="fld"><label>Размер букв</label><div class="lw-seg">${[[0, "Мелко"], [1, "Средне"], [2, "Крупно"]].map(([k, t]) => `<button type="button" data-bks="${k}" aria-pressed="${k === (BK.size ?? 1)}">${t}</button>`).join("")}</div></div>
     </div>
     <div class="lw-chks">${chk("dropcap", "Буквица в главах")}${chk("nums", "Номера страниц")}</div>
-    <div class="fld"><label>Состояние книги</label><div class="lw-seg">${BK_WEAR.map(([t], k) => `<button type="button" data-bkw="${k}" aria-pressed="${(+BK.wear || 0) === k}">${t}</button>`).join("")}</div><small>${esc(BK_WEAR[+BK.wear || 0][1])}</small></div>
+    <div class="fld"><label>Состояние книги</label><div class="lw-seg">${BK_WEAR.map(([t], k) => `<button type="button" data-bkw="${k}" aria-pressed="${(+BK.wear || 0) === k}">${t}</button>`).join("")}</div></div>
     <div class="bk-pages">${BK.pages.map((p, i) => `<section class="bk-page" data-i="${i}">
       <header><b>Страница ${i + 1}</b><span class="bk-warn" data-warn="${i}" hidden>не помещается — сократите</span><span class="bk-ops"><button type="button" data-bkop="up" data-i="${i}" aria-label="Выше"${i ? "" : " disabled"}>↑</button><button type="button" data-bkop="down" data-i="${i}" aria-label="Ниже"${i < BK.pages.length - 1 ? "" : " disabled"}>↓</button><button type="button" data-bkop="del" data-i="${i}" aria-label="Удалить"${BK.pages.length > 1 ? "" : " disabled"}>×</button></span></header>
       <input type="text" data-bkp="${i}" data-bkf="h" value="${esc(p.h)}" placeholder="Заголовок главы (необязательно)" aria-label="Заголовок страницы ${i + 1}">
@@ -1798,7 +1838,6 @@ function bookHTML() {
     <div id="bk-prev" class="ws-holder"></div>
     <div class="actions"><button type="button" class="btn ghost" id="bk-full">На весь экран</button></div>
     ${pubHTML("kniga")}
-    <small class="lw-hint">Листать: клик по правой или левой половине книги, свайп или стрелки ← →.</small>
   </div>
 </div>`;
 }
@@ -1834,8 +1873,10 @@ document.addEventListener("change", e => {
   }
 });
 document.addEventListener("click", e => {
-  const b = e.target.closest && e.target.closest("[data-bkw],[data-bkc],[data-bkst],[data-bkic],[data-bkshape],[data-bkimgdel],[data-bks],[data-bkop],#bk-add,#bk-full");
+  const b = e.target.closest && e.target.closest("[data-bkpaper],[data-bkink],[data-bkw],[data-bkc],[data-bkst],[data-bkic],[data-bkshape],[data-bkimgdel],[data-bks],[data-bkop],#bk-add,#bk-full");
   if (!b) return;
+  if (b.dataset.bkpaper) { const v = b.dataset.bkpaper, d = LW_PAPERS[v].dark; BK.paper = v; if (d && ["black", "sepia", "blue", "red"].includes(BK.ink)) BK.ink = "silver"; if (!d && BK.ink === "silver") BK.ink = "black"; bkSave(); bookRefresh(); return; }
+  if (b.dataset.bkink) { BK.ink = b.dataset.bkink; bkSave(); bookRefresh(); return; }
   if (b.dataset.bkw) { BK.wear = +b.dataset.bkw; bkSave(); bookRefresh(); return; }
   if (b.dataset.bkc) { BK.cover = b.dataset.bkc; bkSave(); bookRefresh(); bkFocus = -1; bkPrev && bkPrev.showPage(-1); return; }
   if (b.dataset.bkst) { BK.coverStyle = +b.dataset.bkst; bkSave(); bookRefresh(); bkFocus = -1; bkPrev && bkPrev.showPage(-1); return; }
@@ -1986,15 +2027,14 @@ function pubHTML(tool) {
   return `<div class="pub" data-pub="${tool}">
     <h4 class="pub-h">${no ? `Документ №${no} <span class="dstat v-${hVis(h)}">${VIS_NAMES[hVis(h)]}</span>` : "Новый документ"}</h4>
     <div class="fld"><label>Название в списке документов</label><input type="text" data-dmeta="docTitle" value="${esc(h.docTitle || "")}" placeholder="${esc(d.auto)}"></div>
-    <div class="fld"><label>Сводка для игроков</label><textarea data-dmeta="note" rows="3" placeholder="При каких обстоятельствах и кем получено. Например: найдено у курьера на тракте к Кальдерону; досталось Эрику и Лире.">${esc(h.note || "")}</textarea><small>Видна в списке документов, но не внутри самого документа.</small></div>
-    <div class="fld"><label>Кто видит</label><div class="lw-seg vis-seg">${[["hidden", "Только админы"], ["to", "Тайно — получателям"], ["all", "Все игроки"]].map(([k, t]) => `<button type="button" data-pubvis="${k}" aria-pressed="${hVis(h) === k}">${t}</button>`).join("")}</div>
-      <small>${{ hidden: "Документ скрыт: его видят только админы и редакторы.", to: "Документ увидят только отмеченные ниже игроки — в «Моих документах», с пометкой «Тайно».", all: "Документ лежит в общих «Документах». Отмеченные ниже получатели увидят его ещё и в «Моих документах»." }[hVis(h)]}</small></div>
+    <div class="fld"><label>Сводка для игроков</label><textarea data-dmeta="note" rows="3" placeholder="При каких обстоятельствах и кем получено. Например: найдено у курьера на тракте к Кальдерону; досталось Эрику и Лире.">${esc(h.note || "")}</textarea></div>
+    <div class="fld"><label>Кто видит</label><div class="lw-seg vis-seg">${[["hidden", "Только админы"], ["to", "Тайно — получателям"], ["all", "Все игроки"]].map(([k, t]) => `<button type="button" data-pubvis="${k}" aria-pressed="${hVis(h) === k}">${t}</button>`).join("")}</div></div>
     <div class="fld"><label>Кому выдан</label>${toPickHTML(h)}</div>
     <div class="fld"><label>Папка</label><select data-dmeta="folder"><option value="">Разное</option>${WFOLDERS.map(f => `<option value="${esc(f.id)}"${h.folder === f.id ? " selected" : ""}>${esc(f.name)}</option>`).join("")}</select></div>
     <div class="actions">${no
-      ? `<button type="button" class="btn" data-pubgo="update">Сохранить изменения</button><button type="button" class="btn ghost" data-pubshow="${no}">Ссылка</button><button type="button" class="btn ghost danger" data-pubdel>Удалить</button>`
+      ? `<button type="button" class="btn" data-pubgo="update">Сохранить изменения</button><button type="button" class="btn ghost danger" data-pubdel>Удалить</button>`
       : `<button type="button" class="btn" data-pubgo="new"${tok ? "" : " disabled"}>Создать документ</button>`}</div>
-    ${no ? `<button type="button" class="pub-long" data-pubgo="new">Сохранить копией под новым номером</button>` : `<small class="pub-note">Документ получит номер и ссылку. Кто его видит — выбирается выше и меняется в любой момент.</small>`}
+    ${no ? `<button type="button" class="pub-long" data-pubgo="new">Сохранить копией под новым номером</button>` : ""}
     <div class="pub-out" hidden><div class="pub-row"><input type="text" readonly aria-label="Ссылка на документ"><button type="button" class="btn ghost" data-pubcopy>Копировать</button></div><small class="pub-msg"></small></div>
     ${tok ? "" : ghSetHTML()}
   </div>`;
@@ -2238,7 +2278,7 @@ document.addEventListener("change", async e => {
    ===================================================================== */
 const QA_BASE = QUESTS.map(q => Object.assign({}, q));          /* исходная доска, без наложенных статусов */
 const QA_OLD = QUEST_ARCHIVE.slice();                            /* старый архив, записанный в коде */
-let QST = {}, qaFilter = "all-groups", qaOpen = null, qaQuery = "";
+let QST = {}, qaFilter = "all-groups", qaOpen = null, qaQuery = "", QPL = [], qaPick = null;
 const qaState = q => (QST[q.n] && QST[q.n].st) || (q.busy ? "busy" : "free");
 function questsAdminHTML() {
   const cnt = g => QA_BASE.filter(q => g === "all-groups" || q.g === g).length;
@@ -2256,6 +2296,8 @@ function qaCard(q) {
   return `<article class="qa-card st-${st}">
     <header><div><b>${esc(q.n)}</b><span class="qg">${esc(groupName[q.g] || "")}</span></div><div class="lw-seg qa-seg">${seg}</div></header>
     <p>${esc(q.d)}</p>
+    <div class="qa-who"><span class="qa-who-l">Участники</span>${(s.who || []).map(id => { const p = QPL.find(x => x.id === id); return `<span class="ava" title="${esc(p ? plName(p) : "id" + id)}">${p && p.photo ? `<img src="${esc(p.photo)}" alt="">` : `<b>${esc((p ? (p.char || p.name) : "?").charAt(0))}</b>`}<button type="button" data-qawrm="${id}" data-qn="${esc(q.n)}" aria-label="Убрать">×</button></span>`; }).join("")}<button type="button" class="ava-add" data-qawadd="${esc(q.n)}" aria-label="Добавить участника" title="Добавить участника">+</button></div>
+    ${qaPick === q.n ? `<div class="qa-pick"><input type="search" data-qawq placeholder="${QPL.length ? "Найти игрока…" : "Список игроков пуст — загрузите его в «Игроках»"}" autocomplete="off"><div class="qa-res"></div></div>` : ""}
     ${st === "done" && !open ? `<p class="qa-end"><b>Итог.</b> ${esc(s.end || "— не вписан —")}${s.date ? ` <small>${esc(s.date)}</small>` : ""}</p>` : ""}
     ${open ? `<div class="qa-form"><label>Итоги квеста — что произошло, кто участвовал, чем кончилось</label><textarea rows="4" data-qaend>${esc(s.end || "")}</textarea>
       <div class="actions"><button type="button" class="btn" data-qasave="${esc(q.n)}">Сохранить итоги — в архив</button><button type="button" class="btn ghost" data-qacancel>Отмена</button></div></div>`
@@ -2272,6 +2314,7 @@ function qaDraw() {
     (qaFilter === "all-groups" && !qq && QA_OLD.length ? `<h3>Старый архив</h3>${QA_OLD.map(a => `<article class="qa-card st-done old"><header><div><b>${esc(a.n)}</b>${a.g ? `<span class="qg">${esc(groupName[a.g])}</span>` : ""}</div><span class="dstat">завершён раньше</span></header><p class="qa-end"><b>Итог.</b> ${esc(a.end)}</p></article>`).join("")}` : "");
 }
 async function questsAdminInit() {
+  plLoad(!!ghCfg().token).then(P => { QPL = P.list || []; qaDraw(); }).catch(() => {});
   try { QST = await qsLoad(!!ghCfg().token); } catch (err) { toast("Не получилось загрузить статусы: " + err.message); QST = {}; }
   qaDraw();
 }
@@ -2279,7 +2322,7 @@ async function qaSet(name, patch, okMsg) {
   if (!ghCfg().token) { toast("Сначала подключите ключ GitHub."); return false; }
   const prev = QST[name];
   QST[name] = Object.assign({}, prev || {}, patch); qaDraw();
-  try { QST = await qsUpdate(st => { st[name] = Object.assign({}, st[name] || {}, patch); if (patch.st === "free" && !st[name].end) delete st[name]; }, `Квест «${name}»: ${patch.st === "done" ? "завершён" : patch.st === "busy" ? "занят" : "свободен"}`); qaDraw(); toast(okMsg); return true; }
+  try { QST = await qsUpdate(st => { st[name] = Object.assign({}, st[name] || {}, patch); const x = st[name]; if ((x.st || "free") === "free" && !x.end && !(x.who || []).length) delete st[name]; }, `Квест «${name}»: ${patch.st === "done" ? "завершён" : patch.st === "busy" ? "занят" : patch.st === "free" ? "свободен" : "участники"}`); qaDraw(); if (okMsg) toast(okMsg); return true; }
   catch (err) { if (prev) QST[name] = prev; else delete QST[name]; qaDraw(); toast("Не получилось: " + err.message); return false; }
 }
 document.addEventListener("click", e => {
@@ -2301,6 +2344,20 @@ document.addEventListener("click", e => {
   }
 });
 document.addEventListener("input", e => { if (e.target.id === "qa-q") { qaQuery = e.target.value; qaDraw(); } });
+/* участники квеста */
+function qaResults(box, val) {
+  const name = qaPick, who = new Set(((QST[name] || {}).who) || []), v = (val || "").trim().toLowerCase();
+  const list = QPL.filter(p => !p.left && !who.has(p.id) && (!v || (p.name + " " + (p.char || "")).toLowerCase().includes(v)))
+    .sort((a, b) => (b.play ? 1 : 0) - (a.play ? 1 : 0) || a.name.localeCompare(b.name, "ru")).slice(0, 8);
+  box.querySelector(".qa-res").innerHTML = list.map(p => `<button type="button" data-qawpick="${p.id}">${p.photo ? `<img src="${esc(p.photo)}" alt="">` : ""}<span>${esc(plName(p))}</span>${p.play ? "<i>играет</i>" : ""}</button>`).join("") || (v ? "<p>Никого не нашлось</p>" : "");
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-qawadd],[data-qawrm],[data-qawpick]"); if (!b) return;
+  if (b.dataset.qawadd) { qaPick = qaPick === b.dataset.qawadd ? null : b.dataset.qawadd; qaDraw(); const i = document.querySelector("[data-qawq]"); if (i) { i.focus(); qaResults(i.closest(".qa-pick"), ""); } return; }
+  if (b.dataset.qawrm) { const n = b.dataset.qn, who = (((QST[n] || {}).who) || []).filter(x => x !== +b.dataset.qawrm); qaSet(n, { who }, ""); return; }
+  if (b.dataset.qawpick) { const n = qaPick, who = (((QST[n] || {}).who) || []).slice(); const id = +b.dataset.qawpick; if (!who.includes(id)) who.push(id); qaPick = null; qaSet(n, { who }, ""); }
+});
+document.addEventListener("input", e => { if (e.target.hasAttribute && e.target.hasAttribute("data-qawq")) qaResults(e.target.closest(".qa-pick"), e.target.value); });
 
 /* =====================================================================
    ИГРОКИ: участники группы ВК, их роли в группе (только для учёта),
@@ -2392,9 +2449,10 @@ document.addEventListener("change", e => { const t = e.target; if (t.dataset && 
    Новый инструмент: добавьте строку в TOOLS — [адрес, название, функция-разметка, функция-запуск]. */
 const TOOLS = [
   ["docs", "Все документы", docsHTML, docsInit],
-  ["pisma", "Письма и указы", letterHTML, letterInit],
-  ["kniga", "Книга", bookHTML, bookInit],
-  ["stopka", "Стопка бумаг", stackHTML, stackInit],
+  /* редакторы открываются из «Все документы» (+ Создать / Изменить), в боковом меню их нет */
+  ["pisma", "Письма и указы", letterHTML, letterInit, true],
+  ["kniga", "Книга", bookHTML, bookInit, true],
+  ["stopka", "Стопка бумаг", stackHTML, stackInit, true],
   ["kvesty", "Квесты", questsAdminHTML, questsAdminInit],
   ["igroki", "Игроки", playersHTML, playersInit]
 ];
@@ -2412,7 +2470,7 @@ function route() {
   }
   const ed = id.match(/^edit-(\d+)$/); if (ed) { $("#sheet").innerHTML = `<p class="lw-lead">Открываю документ №${ed[1]}…</p>`; return editDoc(+ed[1]); }
   const t = TOOLS.find(x => x[0] === id) || TOOLS[0];
-  $("#rail").innerHTML = TOOLS.map(x => `<button type="button" data-tool="${x[0]}" aria-selected="${x === t}">${esc(x[1])}</button>`).join("");
+  $("#rail").innerHTML = TOOLS.filter(x => !x[4]).map(x => `<button type="button" data-tool="${x[0]}" aria-selected="${x === t || (t[4] && x[0] === "docs")}">${esc(x[1])}</button>`).join("");
   $("#sheet").innerHTML = t[2](); if (t[3]) t[3]();
   if (PUB[t[0]]) pubSync(t[0]);
   wsRouted = true;
