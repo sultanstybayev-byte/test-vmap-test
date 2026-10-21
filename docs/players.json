@@ -450,12 +450,17 @@
   {
    "id": 749276044,
    "play": true,
-   "char": "",
+   "char": "Новый персонаж",
    "name": "Soma Rosehearts",
    "photo": "https://sun2-8.vkuserphoto.ru/s/v1/ig2/W9r7S1kVDOFgAXZlMBBsmoxlLA2-ATL3w_tljYFR6IdthxL2rODpaulwHa_mCBf2purnntnMUVFZECcS9jzP5vS8.jpg?quality=95&crop=275,62,275,275&as=32x32,48x48,72x72,108x108,160x160,240x240&ava=1&cs=100x100",
    "role": "administrator",
    "left": false,
-   "chars": []
+   "chars": [
+    {
+     "id": "cmvifrg1gz72",
+     "name": "Новый персонаж"
+    }
+   ]
   },
   {
    "id": 807121254,
