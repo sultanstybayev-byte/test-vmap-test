@@ -20,10 +20,11 @@
    "kind": "pismo",
    "title": "Письмо: Мастер гильдии",
    "note": "",
-   "public": true,
+   "public": false,
    "created": "21 октября 2026 г.",
    "updated": "21 октября 2026 г.",
-   "folder": "f-pisma"
+   "folder": "f-pisma",
+   "vis": "hidden"
   }
  ],
  "folders": [
