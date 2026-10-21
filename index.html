@@ -1536,6 +1536,7 @@ function openMap(h) {
 function closeMap() { const ov = $("#mapov"); try { const fe = document.fullscreenElement || document.webkitFullscreenElement; if (fe) (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (_) {} if (ov) ov.hidden = true; if (document.documentElement.classList.contains("map-open")) { document.documentElement.classList.remove("map-open"); scrollTo(0, hubScroll); } }
 addEventListener("message", e => {
   if (e.data && e.data.velaris === "closeOverlay") { closeOverlay(); return; }
+  if (e.data && e.data.velaris === "vkWall") { vkWall().then(res => e.source.postMessage({ velaris: "vkWallResult", ok: true, res }, "*")).catch(err => e.source.postMessage({ velaris: "vkWallResult", ok: false, error: vkErr(err) }, "*")); return; }
   if (e.data && e.data.velaris === "vkMembers") { vkMembers().then(res => e.source.postMessage({ velaris: "vkMembersResult", ok: true, res }, "*")).catch(err => e.source.postMessage({ velaris: "vkMembersResult", ok: false, error: vkErr(err) }, "*")); return; }
   if (e.data && e.data.velaris === "openWorkshop") { openOverlay(workshopHref(e.data.h || "docs")); return; }
   if (e.data && e.data.velaris === "closeMap") { if (location.hash.startsWith("#karta")) history.back(); else closeMap(); }
@@ -1747,6 +1748,22 @@ async function vkMembers() {
   while (off < total) { const r = await call("groups.getMembers", { group_id: gid, offset: off, count: 1000, fields: "photo_100" }); total = r.count; items = items.concat(r.items || []); if (!(r.items || []).length) break; off += 1000; }
   let managers = []; try { const r = await call("groups.getMembers", { group_id: gid, filter: "managers", count: 1000 }); managers = (r.items || []).map(m => ({ id: m.id, role: m.role })); } catch (_) {}
   return { members: items.map(u => ({ id: u.id, name: ((u.first_name || "") + " " + (u.last_name || "")).trim() || "id" + u.id, photo: u.photo_100 || "" })), managers };
+}
+/* посты со стены группы (для поиска анкет) */
+async function vkWall() {
+  const app = +(VK_P.get("vk_app_id") || 0), gid = +(VK_P.get("vk_group_id") || 0);
+  if (!app || !gid) throw new Error("откройте приложение из группы ВК");
+  const b = await loadBridge(); try { await b.send("VKWebAppInit"); } catch (_) {}
+  const t = await b.send("VKWebAppGetAuthToken", { app_id: app, scope: "groups,wall" });
+  const call = (method, params) => b.send("VKWebAppCallAPIMethod", { method, params: Object.assign({ v: "5.199", access_token: t.access_token }, params) }).then(r => r.response);
+  let out = [], off = 0, total = 1;
+  while (off < total && off < 3000) {
+    const r = await call("wall.get", { owner_id: -gid, offset: off, count: 100 }); total = r.count; const it = r.items || [];
+    it.forEach(p => out.push({ id: p.id, date: p.date, signer: p.signer_id || 0, text: String(p.text || "").slice(0, 2500) }));
+    if (!it.length) break; off += 100;
+    await new Promise(r => setTimeout(r, 350));
+  }
+  return { gid, posts: out };
 }
 /* документ и Мастерская открываются поверх меню, не уходя из приложения */
 function openOverlay(src) { const ov = $("#docov"); ov.innerHTML = `<iframe title="Документ" src="${src}" allow="fullscreen; clipboard-write"></iframe>`; if (!document.documentElement.classList.contains("map-open")) hubScroll = scrollY; ov.hidden = false; document.documentElement.classList.add("map-open"); }

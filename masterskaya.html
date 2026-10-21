@@ -358,6 +358,25 @@ html.shared #app, html.shared .bg { display: none; }
 .qa-res button { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border: 1px solid transparent; border-radius: 4px; background: rgba(255,252,240,.6); color: var(--text-ink); text-align: left; cursor: pointer; font: 600 15px/1.2 var(--font-body); }
 .qa-res button:hover { border-color: rgba(111,85,50,.4); background: #fffaf0; }
 .qa-res img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; } .qa-res i { margin-left: auto; font: italic 600 12.5px var(--font-body); color: #3f5a2c; } .qa-res p { margin: 4px 0; font-style: italic; color: var(--text-muted); }
+.ank { margin: 0 0 16px; padding: 12px 14px; border: 1px solid var(--blood); border-radius: 6px; background: rgba(255,252,240,.7); }
+.ank header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; margin-bottom: 8px; } .ank header b { font: 700 18px var(--font-display); } .ank header small { font: italic 500 14.5px var(--font-body); color: var(--text-muted); }
+.ank-row { display: grid; grid-template-columns: 26px minmax(0, 1fr) 20px minmax(140px, 220px) auto; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px dotted rgba(111,85,50,.3); }
+.ank-row.done { opacity: .55; } .ank-n { font: 700 16px/1.2 var(--font-display); color: var(--text-ink); } .ank-ar { color: var(--text-muted); } .ank-row select { padding: 4px 6px; font-size: 14.5px; } .ank-row small { font: italic 13px var(--font-body); color: #3f5a2c; }
+.ank .actions { margin-top: 10px; }
+.pl-top .btn { padding: 9px 14px; }
+.rail button { display: flex; align-items: center; gap: 10px; }
+.rail button svg { flex: none; width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.rail .rail-fold { justify-content: center; padding: 6px; background: transparent; border-color: rgba(201,162,90,.25); }
+.rail .rail-fold svg { transition: transform .3s; }
+html.rail-narrow .layout { grid-template-columns: 52px minmax(0, 1fr); gap: 14px; }
+html.rail-narrow .rail button { justify-content: center; padding: 10px 0; }
+html.rail-narrow .rail button span { display: none; }
+html.rail-narrow .rail button:hover { transform: none; }
+html.rail-narrow .rail .rail-fold svg { transform: rotate(180deg); }
+html.rail-narrow .bar small { display: none; }
+.sheet { container-type: inline-size; }
+@container (max-width: 760px) { .lw { grid-template-columns: 1fr; } .lw-prev { position: static; order: -1; } .lw-prev .lw-cv, .lw-prev #bk-prev { max-width: 560px; margin: 0 auto; } }
+@media (max-width: 860px) { .rail .rail-fold { display: none; } html.rail-narrow .layout { grid-template-columns: 1fr; } html.rail-narrow .rail button span { display: inline; } html.rail-narrow .rail button { padding: 8px 12px; } }
 </style>
 </head>
 <body>
@@ -2271,6 +2290,13 @@ document.addEventListener("change", async e => {
     ["pisma", "kniga", "stopka"].forEach(k => { const h = PUB[k]().holder; if (h.pubNo === no) { h.vis = t.value; h.isPublic = t.value === "all"; pubSave(k); } }); }
   catch (err) { t.value = was; t.disabled = false; toast("Не получилось: " + err.message); }
 });
+/* список поиска игроков закрывается при нажатии в любое другое место (и по Esc) */
+function closePickers(except) {
+  document.querySelectorAll(".to-pick").forEach(p => { if (p !== except) { const r = p.querySelector(".to-res"); if (r) r.innerHTML = ""; } });
+  if (typeof qaPick !== "undefined" && qaPick && !(except && except.closest(".qa-pick"))) { qaPick = null; qaDraw(); }
+}
+document.addEventListener("pointerdown", e => { const p = e.target.closest && e.target.closest(".to-pick, .qa-pick, [data-qawadd]"); if (!p || p.hasAttribute("data-qawadd")) { if (!p) closePickers(null); return; } closePickers(p); });
+addEventListener("keydown", e => { if (e.key === "Escape") closePickers(null); });
 
 /* =====================================================================
    КВЕСТЫ В МАСТЕРСКОЙ: свободен / занят / завершён + итоги.
@@ -2371,13 +2397,14 @@ function playersHTML() {
   return `<div class="pl wide">
     <p class="lw-lead">Участники группы ВК. Отметьте, кто играет, и подпишите персонажа — тогда при выдаче документа их легко найти. Роли в группе показаны только для учёта, менять их здесь нельзя.</p>
     <div class="pl-top">
-      <button type="button" class="btn" data-plload${inVK ? "" : " disabled"}>Загрузить участников группы</button>
+      <button type="button" class="btn" data-plload${inVK ? "" : " disabled"}>Загрузить участников группы</button><button type="button" class="btn ghost" data-ankscan${inVK ? "" : " disabled"}>Найти персонажей в анкетах</button>
       <small id="pl-upd">${inVK ? "Нажимать может админ группы — ВК один раз спросит разрешение." : "Кнопка работает только внутри приложения ВК: главное меню → «Документы» → «Мастерская»."}</small>
     </div>
     <div class="pl-bar">
       <input type="search" id="pl-q" placeholder="Поиск по имени или персонажу" value="${esc(plQuery)}">
       <div class="filters">${[["all", "Все"], ["play", "Играют"], ["staff", "Руководство"], ["left", "Вышли"]].map(([k, t]) => `<button type="button" class="chip" data-plf="${k}" aria-pressed="${plFilter === k}">${t}<span data-plc="${k}"></span></button>`).join("")}</div>
     </div>
+    <div id="ank-box"></div>
     <div id="pl-list"><p class="lw-lead">Загружаю список…</p></div>
     ${ghCfg().token ? "" : `<p class="lw-lead">Чтобы сохранять список, подключите ключ GitHub:</p>${ghSetHTML()}`}
   </div>`;
@@ -2444,6 +2471,71 @@ document.addEventListener("input", e => {
 });
 document.addEventListener("change", e => { const t = e.target; if (t.dataset && t.dataset.plplay) plSaveOne(+t.dataset.plplay, { play: t.checked }); });
 
+/* =====================================================================
+   ПОИСК ПЕРСОНАЖЕЙ В АНКЕТАХ НА СТЕНЕ ГРУППЫ
+   Анкета = пост с разделами «Имя, возраст, пол», «Навыки», «Биография»…
+   Игрок = первая ссылка на страницу в посте ([id123|Имя]) или подпись автора.
+   Имя персонажа = строка после «1. Имя, возраст, пол» (до первой точки или запятой).
+   ===================================================================== */
+let ANK = null;
+function ankParse(p) {
+  const t = p.text || "";
+  if (!/Имя[^\n]{0,20}возраст/i.test(t) && !(/Навыки/i.test(t) && /Биограф/i.test(t))) return null;
+  const m = t.match(/\[id(\d+)\|([^\]]+)\]/) || t.match(/vk\.(?:com|ru)\/id(\d+)/);
+  const player = m ? +m[1] : p.signer || 0;
+  let name = "";
+  const lines = t.replace(/\[(?:id|club)\d+\|([^\]]+)\]/g, "$1").split("\n").map(x => x.trim());
+  for (let i = 0; i < lines.length; i++) {
+    const L = lines[i], mm = L.match(/^(?:\d+\.\s*)?Имя(?:[^:\n]{0,25})?:\s*(.+)$/i);
+    if (mm && mm[1].trim()) { name = mm[1]; break; }
+    if (/^(?:\d+\.\s*)?Имя[, ]/i.test(L) && !/:\s*\S/.test(L)) { name = lines.slice(i + 1).find(x => x) || ""; break; }
+  }
+  name = name.split(/[.,;]| — | - |\s\d/)[0].replace(/\s+/g, " ").trim().slice(0, 50);
+  if (!name) return null;
+  return { post: p.id, date: p.date, player, name };
+}
+function ankHTML() {
+  if (!ANK) return "";
+  const byId = new Map(PL.list.map(p => [p.id, p]));
+  const opts = sel => `<option value="0">— не выбран —</option>` + PL.list.filter(p => !p.left).sort((a, b) => a.name.localeCompare(b.name, "ru")).map(p => `<option value="${p.id}"${p.id === sel ? " selected" : ""}>${esc(p.name)}</option>`).join("");
+  return `<div class="ank"><header><b>Найдено анкет: ${ANK.list.length}</b><small>Проверьте пары «персонаж → игрок». Без отметки или без игрока — не впишутся.</small></header>
+    ${ANK.list.map((a, i) => { const p = byId.get(a.player), has = p && (p.char || "").split(/,\s*/).includes(a.name);
+      return `<div class="ank-row${has ? " done" : ""}"><label class="lw-chk"><input type="checkbox" data-ankon="${i}"${a.on ? " checked" : ""}></label>
+        <a href="https://vk.com/wall-${ANK.gid}_${a.post}" target="_blank" rel="noopener" class="ank-n">${esc(a.name)}</a><span class="ank-ar">→</span>
+        <select data-ankpl="${i}">${opts(a.player)}</select>${has ? `<small>уже вписан</small>` : ""}</div>`; }).join("")}
+    <div class="actions"><button type="button" class="btn" data-ankapply>Вписать отмеченных</button><button type="button" class="btn ghost" data-ankclose>Закрыть</button></div></div>`;
+}
+const ankDraw = () => { const b = $("#ank-box"); if (b) b.innerHTML = ankHTML(); };
+let ankWait = null;
+addEventListener("message", e => { if (e.data && e.data.velaris === "vkWallResult" && ankWait) { const w = ankWait; ankWait = null; w(e.data); } });
+async function ankScan(btn) {
+  btn.disabled = true; const t = btn.textContent; btn.textContent = "Читаю стену…";
+  const res = await new Promise(r => { ankWait = r; try { window.parent.postMessage({ velaris: "vkWall" }, "*"); } catch (_) { r({ ok: false, error: "нет связи с приложением" }); } setTimeout(() => { if (ankWait === r) { ankWait = null; r({ ok: false, error: "ВК не ответил. Попробуйте ещё раз." }); } }, 180000); });
+  btn.disabled = false; btn.textContent = t;
+  if (!res.ok) { toast("Не получилось: " + res.error); return; }
+  const known = new Set(PL.list.map(p => p.id)), seen = new Set();
+  const list = res.res.posts.map(ankParse).filter(Boolean).filter(a => { const k = a.player + "|" + a.name; if (seen.has(k)) return false; seen.add(k); return true; });
+  list.forEach(a => { if (!known.has(a.player)) a.player = 0; const p = PL.list.find(x => x.id === a.player); a.on = !!a.player && !(p && (p.char || "").split(/,\s*/).includes(a.name)); });
+  ANK = { gid: res.res.gid, list }; ankDraw();
+  toast(list.length ? `Найдено анкет: ${list.length}. Проверьте и нажмите «Вписать».` : "Анкет на стене не нашлось.");
+}
+document.addEventListener("change", e => {
+  const t = e.target; if (!t.dataset || !ANK) return;
+  if (t.dataset.ankon) ANK.list[+t.dataset.ankon].on = t.checked;
+  if (t.dataset.ankpl) { const a = ANK.list[+t.dataset.ankpl]; a.player = +t.value; a.on = !!a.player; ankDraw(); }
+});
+document.addEventListener("click", async e => {
+  const b = e.target.closest && e.target.closest("[data-ankscan],[data-ankapply],[data-ankclose]"); if (!b) return;
+  if (b.hasAttribute("data-ankscan")) return ankScan(b);
+  if (b.hasAttribute("data-ankclose")) { ANK = null; ankDraw(); return; }
+  const pick = ANK.list.filter(a => a.on && a.player); if (!pick.length) { toast("Ничего не отмечено."); return; }
+  if (!ghCfg().token) { toast("Чтобы сохранить, подключите ключ GitHub."); return; }
+  b.disabled = true;
+  const add = (P) => pick.forEach(a => { const p = P.list.find(x => x.id === a.player); if (!p) return; const cs = (p.char || "").split(/,\s*/).filter(Boolean); if (!cs.includes(a.name)) cs.push(a.name); p.char = cs.join(", "); p.play = true; p.ank = Array.from(new Set([...(p.ank || []), a.post])); });
+  try { PL = await plUpdate(P => add(P), `Игроки: персонажи из анкет (${pick.length})`); toast(`Вписано персонажей: ${pick.length}.`); ANK = null; ankDraw(); plDraw(); }
+  catch (err) { b.disabled = false; toast("Не получилось: " + err.message); }
+});
+
 
 /* ---------- Инструменты мастерской ----------
    Новый инструмент: добавьте строку в TOOLS — [адрес, название, функция-разметка, функция-запуск]. */
@@ -2456,6 +2548,16 @@ const TOOLS = [
   ["kvesty", "Квесты", questsAdminHTML, questsAdminInit],
   ["igroki", "Игроки", playersHTML, playersInit]
 ];
+const RAIL_IC = {
+  docs: '<path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4M10 11h6M10 15h6"/><path d="M4 6v15h11"/>',
+  kvesty: '<path d="M7 3h10a2 2 0 0 1 2 2v1h-4M7 3a2 2 0 0 0-2 2v13a3 3 0 0 0 3 3h9a2 2 0 0 0 2-2v-1H10"/><path d="M15 6v12M9 8h3M9 12h3"/>',
+  igroki: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14.6a5 5 0 0 1 5.5 5.4"/>'
+};
+/* узкая панель (только значки): сама в приложении ВК и на небольших экранах, переключается стрелкой */
+const RAIL_KEY = "velaris-rail";
+function railMode() { let v = null; try { v = localStorage.getItem(RAIL_KEY); } catch (_) {} const narrow = v ? v === "narrow" : (window.parent !== window || innerWidth < 1240); document.documentElement.classList.toggle("rail-narrow", narrow); }
+railMode();
+document.addEventListener("click", e => { if (!e.target.closest("[data-railfold]")) return; const n = !document.documentElement.classList.contains("rail-narrow"); try { localStorage.setItem(RAIL_KEY, n ? "narrow" : "wide"); } catch (_) {} railMode(); });
 function route() {
   const id = location.hash.slice(1), sh = id.match(/^(kniga|stopka)=(.+)$/);
   if (sh) return wsOpenShared(sh[1], sh[2]);
@@ -2470,7 +2572,7 @@ function route() {
   }
   const ed = id.match(/^edit-(\d+)$/); if (ed) { $("#sheet").innerHTML = `<p class="lw-lead">Открываю документ №${ed[1]}…</p>`; return editDoc(+ed[1]); }
   const t = TOOLS.find(x => x[0] === id) || TOOLS[0];
-  $("#rail").innerHTML = TOOLS.filter(x => !x[4]).map(x => `<button type="button" data-tool="${x[0]}" aria-selected="${x === t || (t[4] && x[0] === "docs")}">${esc(x[1])}</button>`).join("");
+  $("#rail").innerHTML = TOOLS.filter(x => !x[4]).map(x => `<button type="button" data-tool="${x[0]}" aria-selected="${x === t || (t[4] && x[0] === "docs")}" title="${esc(x[1])}"><svg viewBox="0 0 24 24" aria-hidden="true">${RAIL_IC[x[0]] || ""}</svg><span>${esc(x[1])}</span></button>`).join("") + `<button type="button" class="rail-fold" data-railfold title="Свернуть / развернуть панель" aria-label="Свернуть или развернуть панель"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></button>`;
   $("#sheet").innerHTML = t[2](); if (t[3]) t[3]();
   if (PUB[t[0]]) pubSync(t[0]);
   wsRouted = true;
