@@ -827,8 +827,13 @@
    "role": "member",
    "play": true,
    "manual": true,
-   "chars": [],
-   "char": ""
+   "chars": [
+    {
+     "id": "cmvigwrim7x4",
+     "name": "Новый персонаж"
+    }
+   ],
+   "char": "Новый персонаж"
   }
  ],
  "updated": "21 октября 2026 г."
