@@ -2,12 +2,7 @@
  "docs": [
   {
    "no": 1,
-   "kind": "stopka",
-   "title": "Найденные бумаги",
-   "note": "",
-   "public": false,
-   "created": "",
-   "updated": "21 октября 2026 г."
+   "deleted": true
   },
   {
    "no": 2,
