@@ -655,7 +655,11 @@
     },
     {
      "id": "cmvihyi5wg1t",
-     "name": "Аристей"
+     "name": "Аристей",
+     "facs": [
+      "none"
+     ],
+     "fac": "none"
     }
    ]
   },
