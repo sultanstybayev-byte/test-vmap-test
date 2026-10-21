@@ -868,7 +868,11 @@
    "chars": [
     {
      "id": "cmvifqwvaeyt",
-     "name": "Алдрик"
+     "name": "Алдрик",
+     "facs": [
+      "none"
+     ],
+     "fac": "none"
     },
     {
      "id": "cmviftxgeges",
