@@ -413,6 +413,10 @@ html.dragging-doc, html.dragging-doc * { cursor: grabbing !important; }
 .q-ava.named img, .q-ava.named b { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--gold); background: var(--leather); box-shadow: 0 1px 3px rgba(0,0,0,.3); }
 .q-ava em { max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 12px/1.1 var(--font-body); color: var(--text-ink); font-style: normal; }
 /* ---------- Гадалка ---------- */
+.tarot-vis { position: absolute; right: 44px; top: 50%; transform: translateY(-50%); padding: 7px 12px; border: 1px solid rgba(201,162,90,.6); border-radius: 3px; background: rgba(20,12,8,.7); color: var(--gold-hi); font: 700 13px/1 var(--font-display); letter-spacing: .05em; cursor: pointer; z-index: 2; }
+.tarot-vis.off { border-color: #c9453b; color: #f0a49a; }
+.tile.dim > b, .tile.dim > span, .tile.dim > svg:first-child { opacity: .5; }
+@media (max-width: 560px) { .tarot-vis { position: static; transform: none; grid-column: 1 / -1; justify-self: start; margin-top: 8px; } }
 .tile.tarot { grid-column: 1 / -1; min-height: 120px; background: radial-gradient(ellipse at 85% 50%, rgba(160,90,200,.28), transparent 55%), linear-gradient(90deg, rgba(30,18,34,.97), rgba(42,29,18,.9)); }
 .sheet:has(.tr) { background: radial-gradient(ellipse at 50% 0%, #3a2440, #1a1018 70%); color: #ead9c0; border-color: #8a6a3a; box-shadow: inset 0 0 0 5px #1a1018, inset 0 0 0 6px rgba(201,162,90,.35), 0 16px 44px var(--shadow); }
 .sheet:has(.tr) .kind { color: #d48fb8; } .sheet:has(.tr) h2 { color: #f0d696; } .sheet:has(.tr) .lead { color: #c9b4a0; } .sheet:has(.tr) .rule { filter: invert(.75); }
@@ -1186,6 +1190,25 @@ async function plUpdate(mutate, message) {
   }
   throw new Error("Список игроков менялся одновременно с вами. Попробуйте ещё раз.");
 }
+/* общие настройки сайта (docs/settings.json): { tarotHidden: true } — шатёр гадалки скрыт от игроков */
+async function stLoad(fresh) {
+  const c = ghCfg();
+  if (fresh && c.token) { const { data } = await ghRead(c, "docs/settings.json"); return data || {}; }
+  const r = await fetch("docs/settings.json?t=" + Date.now(), { cache: "no-store" });
+  if (r.status === 404) return {};
+  if (!r.ok) throw new Error("settings " + r.status);
+  return await r.json();
+}
+async function stUpdate(mutate, message) {
+  const c = ghCfg();
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const { data, sha } = await ghRead(c, "docs/settings.json");
+    const S = data || {}; mutate(S);
+    try { await ghWrite(c, "docs/settings.json", S, sha, message); return S; }
+    catch (e) { if (e.status !== 409 && e.status !== 422) throw e; }
+  }
+  throw new Error("Настройки менялись одновременно с вами. Попробуйте ещё раз.");
+}
 /* персонажи игрока: [{ id: "c…", name }] — у каждого свой постоянный номер.
    Старые записи (строка char через запятую) превращаются в персонажей при первом сохранении. */
 const newCid = () => "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
@@ -1582,6 +1605,18 @@ const GROUPS = [
 const GUEST_TILES = new Set(["atlas", "rules", "world"]), GUEST_SECTIONS = new Set(["pravila", "mir"]), GUEST_HIDDEN_TABS = new Set(["anketa-req"].concat(SECTIONS.magiya.tabs.map(x => x[0]), SECTIONS.skverna.tabs.map(x => x[0])));
 const MEMBER = isMember(), ADMIN = isAdmin();
 var QPLAYERS = [];
+/* Шатёр гадалки можно скрыть от игроков: флаг tarotHidden в docs/settings.json */
+let TAROT_HIDDEN = null;
+function tarotGate() {
+  const g = $("#g-tarot"); if (!g) return;
+  if (!ADMIN) { g.hidden = TAROT_HIDDEN !== false; return; }
+  const t = g.querySelector("[data-tarot]"); if (!t) return;
+  let b = g.querySelector(".tarot-vis");
+  if (!b) { b = document.createElement("button"); b.type = "button"; b.className = "tarot-vis"; b.dataset.tarotvis = ""; t.appendChild(b); }
+  b.textContent = TAROT_HIDDEN === null ? "…" : TAROT_HIDDEN ? "🔒 Скрыто от игроков" : "👁 Видно игрокам";
+  b.classList.toggle("off", !!TAROT_HIDDEN); t.classList.toggle("dim", !!TAROT_HIDDEN);
+}
+function tarotLoad() { stLoad().then(S => { TAROT_HIDDEN = !!S.tarotHidden; tarotGate(); }).catch(() => { TAROT_HIDDEN = false; tarotGate(); }); }
 function homeHTML() {
   let i = 0;
   return `<header class="crest">
@@ -1589,9 +1624,9 @@ function homeHTML() {
       <h1>Империя Веларис</h1><p>Ролевая игра. Империя умирает, а ночь принадлежит обескровленным.</p><div class="rule-g"></div>
       ${ADMIN ? `<button type="button" class="btn dark crest-btn" data-workshop="docs">${svg("quill")} Мастерская</button>` : ""}
       ${MEMBER ? "" : `<p class="guest">Вы смотрите как гость: открыты карта, правила и мир. Остальное — для участников группы.</p>`}</header>
-    <div class="groups">${GROUPS.map(([g, tiles, cls]) => `<section class="group"><h2>${esc(g)}</h2><div class="tiles${cls ? " " + cls : ""}">${tiles.map(([ic, t, s, href, cls]) =>
+    <div class="groups">${GROUPS.map(([g, tiles, cls]) => `<section class="group"${g === "Шатёр" ? ` id="g-tarot"${ADMIN ? "" : " hidden"}` : ""}><h2>${esc(g)}</h2><div class="tiles${cls ? " " + cls : ""}">${tiles.map(([ic, t, s, href, cls]) =>
       !MEMBER && !GUEST_TILES.has(ic) ? `<a class="tile locked${cls ? " " + cls : ""}" style="--i:${i++}" href="#" data-locked>${svg(ic)}<b>${esc(t)}</b><span>Для участников группы</span>${svg("lock", "arrow")}</a>` :
-      `<a class="tile${cls ? " " + cls : ""}" style="--i:${i++}" href="${href}"${ic === "vestnik" ? ` data-fresh="Выпуск от ${esc(D.vestnik[D.vestnik.length - 1].d)}"` : ""}>${svg(ic)}<b>${esc(t)}</b><span>${esc(s)}</span>${svg("arrow", "arrow")}</a>`).join("")}</div></section>`).join("")}</div>
+      `<a class="tile${cls ? " " + cls : ""}" style="--i:${i++}" href="${href}"${ic === "tarot" ? " data-tarot" : ""}${ic === "vestnik" ? ` data-fresh="Выпуск от ${esc(D.vestnik[D.vestnik.length - 1].d)}"` : ""}>${svg(ic)}<b>${esc(t)}</b><span>${esc(s)}</span>${svg("arrow", "arrow")}</a>`).join("")}</div></section>`).join("")}</div>
     <p class="foot">Вопросы и анкеты — <a href="${D.master}" target="_blank" rel="noopener">мастеру игры</a>.</p>`;
 }
 
@@ -1805,7 +1840,7 @@ function render() {
   const h = full === "personazhi" ? "mir" : full.split("-")[0];
   let sec = SECTIONS[h];
   const app = $("#app");
-  if (!sec) { route = ""; app.innerHTML = homeHTML(); document.title = "Империя Веларис"; myDocsBanner(); return; }
+  if (!sec) { route = ""; app.innerHTML = homeHTML(); document.title = "Империя Веларис"; myDocsBanner(); if (TAROT_HIDDEN === null) tarotLoad(); else tarotGate(); return; }
   route = h;
   if (!MEMBER && !GUEST_SECTIONS.has(h)) {
     app.innerHTML = `<div class="bar"><a class="back" href="#" data-home>${svg("back")}<b>Меню</b></a><h1>${esc(sec.title)}</h1></div><div class="layout" style="grid-template-columns:1fr"><article class="sheet" id="sheet">${lockedHTML()}</article></div>`;
@@ -2054,6 +2089,14 @@ document.addEventListener("click", e => {
   }
   const home = t.closest("[data-home]"); if (home) { e.preventDefault(); history.pushState(null, "", location.pathname + KEEP); render(); scrollTo(0, 0); return; }
   const tb = t.closest("[data-tab]"); if (tb) return setTab(tb.dataset.tab);
+  const tv = t.closest("[data-tarotvis]"); if (tv) {
+    e.preventDefault(); e.stopPropagation();
+    if (!ghCfg().token) { toast("Чтобы скрывать шатёр, подключите ключ GitHub в Мастерской."); return; }
+    const want = !TAROT_HIDDEN; tv.disabled = true; tv.textContent = "Сохраняю…";
+    stUpdate(S => { S.tarotHidden = want; }, want ? "Шатёр гадалки скрыт" : "Шатёр гадалки открыт").then(S => { TAROT_HIDDEN = !!S.tarotHidden; tv.disabled = false; tarotGate(); toast(TAROT_HIDDEN ? "Гадалка скрыта от игроков. Админы её видят." : "Гадалка снова видна всем игрокам."); })
+      .catch(err => { tv.disabled = false; tarotGate(); toast("Не получилось: " + err.message); });
+    return;
+  }
   const gd = t.closest('a[href="gadalka.html"]'); if (gd) { e.preventDefault(); openOverlay("gadalka.html" + KEEP); return; }
   const ml = t.closest('a[href^="karta.html"]');
   if (ml) { e.preventDefault(); const hh = (ml.getAttribute("href").split("#")[1] || ""); location.hash = hh.startsWith("mesto-") ? "karta-" + hh.slice(6) : "karta"; return; }
