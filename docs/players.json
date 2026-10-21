@@ -554,12 +554,17 @@
   {
    "id": 817093997,
    "play": true,
-   "char": "",
+   "char": "Новый персонаж",
    "name": "Афина Ламбракис",
    "photo": "https://sun1-94.vkuserphoto.ru/s/v1/ig2/C3BEuOAaCRjzcGbDAz6qn4PSFW40_FLw0cGCB6zDYQPiAxK9x1brNYSW6eDFThCiepsonGqUyd24DEzVYe7WRHfF.jpg?quality=95&crop=0,5,734,734&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720&ava=1&cs=100x100",
    "role": "member",
    "left": false,
-   "chars": []
+   "chars": [
+    {
+     "id": "cmvifx4x7ger",
+     "name": "Новый персонаж"
+    }
+   ]
   },
   {
    "id": 835922526,
