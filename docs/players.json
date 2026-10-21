@@ -817,8 +817,13 @@
    "role": "member",
    "play": true,
    "manual": true,
-   "chars": [],
-   "char": ""
+   "chars": [
+    {
+     "id": "cmvigxlqwz9j",
+     "name": "Новый персонаж"
+    }
+   ],
+   "char": "Новый персонаж"
   },
   {
    "id": 476612898,
