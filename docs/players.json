@@ -741,12 +741,17 @@
   {
    "id": 1120771500,
    "play": true,
-   "char": "",
+   "char": "Новый персонаж",
    "name": "Моргана Эшворд",
    "photo": "https://sun1-84.vkuserphoto.ru/s/v1/ig2/F2DRcifob4iQRJeIbxM-PN_Pz2EbcJ4S7B_5iBtBMpvnePjhQ3TdlteBGXYuV6L4F6TstCAcr7xiCJHUyQoIeKpd.jpg?quality=95&crop=0,5,1078,1078&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720&ava=1&cs=100x100",
    "role": "creator",
    "left": false,
-   "chars": []
+   "chars": [
+    {
+     "id": "cmvig2v1ecer",
+     "name": "Новый персонаж"
+    }
+   ]
   }
  ],
  "updated": "21 октября 2026 г."
