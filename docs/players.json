@@ -641,7 +641,8 @@
     {
      "id": "c813187189x0",
      "name": "Халаскер",
-     "post": 70
+     "post": 70,
+     "fac": "order"
     },
     {
      "id": "cmvifyc9os58",
