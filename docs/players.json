@@ -7,7 +7,8 @@
    "name": "Аркаим Шизер",
    "photo": "https://sun1-56.vkuserphoto.ru/s/v1/ig2/b0Dzw8zR3BuSfKWXEVFPPNh8ElYXo8lO_w7_ONE4adgNEN6hbpRee6v42j_KT8IFD3Jn9wF47rt4ecGvA7V6BVNj.jpg?quality=95&crop=405,25,451,451&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 55329472,
@@ -16,7 +17,8 @@
    "name": "Станислав Иванов",
    "photo": "https://sun1-29.vkuserphoto.ru/s/v1/ig2/JIaPdkK-EsQBko5TzAuSybqAb6yDvwSLVbDSDfSDnsnXkPxV916AVxQmTx9INP5PdXHm38Pm8wIlgnEqDgI9nqLy.jpg?quality=96&crop=18,48,823,823&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 170684085,
@@ -25,7 +27,8 @@
    "name": "Эд Золотарев",
    "photo": "https://sun1-29.vkuserphoto.ru/s/v1/ig2/nY8ptA2_5U6-Mmu1JFMhynhTyvuc5oH5p35AO0PapvB8zcKX-ZsDcSSByx4In9u7NyVemRRmvvsnmFwlp2cXfZPP.jpg?quality=95&crop=256,748,503,503&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 188595799,
@@ -34,7 +37,8 @@
    "name": "Александра Авдеева",
    "photo": "https://sun1-14.vkuserphoto.ru/s/v1/ig2/upcug7b8Iic9g_R_EINEwK0mPgjTqmekx0MYI6PDItsaBX41nu0zVL0_yKpXRJ-ESI3iDeBdM9amTpb5OZ6QbOO0.jpg?quality=95&crop=103,120,203,203&as=32x32,48x48,72x72,108x108,160x160&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 229311693,
@@ -43,7 +47,8 @@
    "name": "Адриан Д'арк",
    "photo": "https://sun2-19.vkuserphoto.ru/s/v1/ig1/L5y7hpkenJ5UDpfYHnK7nsTEmspUMYK2k1tKsIKvpHunNWhIBnLHPE_3jy-HB1iATqA4hMPn.jpg?quality=96&crop=0,59,1000,1000&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 294645498,
@@ -52,7 +57,8 @@
    "name": "Феликс Шрёдингер",
    "photo": "https://sun1-18.vkuserphoto.ru/s/v1/ig2/ew0ZhXZSPxZUErM8x8QE5HEPmyLJIYQrlCIJjPwI_NLStroem-p5Aq2wxZttkagQpnxD8gHfjbil3lSinCGSf8Wt.jpg?quality=95&crop=161,80,697,697&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 316981455,
@@ -61,7 +67,8 @@
    "name": "Шейли Элесмора",
    "photo": "https://sun1-27.vkuserphoto.ru/s/v1/ig2/hoIui-nSyew6DhRYET042zmHwGQo8AIRIW3YSWY-XWUBZnU2Ol2twN2aomAkndZMXaFF5BJtvROiSZEGAnGlPJ-g.jpg?quality=95&crop=79,53,381,381&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 320274126,
@@ -79,6 +86,36 @@
     62,
     51,
     31
+   ],
+   "chars": [
+    {
+     "id": "c320274126x0",
+     "name": "Мирос"
+    },
+    {
+     "id": "c320274126x1",
+     "name": "Лилия Этерис (Де Верис)\"пепельная\""
+    },
+    {
+     "id": "c320274126x2",
+     "name": "Агато Лиамс"
+    },
+    {
+     "id": "c320274126x3",
+     "name": "Кот"
+    },
+    {
+     "id": "c320274126x4",
+     "name": "Эдмер падальщик"
+    },
+    {
+     "id": "c320274126x5",
+     "name": "Доменик"
+    },
+    {
+     "id": "c320274126x6",
+     "name": "Родерик фа Лемрой"
+    }
    ]
   },
   {
@@ -88,7 +125,8 @@
    "name": "Кузьма Аверин",
    "photo": "https://sun1-87.vkuserphoto.ru/s/v1/ig2/bF3lzsGtVVWDZhEb4-bDxbtnpQeR6BLVvXEx4b_1dLvmeihNpf-o_uKygqvQoIEgbmCpLateqr8xt-3-4T3PzcMj.jpg?quality=95&crop=482,0,618,618&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 411213622,
@@ -100,6 +138,12 @@
    "left": false,
    "ank": [
     43
+   ],
+   "chars": [
+    {
+     "id": "c411213622x0",
+     "name": "Эллеттра Салларри"
+    }
    ]
   },
   {
@@ -109,7 +153,8 @@
    "name": "Виктория Апрельская",
    "photo": "https://sun1-28.vkuserphoto.ru/s/v1/ig2/qdUFtRikK98H23Cg8Q27-HPldNkK1OhUPchFHzaUky5nlnR-ksyQX8_I51SLX_0WrsF6D02BPLsEJUZmp9WZal01.jpg?quality=95&crop=27,205,825,825&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 445371615,
@@ -118,7 +163,8 @@
    "name": "Тимофей Волков",
    "photo": "https://sun2-20.vkuserphoto.ru/s/v1/ig2/lKO4Fvai40ug9OhHF75i_pwSfdTKyxgscX_u5cTEnsI5eFIb2bo9pTRPnXU8QmLcnqCBHwWcRnhuG1CdEVwNXQhi.jpg?quality=95&crop=93,92,320,320&as=32x32,48x48,72x72,108x108,160x160,240x240&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 470552226,
@@ -127,7 +173,8 @@
    "name": "Олег Болотов",
    "photo": "https://sun2-8.vkuserphoto.ru/s/v1/ig2/yMBTF1yFpCEiWc693Rtf7J463wsmi5lXORnVKoyTHNZu6efHKNjaFwQAe8WxdrUuhaCVn55vtmtUS51p88jMtDsW.jpg?quality=95&crop=99,86,1305,1305&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1080x1080,1280x1280&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 478619114,
@@ -136,7 +183,8 @@
    "name": "Анастасия Симонова",
    "photo": "https://sun1-16.vkuserphoto.ru/s/v1/ig2/MhooK7afD64ml0zzNZmMWUTHfsL7zyRE221mLAY4E81QGz9FyMWdje2YXA1zWIhhPzgqK3Q3ddaTRkqmhqixMluq.jpg?quality=95&crop=213,837,1168,1168&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1080x1080&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 509567297,
@@ -145,7 +193,8 @@
    "name": "Максим Рязанцев",
    "photo": "https://sun1-24.vkuserphoto.ru/s/v1/ig2/x3f1D1gKFQwBW2cINyr0RCP2LrVtpY6gH9AvCBjSX_8JJSFrfH9sFFewZq_2yZoCBJsbTdvvroxUiL0TtxYeIhx6.jpg?quality=95&crop=37,2,699,699&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 525849682,
@@ -154,7 +203,8 @@
    "name": "Дмитрий Кожура",
    "photo": "https://sun1-94.vkuserphoto.ru/s/v1/ig2/ZUH_E8vW2VTIULX4nA6hc2qwLwTMNascZo89r4o9mWXioGbzIonxTtJ3iD9aVoabaOgIURamRz-S6qyyWkToLiyZ.jpg?quality=95&crop=1289,308,743,743&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 533471788,
@@ -163,7 +213,8 @@
    "name": "Даша Волкова",
    "photo": "https://sun2-19.vkuserphoto.ru/s/v1/ig2/tGvUXR_TZvWdYg9KJfOvDyBCsA3qjASgcQok4VQdx-0KItAnKEJx4TTZ1TvjLlLo1m6ianx_ZGoueLvWMBiwskGc.jpg?quality=95&crop=683,45,427,427&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 541110658,
@@ -172,7 +223,8 @@
    "name": "Vergilius I Red Gaze",
    "photo": "https://sun1-54.vkuserphoto.ru/s/v1/ig2/T9cZJ6TYdwjO1mF26v-_k4DD5zfwBIDTk2UNJb7MeqsZz8pSeFqs4hHkOwFzXNMev7bQGelCpEeuF9D9pSz7vDss.jpg?quality=95&crop=140,2,453,453&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 554168065,
@@ -184,6 +236,12 @@
    "left": false,
    "ank": [
     36
+   ],
+   "chars": [
+    {
+     "id": "c554168065x0",
+     "name": "Альмонд Ормарр |"
+    }
    ]
   },
   {
@@ -201,6 +259,32 @@
     54,
     52,
     50
+   ],
+   "chars": [
+    {
+     "id": "c557609350x0",
+     "name": "Иден"
+    },
+    {
+     "id": "c557609350x1",
+     "name": "Тарис Кха‑Зар"
+    },
+    {
+     "id": "c557609350x2",
+     "name": "Вортигерн «Крушитель» Пендра́гон"
+    },
+    {
+     "id": "c557609350x3",
+     "name": "Идрис «Убивец Магов»"
+    },
+    {
+     "id": "c557609350x4",
+     "name": "Белль «Хвостик»"
+    },
+    {
+     "id": "c557609350x5",
+     "name": "Лисандр «Безликий» фон Венделл |"
+    }
    ]
   },
   {
@@ -210,7 +294,8 @@
    "name": "N I X",
    "photo": "https://sun2-13.vkuserphoto.ru/s/v1/ig2/rIPSYIecMAu9XHCYclm0Fwts2IvMLhGtKiYCaLk0moHzj-ZJ_x-2cI_7Hj30i2GtzqTTXHlSq-yTyI0Z2vjWTefc.jpg?quality=95&crop=0,89,1536,1536&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1080x1080,1280x1280,1440x1440&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 578045749,
@@ -219,7 +304,8 @@
    "name": "Лукас Кранах",
    "photo": "https://sun1-55.vkuserphoto.ru/s/v1/ig2/ZZ7M_mgm48ChG3rQsYCjH53Yom5jJrfIbqpv-tziMDDbBi3BNVpn1SErvWFOeInR7MDfq1fvvg4tVme_bx7skGSh.jpg?quality=95&crop=224,0,628,628&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 579462692,
@@ -228,7 +314,8 @@
    "name": "Нерисса Ре-Шахараам",
    "photo": "https://sun1-54.vkuserphoto.ru/s/v1/ig2/_fVpjILBqcOuTesv1-BXx2GNHvaRcki8yXuWgWoLTqudjXfjj1XPAtYP5fuv_JiT930dES1VjUrDBil5rPW5Yrt-.jpg?quality=96&crop=202,291,285,285&as=32x32,48x48,72x72,108x108,160x160,240x240&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 580429403,
@@ -237,7 +324,8 @@
    "name": "Дима Горки",
    "photo": "https://sun1-25.vkuserphoto.ru/s/v1/ig2/m7czV4GmP_2B3HV5mk1eDrlGhTjl3FvKOPmHtA1M-4gehCoPUdSn8_H4XYz1m3qTVwFbZe8gV3Uhh2oEdEs1gcpr.jpg?quality=96&crop=220,32,675,675&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 588017771,
@@ -246,7 +334,8 @@
    "name": "Артём Алексеев",
    "photo": "https://sun1-24.vkuserphoto.ru/s/v1/ig2/LDeqqdSVkZjSHpOJhZMZqH5LVZ0duNbmYHn78qOfelF9OgSclvOjW5hJLWXYhaAUOI5Cgxpb2n_Rcw_zQ8559Vh_.jpg?quality=95&crop=0,310,1920,1920&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1080x1080,1280x1280,1440x1440&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 601008832,
@@ -258,6 +347,12 @@
    "left": false,
    "ank": [
     93
+   ],
+   "chars": [
+    {
+     "id": "c601008832x0",
+     "name": "Ссерпента (Ная) Виперисс"
+    }
    ]
   },
   {
@@ -267,7 +362,8 @@
    "name": "Кот Баюн",
    "photo": "https://sun1-14.vkuserphoto.ru/s/v1/ig2/VRaloymxDEqgTByGkN0tXvDbFQmx2XYRVQcXYD2v80w_VUL0Uf-gTK-8HVTowS9JdF_ql3r8d7R9C-VcpWNJUYtM.jpg?quality=95&crop=130,12,498,498&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 662691399,
@@ -276,7 +372,8 @@
    "name": "Willy Soifer",
    "photo": "https://sun1-23.vkuserphoto.ru/s/v1/ig2/VVE_09_ZtAzuhDerN27ZsEkJHSlghSauBk14RzhMpeeusMnEwhdBd4_ffDNK0TiEm_E_4vyhg92pIKXh_ChRf94o.jpg?quality=95&crop=0,1,719,719&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 677622348,
@@ -288,6 +385,12 @@
    "left": false,
    "ank": [
     22
+   ],
+   "chars": [
+    {
+     "id": "c677622348x0",
+     "name": "Уильям Морган"
+    }
    ]
   },
   {
@@ -297,7 +400,8 @@
    "name": "さとる 五條",
    "photo": "https://sun2-20.vkuserphoto.ru/s/v1/ig2/BXJ7eA1ET0_U0_Y1nXZoYkaBwPAJl93wvaUBWDJJhFpgBUcNHC0kROwsr_yNy1qSAwbITL-QbxDPtX9toKTlRErH.jpg?quality=95&crop=215,130,430,430&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 690170820,
@@ -306,7 +410,8 @@
    "name": "Aran Junior",
    "photo": "https://sun2-20.vkuserphoto.ru/s/v1/ig2/dSYEMUoNhhASxaH9wYQgD7lSVOD1ZROKyoZ4OTEjVpEmQKS5if1oL3pdEu4upbqnT9U4drJb4rtVTFX9EnbaPndF.jpg?quality=95&crop=364,0,659,659&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 695036955,
@@ -315,7 +420,8 @@
    "name": "Nekomamushi Hanayanagi",
    "photo": "https://sun2-1.vkuserphoto.ru/s/v1/ig2/rQSFhgvmNWMwOrxG_jJ8bHDg2UOAMsvDQu8Fh_kryB_XsHcH3Yn8KCAzcHHLJE7ZiI_eqVtWQTch5ZG0Tw0tnF0o.jpg?quality=95&crop=185,179,752,752&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 707590502,
@@ -324,7 +430,8 @@
    "name": "Lars Lavender",
    "photo": "https://sun2-1.vkuserphoto.ru/s/v1/ig2/96E2j6TmRXILnQNVCvM-geyPnVVaQxd8pZ4BEWeBria8Ak2KKs-umOnARcENr0z7kRxhynWc00dRUER7uEKuEQ-C.jpg?quality=96&crop=103,105,670,670&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 749276044,
@@ -333,7 +440,8 @@
    "name": "Soma Rosehearts",
    "photo": "https://sun2-8.vkuserphoto.ru/s/v1/ig2/W9r7S1kVDOFgAXZlMBBsmoxlLA2-ATL3w_tljYFR6IdthxL2rODpaulwHa_mCBf2purnntnMUVFZECcS9jzP5vS8.jpg?quality=95&crop=275,62,275,275&as=32x32,48x48,72x72,108x108,160x160,240x240&ava=1&cs=100x100",
    "role": "administrator",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 807121254,
@@ -342,7 +450,8 @@
    "name": "B N S H",
    "photo": "https://sun1-20.vkuserphoto.ru/s/v1/ig2/5xuDD8Lb4-zFtGxl6PwiJBTqTSDKCOFUjsWGaedPKlthk23qls0fl_68g5LjaGjdKnCsjVf5bgtOiQup7qGq3cwr.jpg?quality=95&crop=0,853,1707,1707&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1080x1080,1280x1280,1440x1440&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 813187189,
@@ -354,6 +463,12 @@
    "left": false,
    "ank": [
     70
+   ],
+   "chars": [
+    {
+     "id": "c813187189x0",
+     "name": "Халаскер «Опустошитель»"
+    }
    ]
   },
   {
@@ -363,7 +478,8 @@
    "name": "Афина Ламбракис",
    "photo": "https://sun1-94.vkuserphoto.ru/s/v1/ig2/C3BEuOAaCRjzcGbDAz6qn4PSFW40_FLw0cGCB6zDYQPiAxK9x1brNYSW6eDFThCiepsonGqUyd24DEzVYe7WRHfF.jpg?quality=95&crop=0,5,734,734&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 835922526,
@@ -372,7 +488,8 @@
    "name": "Саша Наранча",
    "photo": "https://sun1-27.vkuserphoto.ru/s/v1/ig2/umwsSwuIvFgAmVNT7IpuOgqkpqZixPncBQzB58ExiIkFzYkQg_4UVMGflO8hzpMkqq0Vpu02y2a-3BKmb77uCUHF.jpg?quality=95&crop=0,128,1082,1082&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1080x1080&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 895842660,
@@ -381,7 +498,8 @@
    "name": "Singing Lullaby",
    "photo": "https://sun1-28.vkuserphoto.ru/s/v1/ig2/o9lQ9TRNiXbDu_iXt3QZ2kyh2z0CoZsupQf-7n43e2YGUfFHZsJTqo6F8i6TM7T8YeX8UY2xlvh2QjzgtT1OkVTk.jpg?quality=95&crop=0,44,1074,1074&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 1047964229,
@@ -394,6 +512,16 @@
    "ank": [
     32,
     15
+   ],
+   "chars": [
+    {
+     "id": "c1047964229x0",
+     "name": "Матиас Вельт"
+    },
+    {
+     "id": "c1047964229x1",
+     "name": "Отец Лоренс Вейн"
+    }
    ]
   },
   {
@@ -403,7 +531,8 @@
    "name": "Adela Long",
    "photo": "https://sun1-84.vkuserphoto.ru/s/v1/ig2/dumBtyIKtmxwdNbpB0TaEawaeEWMoLSG9I7n-UtlBabcbCPj5kbBaKeBQ7ZPP7UtBORdg5m7PFAkIMGJofuWoA-p.jpg?quality=95&crop=23,272,602,602&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 1089611600,
@@ -412,7 +541,8 @@
    "name": "Green Smite",
    "photo": "https://sun1-84.vkuserphoto.ru/s/v1/ig2/o1eMsOUztqSDQ0qdR6Eh8paWWvJC-EWonFKDa4vD7Ni6Uur0Q_E0hShPHItFtTD5tgZG5EFRPoGJLh8DxNv79VhC.jpg?quality=95&crop=156,3,580,580&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540&ava=1&cs=100x100",
    "role": "editor",
-   "left": false
+   "left": false,
+   "chars": []
   },
   {
    "id": 1107296832,
@@ -426,6 +556,20 @@
     75,
     33,
     16
+   ],
+   "chars": [
+    {
+     "id": "c1107296832x0",
+     "name": "— Ария Моншард-Зелиал |"
+    },
+    {
+     "id": "c1107296832x1",
+     "name": "— Элита (прошлое имя неизвестно) |"
+    },
+    {
+     "id": "c1107296832x2",
+     "name": "— Айзек Стормхилл"
+    }
    ]
   },
   {
@@ -435,7 +579,8 @@
    "name": "Моргана Эшворд",
    "photo": "https://sun1-84.vkuserphoto.ru/s/v1/ig2/F2DRcifob4iQRJeIbxM-PN_Pz2EbcJ4S7B_5iBtBMpvnePjhQ3TdlteBGXYuV6L4F6TstCAcr7xiCJHUyQoIeKpd.jpg?quality=95&crop=0,5,1078,1078&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720&ava=1&cs=100x100",
    "role": "creator",
-   "left": false
+   "left": false,
+   "chars": []
   }
  ],
  "updated": "21 октября 2026 г."
