@@ -614,7 +614,11 @@
     },
     {
      "id": "cmvifrw37rio",
-     "name": "Кассандра Валенстер"
+     "name": "Кассандра Валенстер",
+     "facs": [
+      "crown"
+     ],
+     "fac": "crown"
     },
     {
      "id": "cmvifvul1cty",
