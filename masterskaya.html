@@ -210,12 +210,41 @@ html.shared #app, html.shared .bg { display: none; }
 .pub-steps { margin: 0 0 10px; padding-left: 20px; font-size: 15.5px; line-height: 1.45; } .pub-steps li { margin-bottom: 4px; }
 .pub-note { display: block; margin-top: 8px; font: italic 500 14.5px/1.35 var(--font-body); color: var(--text-muted); }
 .pub-long { margin-top: 10px; padding: 0; border: 0; background: none; color: var(--text-muted); font: italic 500 15px var(--font-body); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.hubback { flex: none; padding: 8px 12px; border: 1px solid rgba(201,162,90,.7); border-radius: 4px; background: var(--leather); color: var(--parchment); font: 700 15px/1 var(--font-display); cursor: pointer; }
+.hubback[hidden] { display: none; }
+.vw-t { display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; }
+.vw-t small { max-width: 60ch; font: italic 500 15.5px/1.35 var(--font-body); color: var(--parchment-deep); }
+.vw-back { position: absolute; left: 0; top: 0; height: 42px; padding: 0 14px; border: 1px solid var(--gold); border-radius: 21px; background: var(--leather); color: var(--gold-hi); font: 700 15px/1 var(--font-display); cursor: pointer; }
+.dstat { display: inline-block; margin-left: 6px; padding: 2px 8px 3px; border-radius: 999px; background: rgba(111,85,50,.18); color: var(--text-muted); font: 700 12.5px/1.2 var(--font-body); letter-spacing: .02em; text-transform: none; vertical-align: middle; }
+.dstat.on { background: #3f5a2c; color: #eef3df; }
+.pub .fld { margin-bottom: 10px; }
+.gate h2 { margin-top: 0; }
+.dl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; margin: 10px 0 16px; }
+.dl-new { display: flex; flex-direction: column; gap: 6px; }
+.dl-plus { flex: 1; min-height: 170px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; border: 2px dashed rgba(111,85,50,.55); border-radius: 6px; background: rgba(255,252,240,.35); color: var(--text-ink); cursor: pointer; transition: background .2s, transform .3s var(--ease); }
+.dl-plus:hover { background: rgba(255,252,240,.7); transform: translateY(-2px); }
+.dl-plus span { font: 300 64px/1 var(--font-body); color: var(--blood); }
+.dl-plus b { font: 700 18px/1.2 var(--font-display); letter-spacing: .04em; }
+.dl-kinds { display: grid; gap: 6px; } .dl-kinds[hidden] { display: none; }
+.dl-kinds button { padding: 10px; border: 1px solid var(--leather); border-radius: 4px; background: var(--leather); color: var(--gold-hi); font: 700 15.5px/1.1 var(--font-display); cursor: pointer; }
+.dl-wait { grid-column: 1 / -1; margin: 0; font-style: italic; color: var(--text-muted); }
+.dcard { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border: 1px solid rgba(111,85,50,.4); border-radius: 6px; background: rgba(255,252,240,.55); }
+.dcard header { display: flex; align-items: center; gap: 6px; }
+.dno { font: 700 15px/1 var(--font-display); color: var(--blood); }
+.dkind { font: italic 600 14.5px/1 var(--font-body); color: var(--text-muted); }
+.dcard .dstat { margin-left: auto; }
+.dcard h4 { margin: 0; font: 700 19px/1.2 var(--font-display); color: var(--text-ink); }
+.dcard p { margin: 0; font-size: 15.5px; line-height: 1.4; color: var(--text-ink); }
+.dcard small { font: italic 500 14px var(--font-body); color: var(--text-muted); }
+.dbtns { display: flex; flex-wrap: wrap; gap: 5px; margin-top: auto; padding-top: 6px; }
+.dbtns button { padding: 6px 9px; border: 1px solid rgba(111,85,50,.5); border-radius: 3px; background: rgba(255,252,240,.7); color: var(--text-ink); font: 700 13.5px/1 var(--font-display); cursor: pointer; }
+.dbtns button:hover { background: var(--leather); color: var(--gold-hi); }
 </style>
 </head>
 <body>
 <div class="bg" aria-hidden="true"></div>
 <main id="app">
-  <header class="bar"><svg class="sig" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="29"/><circle cx="32" cy="32" r="24" stroke-dasharray="2 4"/><path d="M32 8v48M8 32h48"/><path d="M32 14l5 18-5 18-5-18z" fill="rgba(201,162,90,.25)"/><path d="M14 32l18-4 18 4-18 4z"/></svg><h1>Мастерская Велариса</h1><small>Инструменты для квестов и отыгрыша</small></header>
+  <header class="bar"><svg class="sig" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="29"/><circle cx="32" cy="32" r="24" stroke-dasharray="2 4"/><path d="M32 8v48M8 32h48"/><path d="M32 14l5 18-5 18-5-18z" fill="rgba(201,162,90,.25)"/><path d="M14 32l18-4 18 4-18 4z"/></svg><button type="button" class="hubback" data-hubback hidden>‹ В меню</button><h1>Мастерская Велариса</h1><small>Инструменты для квестов и отыгрыша</small></header>
   <div class="layout">
     <nav class="rail" id="rail" aria-label="Инструменты"></nav>
     <article class="sheet" id="sheet"></article>
@@ -361,6 +390,85 @@ const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&am
 const toast = m => { const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("on"), 3200); };
 
 /* =====================================================================
+   БАЗА ДОКУМЕНТОВ (общая для главного меню и Мастерской)
+   Документы лежат в папке docs/ репозитория: 1.json, 2.json …
+   Список с названиями, сводками и пометкой «открыт игрокам» — docs/index.json.
+   Запись идёт через GitHub по ключу, который хранится только в браузере мастера.
+   Защита «мягкая»: приложение не показывает лишнего, но файлы лежат в открытом репозитории.
+   ===================================================================== */
+const GH_KEY = "velaris-gh-v1";
+const DOC_KINDS = { pismo: "Письмо", kniga: "Книга", stopka: "Бумаги" };
+const ghDefaults = () => {
+  const m = location.hostname.match(/^([^.]+)\.github\.io$/i), seg = location.pathname.split("/").filter(Boolean);
+  return { owner: m ? m[1] : "sultanstybayev-byte", repo: m && seg.length > 1 ? seg[0] : "vmap" };
+};
+const ghCfg = () => { let c = {}; try { c = JSON.parse(localStorage.getItem(GH_KEY)) || {}; } catch (_) {} return Object.assign(ghDefaults(), c); };
+const ghSaveCfg = c => { try { localStorage.setItem(GH_KEY, JSON.stringify(c)); } catch (_) {} };
+
+/* Кто смотрит: роль в группе ВК приходит в параметрах запуска приложения */
+const VK_P = new URLSearchParams(location.search);
+const VK_ROLE = VK_P.get("vk_viewer_group_role") || "";
+const isAdmin = () => VK_ROLE === "admin" || VK_ROLE === "editor" || !!ghCfg().token;
+const isMember = () => isAdmin() || VK_ROLE === "member" || VK_ROLE === "moder" || (VK_P.has("vk_group_id") && !VK_ROLE);
+
+async function ghApi(c, path, opt = {}) {
+  return fetch(`https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/contents/${path}`, Object.assign({ cache: "no-store" }, opt, {
+    headers: Object.assign({ Accept: "application/vnd.github+json" }, c.token ? { Authorization: "Bearer " + c.token } : {}, opt.body ? { "Content-Type": "application/json" } : {})
+  }));
+}
+const utf8b64 = str => { const u = new TextEncoder().encode(str); let s = ""; for (let i = 0; i < u.length; i += 32768) s += String.fromCharCode.apply(null, u.subarray(i, i + 32768)); return btoa(s); };
+const b64utf8 = b => { const s = atob(String(b).replace(/\s/g, "")), u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return new TextDecoder().decode(u); };
+const ghErr = st => st === 401 ? "Ключ GitHub не подходит или истёк." : st === 403 || st === 404 ? "У ключа нет права записи (Contents: Read and write) или выбран не тот репозиторий." : "GitHub ответил ошибкой " + st + ".";
+
+/* прочитать файл через GitHub (свежая версия, без ожидания пересборки сайта) */
+async function ghRead(c, path) {
+  const r = await ghApi(c, path);
+  if (r.status === 404) return { data: null, sha: null };
+  if (!r.ok) throw new Error(ghErr(r.status));
+  const j = await r.json();
+  return { data: JSON.parse(b64utf8(j.content)), sha: j.sha };
+}
+async function ghWrite(c, path, obj, sha, message) {
+  const r = await ghApi(c, path, { method: "PUT", body: JSON.stringify({ message, content: utf8b64(JSON.stringify(obj, null, 1)), sha: sha || undefined }) });
+  if (!r.ok) { const e = new Error(ghErr(r.status)); e.status = r.status; throw e; }
+  return (await r.json()).content.sha;
+}
+/* список документов: для мастера — свежий через GitHub, для игроков — с сайта */
+async function dbList(fresh) {
+  const c = ghCfg();
+  if (fresh && c.token) { const { data } = await ghRead(c, "docs/index.json"); return (data && data.docs) || []; }
+  try { const r = await fetch("docs/index.json?t=" + Date.now(), { cache: "no-store" }); if (!r.ok) return []; const j = await r.json(); return j.docs || []; } catch (_) { return []; }
+}
+/* изменить список: mutate(docs) правит массив; повтор, если кто-то успел записать раньше */
+async function dbUpdate(mutate, message) {
+  const c = ghCfg();
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const { data, sha } = await ghRead(c, "docs/index.json");
+    const docs = (data && data.docs) || [];
+    const res = await mutate(docs);
+    try { await ghWrite(c, "docs/index.json", { docs }, sha, message); return res; }
+    catch (e) { if (e.status !== 409 && e.status !== 422) throw e; }
+  }
+  throw new Error("Список документов менялся одновременно с вами. Попробуйте ещё раз.");
+}
+/* старые документы, сохранённые до появления списка, добавляем в список скрытыми */
+async function dbAdopt() {
+  const c = ghCfg(); if (!c.token) return;
+  const r = await ghApi(c, "docs"); if (!r.ok) return;
+  const files = (await r.json()).map(f => /^(\d+)\.json$/.exec(f.name)).filter(Boolean).map(m => +m[1]);
+  const known = new Set((await dbList(true)).map(d => d.no));
+  const missing = files.filter(n => !known.has(n)); if (!missing.length) return;
+  const add = [];
+  for (const n of missing) { try { const { data } = await ghRead(c, `docs/${n}.json`); if (data) add.push({ no: n, kind: data.kind, title: data.title || "Документ", note: data.note || "", public: false, created: "", updated: "" }); } catch (_) {} }
+  if (add.length) await dbUpdate(docs => { add.forEach(a => { if (!docs.some(d => d.no === a.no)) docs.push(a); }); docs.sort((a, b) => a.no - b.no); }, "Документы: добавлены в список");
+}
+async function dbSetPublic(no, pub) {
+  return dbUpdate(docs => { const d = docs.find(x => x.no === +no); if (d) d.public = pub; }, `Документ №${no}: ${pub ? "открыт игрокам" : "скрыт"}`);
+}
+const dbToday = () => new Date().toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
+
+
+/* =====================================================================
    ПИСЬМА — рукописные письма, указы и записки для квестов.
    Всё рисуется на холсте: что видно в предпросмотре, то и сохранится картинкой.
    ===================================================================== */
@@ -495,7 +603,7 @@ document.addEventListener("change", e => {
       .catch(() => toast("Не получилось прочитать этот файл как шрифт."));
     return;
   }
-  if (t.id === "lw-preset" && t.value) { LW = Object.assign({}, LW_BASE, { seed: LW.seed }, LW_PRESETS[t.value].s); if (lwHost) lwHost.set(LW); lwSave(); lwFonts().then(lwDraw); lwRefreshForm(); return; }
+  if (t.id === "lw-preset" && t.value) { LW = Object.assign({}, LW_BASE, { seed: LW.seed }, LW_PRESETS[t.value].s, { pubNo: LW.pubNo, docTitle: LW.docTitle, note: LW.note, isPublic: LW.isPublic }); if (lwHost) lwHost.set(LW); lwSave(); lwFonts().then(lwDraw); lwRefreshForm(); return; }
   if (t.dataset && t.dataset.lwc) { LW[t.dataset.lwc] = t.checked; lwSave(); lwDraw(); }
 });
 document.addEventListener("click", e => {
@@ -870,16 +978,21 @@ async function wsShare(kind, data, usesUserFont) {
 const wsLinkBoxOld = btn => `<div class="ws-link" id="ws-link" hidden><input type="text" readonly aria-label="Ссылка для игроков"><small>Эту ссылку можно отправить в беседу ВК. Всё содержимое уже внутри неё — менять что-то на сайте не нужно.</small></div>`;
 
 /* ---------- полноэкранный просмотр ---------- */
-function wsViewer(title, closable) {
+const inHub = window.parent !== window;
+function wsViewer(title, closable, note) {
   let v = $("#viewer");
   if (!v) { v = document.createElement("div"); v.id = "viewer"; document.body.appendChild(v); }
-  v.innerHTML = `<div class="vw-top"><b>${esc(title)}</b>${closable ? `<button type="button" class="vw-x" aria-label="Закрыть"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>` : ""}</div><div class="vw-body"></div>`;
+  v.innerHTML = `<div class="vw-top">${inHub && !closable ? `<button type="button" class="vw-back" data-hubback>‹ Назад</button>` : ""}<div class="vw-t"><b>${esc(title)}</b>${note ? `<small>${esc(note)}</small>` : ""}</div>${closable ? `<button type="button" class="vw-x" aria-label="Закрыть"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>` : ""}</div><div class="vw-body"></div>`;
   v.hidden = false; document.documentElement.classList.add("vw-open");
   return v.querySelector(".vw-body");
 }
 function wsCloseViewer() { const v = $("#viewer"); if (v) { v.hidden = true; v.innerHTML = ""; } document.documentElement.classList.remove("vw-open"); wsActive = null; }
 let wsActive = null; /* листалка, которую сейчас слушают стрелки */
-document.addEventListener("click", e => { if (e.target.closest(".vw-x")) wsCloseViewer(); });
+let wsBackHash = null, wsRouted = false;
+document.addEventListener("click", e => {
+  if (e.target.closest(".vw-x")) { wsCloseViewer(); if (wsBackHash) { const h = wsBackHash; wsBackHash = null; location.hash = h; } }
+  if (e.target.closest("[data-hubback]")) { try { window.parent.postMessage({ velaris: "closeOverlay" }, "*"); } catch (_) {} }
+});
 addEventListener("keydown", e => {
   if (!wsActive || /input|textarea|select/i.test((document.activeElement || {}).tagName || "")) return;
   if (e.key === "ArrowRight") { wsActive.next(); e.preventDefault(); }
@@ -1096,7 +1209,7 @@ document.addEventListener("input", e => {
 document.addEventListener("focusin", e => { const t = e.target; if (t.dataset && t.dataset.bkp != null && bkPrev && $("#bk-prev")) { bkFocus = +t.dataset.bkp; bkPrev.showPage(bkFocus); } });
 document.addEventListener("change", e => {
   const t = e.target;
-  if (t.id === "bk-preset" && t.value) { BK = JSON.parse(JSON.stringify(t.value === "sample" ? BK_SAMPLE : BK_EMPTY)); delete BK.pubNo; bkFocus = 0; bkSave(); bookRefresh(); return; }
+  if (t.id === "bk-preset" && t.value) { BK = Object.assign(JSON.parse(JSON.stringify(t.value === "sample" ? BK_SAMPLE : BK_EMPTY)), { pubNo: BK.pubNo, docTitle: BK.docTitle, note: BK.note, isPublic: BK.isPublic }); bkFocus = 0; bkSave(); bookRefresh(); return; }
   if (t.dataset && t.dataset.bkk) { BK[t.dataset.bkk] = t.checked; bkUpdate(); }
 });
 document.addEventListener("click", e => {
@@ -1208,47 +1321,47 @@ async function wsOpenShared(kind, packed) {
 let BKShared = null;
 
 
+
 /* =====================================================================
-   ПУБЛИКАЦИЯ С КОРОТКОЙ ССЫЛКОЙ: документ кладётся в папку docs/ репозитория
-   под номером (1.json, 2.json …), ссылка для игроков — …/vmap/#12
-   Ключ GitHub хранится только в этом браузере, в код страницы он не попадает.
+   ДОКУМЕНТЫ: создать → получить номер и ссылку (документ скрыт) →
+   одной кнопкой открыть игрокам или снова скрыть.
    ===================================================================== */
-const GH_KEY = "velaris-gh-v1";
-const ghDefaults = () => {
-  const h = location.hostname, m = h.match(/^([^.]+)\.github\.io$/i), seg = location.pathname.split("/").filter(Boolean);
-  return { owner: m ? m[1] : "sultanstybayev-byte", repo: m && seg.length > 1 ? seg[0] : "vmap" };
-};
-const ghCfg = () => { let c = {}; try { c = JSON.parse(localStorage.getItem(GH_KEY)) || {}; } catch (_) {} return Object.assign(ghDefaults(), c); };
-const ghSaveCfg = c => { try { localStorage.setItem(GH_KEY, JSON.stringify(c)); } catch (_) {} };
 const siteBase = () => location.href.split("#")[0].split("?")[0].replace(/[^/]*$/, "");
 const shortUrl = n => siteBase() + "#" + n;
+const META = ["pubNo", "docTitle", "note", "isPublic"];
 const PUB = {
-  pisma:  () => ({ kind: "pismo",  title: (LW.sign ? "Письмо: " + LW.sign : "Письмо"), data: LW, holder: LW }),
-  kniga:  () => ({ kind: "kniga",  title: BK.title || "Книга", data: BK, holder: BK }),
-  stopka: () => ({ kind: "stopka", title: STK.title || "Бумаги", data: { title: STK.title, sheets: STK.sheets }, holder: STK })
+  pisma:  () => ({ kind: "pismo",  auto: LW.sign ? "Письмо: " + LW.sign : "Письмо", data: LW, holder: LW }),
+  kniga:  () => ({ kind: "kniga",  auto: BK.title || "Книга", data: BK, holder: BK }),
+  stopka: () => ({ kind: "stopka", auto: STK.title || "Бумаги", data: { title: STK.title, sheets: STK.sheets }, holder: STK })
 };
+const KIND_TOOL = { pismo: "pisma", kniga: "kniga", stopka: "stopka" };
+const docTitleOf = d => String(d.holder.docTitle || "").trim() || d.auto;
+function ghSetHTML() {
+  const c = ghCfg();
+  return `<details class="pub-set" data-ghbox${c.token ? "" : " open"}><summary>${c.token ? "Ключ GitHub подключён ✓ — изменить" : "Подключить ключ GitHub (один раз на каждом устройстве)"}</summary>
+    <ol class="pub-steps">
+      <li>Откройте <b>github.com/settings/personal-access-tokens/new</b>.</li>
+      <li>Название любое, срок — самый долгий. <b>Repository access</b>: «Only select repositories» → <b>${esc(c.repo)}</b>.</li>
+      <li><b>Repository permissions</b> → <b>Contents</b>: «Read and write». Нажмите <b>Generate token</b> и скопируйте ключ.</li>
+      <li>Вставьте ключ сюда. Он хранится только в этом браузере.</li>
+    </ol>
+    <div class="lw-2"><div class="fld"><label>Владелец</label><input type="text" data-gh="owner" value="${esc(c.owner)}"></div><div class="fld"><label>Репозиторий</label><input type="text" data-gh="repo" value="${esc(c.repo)}"></div></div>
+    <div class="fld"><label>Ключ GitHub</label><input type="password" data-gh="token" value="${esc(c.token || "")}" placeholder="github_pat_…" autocomplete="off"></div>
+    <div class="actions"><button type="button" class="btn ghost" data-ghsave>Сохранить</button>${c.token ? `<button type="button" class="btn ghost" data-ghforget>Забыть ключ</button>` : ""}</div>
+  </details>`;
+}
 function pubHTML(tool) {
-  const d = PUB[tool](), no = d.holder.pubNo, c = ghCfg();
+  const d = PUB[tool](), h = d.holder, no = h.pubNo, tok = !!ghCfg().token;
   return `<div class="pub" data-pub="${tool}">
-    <h4 class="pub-h">Для игроков</h4>
+    <h4 class="pub-h">${no ? `Документ №${no} <span class="dstat${h.isPublic ? " on" : ""}">${h.isPublic ? "открыт игрокам" : "скрыт от игроков"}</span>` : "Новый документ"}</h4>
+    <div class="fld"><label>Название в списке документов</label><input type="text" data-dmeta="docTitle" value="${esc(h.docTitle || "")}" placeholder="${esc(d.auto)}"></div>
+    <div class="fld"><label>Сводка для игроков</label><textarea data-dmeta="note" rows="3" placeholder="При каких обстоятельствах и кем получено. Например: найдено у курьера на тракте к Кальдерону; досталось Эрику и Лире.">${esc(h.note || "")}</textarea><small>Видна в списке документов, но не внутри самого документа.</small></div>
     <div class="actions">${no
-      ? `<button type="button" class="btn" data-pubgo="update">Обновить документ №${no}</button><button type="button" class="btn ghost" data-pubgo="new">Сохранить как новый</button><button type="button" class="btn ghost" data-pubshow="${no}">Ссылка №${no}</button>`
-      : `<button type="button" class="btn" data-pubgo="new">Опубликовать — короткая ссылка</button>`}</div>
-    <button type="button" class="pub-new" data-pubreset>${{ pisma: "+ Начать новое письмо", kniga: "+ Начать новую книгу", stopka: "+ Начать новую стопку" }[tool]}</button>
-    <div class="pub-out" hidden><div class="pub-row"><input type="text" readonly aria-label="Ссылка для игроков"><button type="button" class="btn ghost" data-pubcopy>Копировать</button></div><small class="pub-msg"></small></div>
-    <details class="pub-set"${c.token ? "" : ""}><summary>${c.token ? "Публикация настроена ✓ — изменить" : "Настроить публикацию (один раз)"}</summary>
-      <ol class="pub-steps">
-        <li>На GitHub: аватар справа вверху → <b>Settings</b> → внизу слева <b>Developer settings</b> → <b>Personal access tokens</b> → <b>Fine-grained tokens</b> → <b>Generate new token</b>.</li>
-        <li>Название любое, срок — самый долгий. <b>Repository access</b>: «Only select repositories» → <b>${esc(c.repo)}</b>.</li>
-        <li><b>Permissions</b> → Repository permissions → <b>Contents</b>: «Read and write». Нажмите <b>Generate token</b> и скопируйте ключ.</li>
-        <li>Вставьте его сюда. Ключ хранится только в этом браузере и никуда не публикуется.</li>
-      </ol>
-      <div class="lw-2"><div class="fld"><label>Владелец</label><input type="text" data-gh="owner" value="${esc(c.owner)}"></div><div class="fld"><label>Репозиторий</label><input type="text" data-gh="repo" value="${esc(c.repo)}"></div></div>
-      <div class="fld"><label>Ключ GitHub</label><input type="password" data-gh="token" value="${esc(c.token || "")}" placeholder="github_pat_…" autocomplete="off"></div>
-      <div class="actions"><button type="button" class="btn ghost" data-ghsave>Сохранить</button>${c.token ? `<button type="button" class="btn ghost" data-ghforget>Забыть ключ</button>` : ""}</div>
-      <small class="pub-note">Без ключа тоже можно: кнопка публикации скачает файл с номером, а вы загрузите его в папку <b>docs</b> на GitHub сами.</small>
-    </details>
-    <button type="button" class="pub-long" data-publong>или длинная ссылка без публикации</button>
+      ? `<button type="button" class="btn" data-pubgo="update">Сохранить изменения</button><button type="button" class="btn ghost" data-pubtoggle>${h.isPublic ? "Скрыть от игроков" : "Открыть игрокам"}</button><button type="button" class="btn ghost" data-pubshow="${no}">Ссылка</button>`
+      : `<button type="button" class="btn" data-pubgo="new"${tok ? "" : " disabled"}>Создать документ</button>`}</div>
+    ${no ? `<button type="button" class="pub-long" data-pubgo="new">Сохранить копией под новым номером</button>` : `<small class="pub-note">Документ получит номер и ссылку, но останется скрытым. Открыть его игрокам можно одной кнопкой — здесь или в главном меню, раздел «Документы».</small>`}
+    <div class="pub-out" hidden><div class="pub-row"><input type="text" readonly aria-label="Ссылка на документ"><button type="button" class="btn ghost" data-pubcopy>Копировать</button></div><small class="pub-msg"></small></div>
+    ${tok ? "" : ghSetHTML()}
   </div>`;
 }
 const pubBox = el => el.closest(".pub");
@@ -1257,97 +1370,167 @@ function pubSay(box, url, msg) {
   if (url != null) o.querySelector("input").value = url;
   o.querySelector(".pub-msg").textContent = msg || "";
 }
-async function ghApi(c, path, opt = {}) {
-  const r = await fetch(`https://api.github.com/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/contents/${path}`, Object.assign({}, opt, {
-    headers: Object.assign({ Accept: "application/vnd.github+json" }, c.token ? { Authorization: "Bearer " + c.token } : {}, opt.body ? { "Content-Type": "application/json" } : {})
-  }));
-  return r;
+function pubSave(tool) { if (tool === "kniga") bkSave(); else if (tool === "stopka") stSave(); else { const h = lwHost; lwHost = null; lwSave(); lwHost = h; } }
+function pubRedraw(tool, keepMsg) {
+  const box = document.querySelector(`.pub[data-pub="${tool}"]`); if (!box) return;
+  const out = box.querySelector(".pub-out"), keep = !out.hidden ? out.innerHTML : null, val = out.querySelector("input").value;
+  const f = document.createElement("div"); f.innerHTML = pubHTML(tool); const nb = f.firstElementChild;
+  if (keep && keepMsg !== false) { const o = nb.querySelector(".pub-out"); o.innerHTML = keep; o.hidden = false; o.querySelector("input").value = val; }
+  box.replaceWith(nb);
 }
-async function ghNextNo(c) {
-  const r = await ghApi(c, "docs", { cache: "no-store" });
-  if (r.status === 404) return 1;
-  if (!r.ok) throw new Error(r.status === 401 ? "Ключ GitHub не подходит или истёк." : "GitHub ответил ошибкой " + r.status + ".");
-  const list = await r.json(); let max = 0;
-  (Array.isArray(list) ? list : []).forEach(f => { const m = /^(\d+)\.json$/.exec(f.name); if (m) max = Math.max(max, +m[1]); });
-  return max + 1;
+/* при открытии редактора уточняем, не открыли/скрыли ли документ из главного меню */
+function pubSync(tool) {
+  const h = PUB[tool]().holder; if (!h.pubNo || !ghCfg().token) return;
+  dbList(true).then(list => { const e = list.find(x => x.no === h.pubNo); if (e && !!e.public !== !!h.isPublic) { h.isPublic = !!e.public; pubSave(tool); pubRedraw(tool); } }).catch(() => {});
 }
-const utf8b64 = str => { const u = new TextEncoder().encode(str); let s = ""; for (let i = 0; i < u.length; i += 32768) s += String.fromCharCode.apply(null, u.subarray(i, i + 32768)); return btoa(s); };
 async function publish(tool, mode, btn) {
-  const box = pubBox(btn), d = PUB[tool](), c = ghCfg();
-  const doc = { v: 1, kind: d.kind, title: d.title, data: JSON.parse(JSON.stringify(d.data, (k, v) => k === "pubNo" ? undefined : v)) };
-  const json = JSON.stringify(doc);
-  const userFont = JSON.stringify(doc.data).match(/"(hand|sigHand)":"u-/);
-  btn.disabled = true; const label = btn.textContent; btn.textContent = "Публикую…";
+  const box = pubBox(btn), d = PUB[tool](), c = ghCfg(), h = d.holder;
+  if (!c.token) { pubSay(box, null, "Сначала подключите ключ GitHub — ниже."); return; }
+  const title = docTitleOf(d), note = String(h.note || "").trim();
+  const doc = { v: 2, kind: d.kind, title, note, data: JSON.parse(JSON.stringify(d.data, (k, v) => META.includes(k) ? undefined : v)) };
+  btn.disabled = true; const label = btn.textContent; btn.textContent = mode === "new" ? "Создаю…" : "Сохраняю…";
   try {
-    let no = mode === "update" && d.holder.pubNo ? d.holder.pubNo : await ghNextNo(c);
-    if (!c.token) {
-      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([json], { type: "application/json" })); a.download = no + ".json"; document.body.appendChild(a); a.click(); a.remove();
-      d.holder.pubNo = no; pubSave(tool);
-      pubSay(box, shortUrl(no), `Скачан файл ${no}.json. Загрузите его на GitHub в папку docs (Add file → Upload files, перетащите файл, а в начале имени допишите «docs/»). Через минуту ссылка заработает.`);
+    let no;
+    if (mode === "update" && h.pubNo) {
+      no = h.pubNo;
+      const { sha } = await ghRead(c, `docs/${no}.json`);
+      await ghWrite(c, `docs/${no}.json`, doc, sha, `Документ №${no}: ${title}`);
+      await dbUpdate(docs => { let e = docs.find(x => x.no === no); if (!e) { e = { no, public: false, created: dbToday() }; docs.push(e); } Object.assign(e, { kind: d.kind, title, note, updated: dbToday() }); h.isPublic = !!e.public; }, `Документ №${no}: ${title}`);
     } else {
-      let sha;
-      const g = await ghApi(c, `docs/${no}.json`, { cache: "no-store" });
-      if (g.ok) sha = (await g.json()).sha; else if (g.status === 401) throw new Error("Ключ GitHub не подходит или истёк.");
-      const r = await ghApi(c, `docs/${no}.json`, { method: "PUT", body: JSON.stringify({ message: `Документ №${no}: ${d.title}`, content: utf8b64(json), sha }) });
-      if (!r.ok) throw new Error(r.status === 401 ? "Ключ GitHub не подходит или истёк." : r.status === 403 || r.status === 404 ? "У ключа нет права записи: в Permissions → Contents нужно «Read and write», и в доступе должен быть этот репозиторий." : "GitHub ответил ошибкой " + r.status + ".");
-      d.holder.pubNo = no; pubSave(tool);
-      pubSay(box, shortUrl(no), (mode === "update" ? `Документ №${no} обновлён.` : `Опубликовано как №${no}.`) + " Ссылка заработает примерно через минуту — сайту нужно обновиться." + (userFont ? " Свой шрифт игроки не увидят — у них будет запасной." : ""));
+      no = await dbUpdate(async docs => {
+        let max = docs.reduce((m, x) => Math.max(m, x.no), 0);
+        const r = await ghApi(c, "docs"); if (r.ok) (await r.json()).forEach(f => { const m = /^(\d+)\.json$/.exec(f.name); if (m) max = Math.max(max, +m[1]); });
+        const n = max + 1; docs.push({ no: n, kind: d.kind, title, note, public: false, created: dbToday(), updated: dbToday() }); docs.sort((a, b) => a.no - b.no); return n;
+      }, `Новый документ: ${title}`);
+      await ghWrite(c, `docs/${no}.json`, doc, null, `Документ №${no}: ${title}`);
+      h.isPublic = false;
     }
-    try { await navigator.clipboard.writeText(shortUrl(no)); toast("Короткая ссылка скопирована: " + shortUrl(no).replace(/^https?:\/\//, "")); } catch (_) {}
-    const keep = box.querySelector(".pub-out").innerHTML, open = box.querySelector(".pub-set").open;
-    const fresh = document.createElement("div"); fresh.innerHTML = pubHTML(tool); const nb = fresh.firstElementChild;
-    nb.querySelector(".pub-out").innerHTML = keep; nb.querySelector(".pub-out").hidden = false; nb.querySelector(".pub-out input").value = shortUrl(no); nb.querySelector(".pub-set").open = open;
-    box.replaceWith(nb);
-  } catch (err) {
-    btn.disabled = false; btn.textContent = label;
-    pubSay(box, null, "Не получилось: " + (err.message || "нет связи с GitHub") + "");
-    if (!c.token) pubSay(box, null, "Не получилось узнать следующий номер документа. Проверьте интернет или настройте публикацию с ключом.");
-  }
+    h.pubNo = no; pubSave(tool); pubRedraw(tool, false);
+    const nb = document.querySelector(`.pub[data-pub="${tool}"]`);
+    pubSay(nb, shortUrl(no), mode === "update" ? `Изменения сохранены. Игроки увидят их примерно через минуту.` : `Создан документ №${no}. Пока он скрыт — нажмите «Открыть игрокам», когда придёт время.`);
+  } catch (err) { btn.disabled = false; btn.textContent = label; pubSay(box, null, "Не получилось: " + (err.message || "нет связи с GitHub")); }
 }
-function pubSave(tool) { if (tool === "kniga") bkSave(); else if (tool === "stopka") stSave(); else lwSave(); }
+async function pubToggle(tool, btn) {
+  const box = pubBox(btn), h = PUB[tool]().holder; btn.disabled = true;
+  try { await dbSetPublic(h.pubNo, !h.isPublic); h.isPublic = !h.isPublic; pubSave(tool); pubRedraw(tool, false);
+    pubSay(document.querySelector(`.pub[data-pub="${tool}"]`), shortUrl(h.pubNo), h.isPublic ? "Открыт игрокам. В разделе «Документы» появится примерно через минуту." : "Скрыт. Игроки перестанут его видеть примерно через минуту.");
+  } catch (err) { btn.disabled = false; pubSay(box, null, "Не получилось: " + err.message); }
+}
+document.addEventListener("input", e => {
+  const t = e.target; if (!t.dataset || !t.dataset.dmeta) return;
+  const box = pubBox(t), tool = box.dataset.pub; PUB[tool]().holder[t.dataset.dmeta] = t.value; pubSave(tool);
+});
+const copyText = (txt, ok) => navigator.clipboard.writeText(txt).then(() => toast(ok || "Скопировано."), () => toast(txt));
 document.addEventListener("click", e => {
-  const b = e.target.closest && e.target.closest("[data-pubgo],[data-pubreset],[data-pubcopy],[data-publong],[data-ghsave],[data-ghforget],[data-pubshow]");
+  const b = e.target.closest && e.target.closest("[data-pubgo],[data-pubtoggle],[data-pubcopy],[data-pubshow],[data-ghsave],[data-ghforget]");
   if (!b) return;
   const box = pubBox(b), tool = box && box.dataset.pub;
   if (b.dataset.pubgo) return publish(tool, b.dataset.pubgo, b);
-  if (b.hasAttribute("data-pubreset")) {
-    const what = { pisma: "письмо", kniga: "книгу", stopka: "стопку" }[tool];
-    if (!window.confirm(`Начать новую ${what}? Текущая останется в опубликованном виде (если вы её публиковали), а здесь поля очистятся.`.replace("новую письмо", "новое письмо"))) return;
-    const blankLetter = () => Object.assign({}, LW_BASE, LW_PRESETS.guild.s, { place: "", greet: "", body: "", close: "", sign: "", ps: "", seal: "none", seed: Math.floor(Math.random() * 9000) + 1 });
-    if (tool === "pisma") { LW = blankLetter(); lwSave(); lwRefreshForm(); }
-    if (tool === "kniga") { BK = JSON.parse(JSON.stringify(BK_EMPTY)); bkFocus = 0; bkSave(); bookRefresh(); }
-    if (tool === "stopka") { STK = { title: "", cur: 0, sheets: [blankLetter()] }; stSave(); stackInit(); }
-    scrollTo({ top: 0, behavior: "smooth" }); toast("Новый документ. Когда закончите — «Опубликовать»."); return;
-  }
-  if (b.dataset.pubshow) { pubSay(box, shortUrl(b.dataset.pubshow), "Ссылка на уже опубликованную версию. Если вы что-то поменяли — нажмите «Обновить»."); return; }
-  if (b.hasAttribute("data-pubcopy")) { const i = box.querySelector(".pub-out input"); navigator.clipboard.writeText(i.value).then(() => toast("Скопировано."), () => { i.focus(); i.select(); toast("Нажмите Ctrl+C."); }); return; }
-  if (b.hasAttribute("data-publong")) {
-    const d = PUB[tool]();
-    wsPack(d.kind === "pismo" ? { title: d.title, sheets: [d.data] } : d.data).then(p => pubSay(box, location.href.split("#")[0] + "#" + (d.kind === "kniga" ? "kniga" : "stopka") + "=" + p, "Длинная ссылка: всё содержимое внутри неё, на сайт ничего загружать не нужно. Её можно сократить на vk.com/cc."));
-    return;
-  }
+  if (b.hasAttribute("data-pubtoggle")) return pubToggle(tool, b);
+  if (b.dataset.pubshow) { pubSay(box, shortUrl(b.dataset.pubshow), PUB[tool]().holder.isPublic ? "Ссылку можно отправлять игрокам." : "Документ скрыт: по ссылке его увидят только администраторы."); return; }
+  if (b.hasAttribute("data-pubcopy")) { copyText(box.querySelector(".pub-out input").value); return; }
   if (b.hasAttribute("data-ghsave") || b.hasAttribute("data-ghforget")) {
-    const c = ghCfg(); box.querySelectorAll("[data-gh]").forEach(i => c[i.dataset.gh] = i.value.trim());
+    const gb = b.closest("[data-ghbox]"), c = ghCfg(); gb.querySelectorAll("[data-gh]").forEach(i => c[i.dataset.gh] = i.value.trim());
     if (b.hasAttribute("data-ghforget")) delete c.token;
-    ghSaveCfg(c); toast(b.hasAttribute("data-ghforget") ? "Ключ удалён из этого браузера." : "Сохранено.");
-    const fresh = document.createElement("div"); fresh.innerHTML = pubHTML(tool); box.replaceWith(fresh.firstElementChild);
+    ghSaveCfg(c); toast(b.hasAttribute("data-ghforget") ? "Ключ удалён из этого браузера." : "Ключ сохранён.");
+    route();
   }
 });
-/* открытие документа по номеру: …/vmap/#12 → masterskaya.html#12 */
+
+/* ---------- список документов в Мастерской ---------- */
+function docsHTML() {
+  return `<div class="dl wide">
+    <p class="lw-lead">Все документы. Скрытые видят только администраторы, открытые — игроки в разделе «Документы» главного меню.</p>
+    <div class="dl-grid" id="dl-grid">
+      <div class="dl-new"><button type="button" class="dl-plus" data-newdoc><span>+</span><b>Создать документ</b></button>
+        <div class="dl-kinds" hidden><button type="button" data-newkind="pisma">Письмо или указ</button><button type="button" data-newkind="kniga">Книга</button><button type="button" data-newkind="stopka">Стопка бумаг</button></div></div>
+      <p class="dl-wait">Загружаю список…</p>
+    </div>
+    ${ghSetHTML()}
+  </div>`;
+}
+let DOCS = [];
+function docCard(d) {
+  return `<article class="dcard" data-no="${d.no}">
+    <header><span class="dno">№${d.no}</span><span class="dkind">${esc(DOC_KINDS[d.kind] || "Документ")}</span><span class="dstat${d.public ? " on" : ""}">${d.public ? "открыт" : "скрыт"}</span></header>
+    <h4>${esc(d.title || "Без названия")}</h4>${d.note ? `<p>${esc(d.note)}</p>` : ""}
+    ${d.updated || d.created ? `<small>${esc(d.updated || d.created)}</small>` : ""}
+    <div class="dbtns"><button type="button" data-dopen="${d.no}">Открыть</button><button type="button" data-dedit="${d.no}">Изменить</button><button type="button" data-dtoggle="${d.no}">${d.public ? "Скрыть" : "Открыть игрокам"}</button><button type="button" data-dlink="${d.no}">Ссылка</button></div>
+  </article>`;
+}
+function docsDraw() {
+  const g = $("#dl-grid"); if (!g) return;
+  g.querySelectorAll(".dcard,.dl-wait").forEach(x => x.remove());
+  g.insertAdjacentHTML("beforeend", DOCS.length ? DOCS.slice().sort((a, b) => b.no - a.no).map(docCard).join("") : `<p class="dl-wait">Документов пока нет — нажмите «+».</p>`);
+}
+async function docsInit() {
+  if (!ghCfg().token) { const g = $("#dl-grid .dl-wait"); if (g) g.textContent = "Чтобы видеть и создавать документы, подключите ключ GitHub — ниже."; return; }
+  try { await dbAdopt(); DOCS = await dbList(true); docsDraw(); }
+  catch (err) { const g = $("#dl-grid .dl-wait"); if (g) g.textContent = "Не получилось загрузить: " + err.message; }
+}
+function blankLetter() { return Object.assign({}, LW_BASE, LW_PRESETS.guild.s, { place: "", greet: "", body: "", close: "", sign: "", ps: "", seal: "none", seed: Math.floor(Math.random() * 9000) + 1 }); }
+function newDocState(tool) {
+  if (tool === "pisma") { const h = lwHost; lwHost = null; LW = blankLetter(); lwSave(); lwHost = h; }
+  if (tool === "kniga") { BK = JSON.parse(JSON.stringify(BK_EMPTY)); bkFocus = 0; bkSave(); }
+  if (tool === "stopka") { STK = { title: "", cur: 0, sheets: [blankLetter()] }; stSave(); }
+}
+const draftDirty = tool => { const h = PUB[tool]().holder; if (h.pubNo) return false; if (tool === "pisma") return !!(LW.body || "").trim(); if (tool === "kniga") return BK.pages.some(p => (p.t || "").trim()); return STK.sheets.some(s => (s.body || "").trim()); };
+document.addEventListener("click", async e => {
+  const b = e.target.closest && e.target.closest("[data-newdoc],[data-newkind],[data-dopen],[data-dedit],[data-dtoggle],[data-dlink]");
+  if (!b) return;
+  if (b.hasAttribute("data-newdoc")) { const k = b.parentElement.querySelector(".dl-kinds"); k.hidden = !k.hidden; return; }
+  if (b.dataset.newkind) {
+    const tool = b.dataset.newkind;
+    if (draftDirty(tool) && !window.confirm("Несохранённый черновик в этом редакторе будет заменён новым документом. Продолжить?")) return;
+    newDocState(tool); location.hash = tool; return;
+  }
+  const no = +(b.dataset.dopen || b.dataset.dedit || b.dataset.dtoggle || b.dataset.dlink);
+  if (b.dataset.dopen) { location.hash = String(no); return; }
+  if (b.dataset.dlink) { const d = DOCS.find(x => x.no === no); copyText(shortUrl(no), d && d.public ? "Ссылка скопирована." : "Ссылка скопирована. Документ скрыт — игроки его пока не увидят."); return; }
+  if (b.dataset.dtoggle) {
+    const d = DOCS.find(x => x.no === no); b.disabled = true;
+    try { await dbSetPublic(no, !d.public); d.public = !d.public; docsDraw(); toast(d.public ? "Открыт игрокам — появится в меню примерно через минуту." : "Скрыт от игроков."); }
+    catch (err) { b.disabled = false; toast("Не получилось: " + err.message); }
+    return;
+  }
+  if (b.dataset.dedit) editDoc(no, b);
+});
+
+async function editDoc(no, b) {
+  if (b) b.disabled = true;
+  try {
+    if (!DOCS.length) DOCS = await dbList(true);
+    const { data } = await ghRead(ghCfg(), `docs/${no}.json`); if (!data) throw new Error("файл не найден");
+    const ent = DOCS.find(x => x.no === no) || {}, tool = KIND_TOOL[data.kind];
+    const meta = { pubNo: no, docTitle: ent.title || data.title || "", note: ent.note != null ? ent.note : (data.note || ""), isPublic: !!ent.public };
+    if (draftDirty(tool) && !window.confirm("Несохранённый черновик в этом редакторе будет заменён. Продолжить?")) { if (b) b.disabled = false; location.hash = "docs"; return; }
+    if (tool === "pisma") { const h = lwHost; lwHost = null; LW = Object.assign({}, LW_BASE, data.data, meta); lwSave(); lwHost = h; }
+    if (tool === "kniga") { BK = Object.assign({}, data.data, meta); bkFocus = 0; bkSave(); }
+    if (tool === "stopka") { STK = Object.assign({ title: data.data.title || "", cur: 0, sheets: data.data.sheets || [blankLetter()] }, meta); stSave(); }
+    location.hash = tool;
+  } catch (err) { if (b) b.disabled = false; toast("Не получилось открыть: " + err.message); if (!b) location.hash = "docs"; }
+}
+
+/* ---------- открытие документа по номеру: …/vmap/#12 ---------- */
 async function wsOpenNumber(no) {
   document.documentElement.classList.add("shared");
-  const host = wsViewer("Документ №" + no, false);
-  host.innerHTML = `<p class="ws-bad">Открываю…</p>`;
+  const admin = isAdmin(), c = ghCfg(), closable = admin && (wsRouted || !inHub);
+  wsBackHash = closable ? "docs" : null;
+  const host = wsViewer("Документ №" + no, closable); host.innerHTML = `<p class="ws-bad">Открываю…</p>`;
   try {
-    const r = await fetch("docs/" + no + ".json?t=" + Date.now(), { cache: "no-store" });
-    if (!r.ok) throw 0;
-    const d = await r.json();
-    const h = wsViewer(d.title || "Документ", false);
-    if (d.kind === "kniga") bookView(h, d.data, { full: true });
-    else if (d.kind === "stopka") stackView(h, d.data.sheets || []);
-    else stackView(h, [d.data]);
-    document.title = (d.title || "Документ") + " — Империя Веларис";
-  } catch (_) { host.innerHTML = `<p class="ws-bad">Документ №${esc(no)} не найден. Если мастер только что его опубликовал — подождите минуту и обновите страницу.</p>`; }
+    const list = await dbList(admin && !!c.token), ent = list.find(x => x.no === +no);
+    if (!admin && (!ent || !ent.public)) { host.innerHTML = `<p class="ws-bad">${ent ? "Этот документ пока скрыт мастером." : `Документ №${esc(no)} не найден или ещё скрыт. Если мастер только что его открыл — подождите минуту и обновите страницу.`}</p>`; return; }
+    let doc = null;
+    if (admin && c.token) doc = (await ghRead(c, `docs/${no}.json`)).data;
+    else { const r = await fetch("docs/" + no + ".json?t=" + Date.now(), { cache: "no-store" }); if (r.ok) doc = await r.json(); }
+    if (!doc) throw 0;
+    const title = (ent && ent.title) || doc.title || "Документ", note = ent ? ent.note : doc.note;
+    const h = wsViewer(title + (admin && ent && !ent.public ? " · скрыт" : ""), closable, note);
+    if (doc.kind === "kniga") bookView(h, doc.data, { full: true });
+    else if (doc.kind === "stopka") stackView(h, doc.data.sheets || []);
+    else stackView(h, [doc.data]);
+    document.title = title + " — Империя Веларис";
+  } catch (_) { host.innerHTML = `<p class="ws-bad">Документ №${esc(no)} не найден. Если мастер только что его создал — подождите минуту и обновите страницу.</p>`; }
 }
 lwExtra = () => pubHTML("pisma");
 
@@ -1355,6 +1538,7 @@ lwExtra = () => pubHTML("pisma");
 /* ---------- Инструменты мастерской ----------
    Новый инструмент: добавьте строку в TOOLS — [адрес, название, функция-разметка, функция-запуск]. */
 const TOOLS = [
+  ["docs", "Все документы", docsHTML, docsInit],
   ["pisma", "Письма и указы", letterHTML, letterInit],
   ["kniga", "Книга", bookHTML, bookInit],
   ["stopka", "Стопка бумаг", stackHTML, stackInit]
@@ -1365,9 +1549,18 @@ function route() {
   if (/^\d{1,8}$/.test(id)) return wsOpenNumber(id);
   if (document.documentElement.classList.contains("shared")) { document.documentElement.classList.remove("shared"); wsCloseViewer(); }
   wsCloseViewer();
+  if (!isAdmin()) {
+    /* мастерская — только для администраторов приложения (или браузера с ключом GitHub) */
+    $("#rail").innerHTML = "";
+    $("#sheet").innerHTML = `<div class="gate wide"><h2>Мастерская закрыта</h2><p>Здесь мастера создают письма, книги и бумаги. Она открыта администраторам и редакторам группы — откройте её из приложения ВК, из раздела «Документы».</p><p>Мастер на новом устройстве может войти, подключив свой ключ GitHub:</p>${ghSetHTML()}</div>`;
+    document.title = "Мастерская Велариса"; return;
+  }
+  const ed = id.match(/^edit-(\d+)$/); if (ed) { $("#sheet").innerHTML = `<p class="lw-lead">Открываю документ №${ed[1]}…</p>`; return editDoc(+ed[1]); }
   const t = TOOLS.find(x => x[0] === id) || TOOLS[0];
-  $("#rail").innerHTML = TOOLS.map(x => `<button type="button" data-tool="${x[0]}" aria-selected="${x === t}">${esc(x[1])}</button>`).join("") + `<div class="soon">Скоро здесь появятся новые инструменты</div>`;
+  $("#rail").innerHTML = TOOLS.map(x => `<button type="button" data-tool="${x[0]}" aria-selected="${x === t}">${esc(x[1])}</button>`).join("");
   $("#sheet").innerHTML = t[2](); if (t[3]) t[3]();
+  if (PUB[t[0]]) pubSync(t[0]);
+  wsRouted = true;
   document.title = t[1] + " — Мастерская Велариса";
 }
 document.addEventListener("click", e => {
@@ -1396,6 +1589,7 @@ addEventListener("keydown", e => { if (e.key === "Escape") $("#zoom").classList.
   addEventListener("pointermove", e => { if (!st) return; const dx = e.clientX - st.x, dy = e.clientY - st.y; if (Math.abs(dx) + Math.abs(dy) > 4) { st.m = true; z.classList.add("drag"); } z.scrollLeft = st.l - dx; z.scrollTop = st.t - dy; });
   addEventListener("pointerup", () => { if (!st) return; if (st.m) z._dragged = true; st = null; z.classList.remove("drag"); });
 })();
+if (window.parent !== window) $(".hubback").hidden = false;
 addEventListener("hashchange", route);
 route();
 </script>

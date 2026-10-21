@@ -2236,6 +2236,13 @@ $("#b-power").addEventListener("click", () => {
   else showPower();
 });
 $("#b-quests").addEventListener("click", () => { if (view === "quests") closePanel(); else showQuests(); });
+/* Гостям (не участникам группы ВК) доска квестов не показывается */
+(() => {
+  const q = new URLSearchParams(location.search), role = q.get("vk_viewer_group_role") || "";
+  let tok = ""; try { tok = (JSON.parse(localStorage.getItem("velaris-gh-v1")) || {}).token || ""; } catch (_) {}
+  const member = !!tok || ["member", "moder", "editor", "admin"].includes(role) || (q.has("vk_group_id") && !role);
+  if (!member) $("#b-quests").style.display = "none";
+})();
 
 /* ---------- Intro ---------- */
 function boot() {
