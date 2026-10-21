@@ -844,7 +844,11 @@
    "chars": [
     {
      "id": "cmvig2nkdnxt",
-     "name": "Селена Морвейн"
+     "name": "Селена Морвейн",
+     "facs": [
+      "none"
+     ],
+     "fac": "none"
     },
     {
      "id": "cmvig6hb021l",
