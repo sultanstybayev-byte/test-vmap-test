@@ -842,6 +842,8 @@ const SKVERNA_IMG = "data:image/webp;base64,UklGRsDvAABXRUJQVlA4ILTvAAAwPASdASoA
 const $ = s => document.querySelector(s);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const linkify = s => esc(s).replace(/(https?:\/\/[^\s<]+)/g, '<a class="vk" href="$1" target="_blank" rel="noopener">$1</a>');
+/* короткая ссылка на документ мастерской: …/vmap/#12 */
+if (/^#\d{1,8}$/.test(location.hash)) location.replace("masterskaya.html" + location.hash);
 const KEEP = location.search;                       /* параметры ВК передаём дальше, на страницу карты */
 const mapHref = h => "karta.html" + KEEP + (h ? "#" + h : "");
 const toast = m => { const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("on"), 3200); };
