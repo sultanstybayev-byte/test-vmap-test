@@ -14,7 +14,7 @@
    "kind": "kniga",
    "title": "Записки лекаря",
    "note": "",
-   "public": false,
+   "public": true,
    "created": "21 октября 2026 г.",
    "updated": "21 октября 2026 г."
   }
