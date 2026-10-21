@@ -66,11 +66,20 @@
   {
    "id": 320274126,
    "play": true,
-   "char": "",
+   "char": "Мирос, Лилия Этерис (Де Верис)\"пепельная\", Агато Лиамс, Кот, Эдмер падальщик, Доменик, Родерик фа Лемрой",
    "name": "Анастасия Неборак",
    "photo": "https://sun1-26.vkuserphoto.ru/s/v1/ig2/LvqsLHecUR5_hkHxq6ZLLlQf5rEDA9CZbfYwa_rrDhiNZJONfaHsizx-lXq71Sc9ZMFYSqxe1-OcH5QOMaJ6kxej.jpg?quality=95&crop=6,53,593,593&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "ank": [
+    92,
+    74,
+    69,
+    65,
+    62,
+    51,
+    31
+   ]
   },
   {
    "id": 339406699,
@@ -84,11 +93,14 @@
   {
    "id": 411213622,
    "play": true,
-   "char": "",
+   "char": "Эллеттра Салларри",
    "name": "Hungry Moray",
    "photo": "https://sun1-18.vkuserphoto.ru/s/v1/ig2/XWRGs27zAPnLsfsjxT2pxNgo_br_ykMCD4Rk39Kf84RhdKcZhyXH-JwIL7LGSKp0WcHkiF1kIwk7uMSDOJvsKFpM.jpg?quality=95&crop=81,187,617,617&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "ank": [
+    43
+   ]
   },
   {
    "id": 439139905,
@@ -164,21 +176,32 @@
   },
   {
    "id": 554168065,
-   "play": false,
-   "char": "",
+   "play": true,
+   "char": "Альмонд Ормарр |",
    "name": "Влад Силва",
    "photo": "https://sun2-15.vkuserphoto.ru/s/v1/ig2/9EKCD23QKWlD6vf8tTcE-LKvmv6iLmWUxnPIPVpY55yo2x60CrAYvtFpi9EASzlXjjcBPxPc5H8HMPH2gybEdgmi.jpg?quality=95&crop=228,180,1344,1344&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1080x1080,1280x1280&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "ank": [
+    36
+   ]
   },
   {
    "id": 557609350,
    "play": true,
-   "char": "",
+   "char": "◈ Иден, ◈ Тарис Кха‑Зар |, ✧ Вортигерн «Крушитель» Пендра́гон, ◈ Идрис «Убивец Магов», ❥ Белль «Хвостик» |, • Лисандр «Безликий» фон Венделл |",
    "name": "Cloudy Moth",
    "photo": "https://sun1-22.vkuserphoto.ru/s/v1/ig2/d_uMOpsgfC4g_EfR5J2Ex8-_0bmzU8MDHzjTB8udrWgiRdkreCgiMHy6NucpfKrTwjvqAZZFhl1chMfzB7r4eXiu.jpg?quality=95&crop=0,1,710,710&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "ank": [
+    90,
+    71,
+    61,
+    54,
+    52,
+    50
+   ]
   },
   {
    "id": 572550292,
@@ -228,11 +251,14 @@
   {
    "id": 601008832,
    "play": true,
-   "char": "",
+   "char": "Ссерпента (Ная) Виперисс",
    "name": "מכשפה האנטר",
    "photo": "https://sun1-26.vkuserphoto.ru/s/v1/ig2/Aw8YLW4Biw-yrvMy4hjjQfzbB9r8nCvnoFBdHwbuo0lnhSvX8lm1uP2bu63yQF130C0i6Bsa0jGqc-06VdeyFtij.jpg?quality=95&crop=3,0,1013,1013&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "ank": [
+    93
+   ]
   },
   {
    "id": 662074570,
@@ -255,11 +281,14 @@
   {
    "id": 677622348,
    "play": true,
-   "char": "",
+   "char": "Уильям Морган",
    "name": "Strannik Koru",
    "photo": "https://sun1-56.vkuserphoto.ru/s/v1/ig2/ngLsHP6bEgT5IEuQzLnGlqvbtkAcylt41cikk9nEH227qqXL0SsmBNKOtiZnzfCBSSDu3VYzCcddnmQGUmhBTX7A.jpg?quality=95&crop=283,19,987,987&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "ank": [
+    22
+   ]
   },
   {
    "id": 681001855,
@@ -318,11 +347,14 @@
   {
    "id": 813187189,
    "play": true,
-   "char": "",
+   "char": "Халаскер «Опустошитель»",
    "name": "Влад Павлов",
    "photo": "https://sun1-25.vkuserphoto.ru/s/v1/ig2/5ZCyEfDFmJ5RpDEQf8lz7csjk0MvjW1VspF1Br00nyr3OYyCrLmAnitl9jpBJhXcxtllR3IW5zH1UC28Kn6jExRM.jpg?quality=96&crop=74,74,588,588&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "ank": [
+    70
+   ]
   },
   {
    "id": 817093997,
@@ -353,12 +385,16 @@
   },
   {
    "id": 1047964229,
-   "play": false,
-   "char": "",
+   "play": true,
+   "char": "Матиас Вельт, Отец Лоренс Вейн",
    "name": "Рыб Ко",
    "photo": "https://sun2-20.vkuserphoto.ru/s/v1/ig2/ic4Azt0SaN5lynEOHIOC2anvSNlahy7_AXLLmw8FiI7mu-khh_zrh3Sa0vpbJ1I6wUQrHiQLZ8JQoL_KMDSFeK7N.jpg?quality=95&crop=0,0,736,736&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "ank": [
+    32,
+    15
+   ]
   },
   {
    "id": 1052122630,
@@ -381,11 +417,16 @@
   {
    "id": 1107296832,
    "play": true,
-   "char": "",
+   "char": "— Ария Моншард-Зелиал |, — Элита (прошлое имя неизвестно) |, — Айзек Стормхилл",
    "name": "Ася Ким",
    "photo": "https://sun2-1.vkuserphoto.ru/s/v1/ig2/K7iozx_PP5xP1-lfjs1g7bxYUvrRcnE7t_Bd9Sj5O9C_rwgBQLHH3ypAvmj761vcOd6t7PBIWCCN-FJ66Cmj5C_m.jpg?quality=95&crop=82,510,1037,1037&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720&ava=1&cs=100x100",
    "role": "member",
-   "left": false
+   "left": false,
+   "ank": [
+    75,
+    33,
+    16
+   ]
   },
   {
    "id": 1120771500,
