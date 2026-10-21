@@ -328,6 +328,7 @@ html.shared #app, html.shared .bg { display: none; }
 .pl-play { font-size: 15px; } .pl-char { padding: 6px 8px; font-size: 15px; }
 .pl-row.left { opacity: .55; }
 @media (max-width: 640px) { .pl-row { grid-template-columns: 36px 1fr auto; } .pl-char { grid-column: 2 / -1; } }
+.qa-q { margin-bottom: 10px; }
 </style>
 </head>
 <body>
@@ -2237,12 +2238,13 @@ document.addEventListener("change", async e => {
    ===================================================================== */
 const QA_BASE = QUESTS.map(q => Object.assign({}, q));          /* исходная доска, без наложенных статусов */
 const QA_OLD = QUEST_ARCHIVE.slice();                            /* старый архив, записанный в коде */
-let QST = {}, qaFilter = "all-groups", qaOpen = null;
+let QST = {}, qaFilter = "all-groups", qaOpen = null, qaQuery = "";
 const qaState = q => (QST[q.n] && QST[q.n].st) || (q.busy ? "busy" : "free");
 function questsAdminHTML() {
   const cnt = g => QA_BASE.filter(q => g === "all-groups" || q.g === g).length;
   return `<div class="qa wide">
     <p class="lw-lead">Отмечайте, какие квесты свободны, а какие заняты. Когда квест закончен — нажмите «Итоги квеста», впишите, что произошло, и он уйдёт в «Архив» с этим итогом. Игроки увидят изменения в «Квестах» главного меню и на карте примерно через минуту.</p>
+    <input type="search" id="qa-q" class="qa-q" placeholder="Поиск по названию квеста" value="${esc(qaQuery)}" autocomplete="off">
     <div class="filters">${[["all-groups", "Все"], ...QUEST_GROUPS].map(([g, n]) => `<button type="button" class="chip" data-qaf="${g}" aria-pressed="${g === qaFilter}">${esc(n)}<span>${cnt(g)}</span></button>`).join("")}</div>
     <div id="qa-list"><p class="lw-lead">Загружаю статусы…</p></div>
     ${ghCfg().token ? "" : `<p class="lw-lead">Чтобы менять статусы, подключите ключ GitHub:</p>${ghSetHTML()}`}
@@ -2262,10 +2264,12 @@ function qaCard(q) {
 }
 function qaDraw() {
   const box = $("#qa-list"); if (!box) return;
-  const list = QA_BASE.filter(q => qaFilter === "all-groups" || q.g === qaFilter);
+  const qq = qaQuery.trim().toLowerCase();
+  const list = QA_BASE.filter(q => (qaFilter === "all-groups" || q.g === qaFilter) && (!qq || q.n.toLowerCase().includes(qq)));
+  if (!list.length) { box.innerHTML = `<p class="lw-lead">Ничего не нашлось${qq ? ` по «${esc(qaQuery.trim())}»` : ""}.</p>`; return; }
   const order = { busy: 0, free: 1, done: 2 };
   box.innerHTML = list.slice().sort((a, b) => order[qaState(a)] - order[qaState(b)]).map(qaCard).join("") +
-    (qaFilter === "all-groups" && QA_OLD.length ? `<h3>Старый архив</h3>${QA_OLD.map(a => `<article class="qa-card st-done old"><header><div><b>${esc(a.n)}</b>${a.g ? `<span class="qg">${esc(groupName[a.g])}</span>` : ""}</div><span class="dstat">завершён раньше</span></header><p class="qa-end"><b>Итог.</b> ${esc(a.end)}</p></article>`).join("")}` : "");
+    (qaFilter === "all-groups" && !qq && QA_OLD.length ? `<h3>Старый архив</h3>${QA_OLD.map(a => `<article class="qa-card st-done old"><header><div><b>${esc(a.n)}</b>${a.g ? `<span class="qg">${esc(groupName[a.g])}</span>` : ""}</div><span class="dstat">завершён раньше</span></header><p class="qa-end"><b>Итог.</b> ${esc(a.end)}</p></article>`).join("")}` : "");
 }
 async function questsAdminInit() {
   try { QST = await qsLoad(!!ghCfg().token); } catch (err) { toast("Не получилось загрузить статусы: " + err.message); QST = {}; }
@@ -2296,6 +2300,7 @@ document.addEventListener("click", e => {
     qaSet(n, { st: "done", end: end.trim(), date: dbToday() }, `«${n}» завершён и ушёл в архив.`);
   }
 });
+document.addEventListener("input", e => { if (e.target.id === "qa-q") { qaQuery = e.target.value; qaDraw(); } });
 
 /* =====================================================================
    ИГРОКИ: участники группы ВК, их роли в группе (только для учёта),
