@@ -876,7 +876,11 @@
     },
     {
      "id": "cmviftxgeges",
-     "name": "Аристей"
+     "name": "Аристей",
+     "facs": [
+      "none"
+     ],
+     "fac": "none"
     }
    ]
   },
