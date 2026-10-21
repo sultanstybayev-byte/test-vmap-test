@@ -123,6 +123,7 @@ figcaption { margin-top: 6px; font: italic 500 15px/1.4 var(--font-body); color:
 #mapov { position: fixed; inset: 0; z-index: 60; background: var(--ink); }
 #mapov iframe { width: 100%; height: 100%; border: 0; display: block; }
 html.map-open, html.map-open body { overflow: hidden; }
+html.map-open .bg, html.map-open #app, html.map-open #ov, html.map-open #toast { display: none !important; }
 
 /* Search, factions, quests */
 .search { margin-bottom: 10px; max-width: 420px; }
@@ -1119,13 +1120,14 @@ function anketaRefresh() {
 }
 
 /* ---------- Карта открывается здесь же, поверх меню — без перехода на другую страницу (во ВК так она не уходит в браузер) */
-let mapSrc = "";
+let mapSrc = "", hubScroll = 0;
 function openMap(h) {
   const ov = $("#mapov"), src = mapHref(h);
   if (!ov.firstChild || mapSrc !== src) { ov.innerHTML = `<iframe title="Атлас земель" src="${src}" allow="fullscreen"></iframe>`; mapSrc = src; }
+  if (!document.documentElement.classList.contains("map-open")) hubScroll = scrollY;
   ov.hidden = false; document.documentElement.classList.add("map-open");
 }
-function closeMap() { const ov = $("#mapov"); try { const fe = document.fullscreenElement || document.webkitFullscreenElement; if (fe) (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (_) {} if (ov) ov.hidden = true; document.documentElement.classList.remove("map-open"); }
+function closeMap() { const ov = $("#mapov"); try { const fe = document.fullscreenElement || document.webkitFullscreenElement; if (fe) (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (_) {} if (ov) ov.hidden = true; if (document.documentElement.classList.contains("map-open")) { document.documentElement.classList.remove("map-open"); scrollTo(0, hubScroll); } }
 addEventListener("message", e => {
   if (e.data && e.data.velaris === "closeMap") { if (location.hash.startsWith("#karta")) history.back(); else closeMap(); }
 });
@@ -1210,11 +1212,6 @@ addEventListener("popstate", render);
     if (window.AndroidBridge && window.AndroidBridge[m]) window.AndroidBridge[m]("{}");
     else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers[m]) window.webkit.messageHandlers[m].postMessage({});
     else if (window.parent !== window) window.parent.postMessage({ handler: m, params: {}, type: "vk-connect" }, "*");
-    /* на компьютере просим ВКонтакте расширить окно приложения до максимума */
-    if (window.parent !== window && /(^|[?&])vk_platform=desktop_web/.test(location.search)) {
-      const grow = () => window.parent.postMessage({ handler: "VKWebAppResizeWindow", params: { width: 1000, height: Math.max(600, Math.min(4050, (screen.availHeight || 900) - 160)) }, type: "vk-connect" }, "*");
-      grow(); setTimeout(grow, 800);
-    }
   } catch (e) {}
 })();
 render();
