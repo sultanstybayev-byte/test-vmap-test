@@ -8,6 +8,15 @@
    "public": false,
    "created": "",
    "updated": "21 октября 2026 г."
+  },
+  {
+   "no": 2,
+   "kind": "kniga",
+   "title": "Записки лекаря",
+   "note": "",
+   "public": false,
+   "created": "21 октября 2026 г.",
+   "updated": "21 октября 2026 г."
   }
  ]
 }
