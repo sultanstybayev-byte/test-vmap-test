@@ -546,7 +546,7 @@
   {
    "id": 1089611600,
    "play": true,
-   "char": "Новый персонаж",
+   "char": "Алдрик",
    "name": "Green Smite",
    "photo": "https://sun1-84.vkuserphoto.ru/s/v1/ig2/o1eMsOUztqSDQ0qdR6Eh8paWWvJC-EWonFKDa4vD7Ni6Uur0Q_E0hShPHItFtTD5tgZG5EFRPoGJLh8DxNv79VhC.jpg?quality=95&crop=156,3,580,580&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540&ava=1&cs=100x100",
    "role": "editor",
@@ -554,7 +554,7 @@
    "chars": [
     {
      "id": "cmvifqwvaeyt",
-     "name": "Новый персонаж"
+     "name": "Алдрик"
     }
    ]
   },
