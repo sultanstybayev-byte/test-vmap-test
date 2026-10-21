@@ -2465,7 +2465,7 @@ function playersHTML() {
   return `<div class="pl wide">
     <p class="lw-lead">Участники группы ВК. Отметьте, кто играет, и подпишите персонажа — тогда при выдаче документа их легко найти. Роли в группе показаны только для учёта, менять их здесь нельзя.</p>
     <div class="pl-top">
-      <button type="button" class="btn" data-plload${inVK ? "" : " disabled"}>Загрузить участников группы</button><button type="button" class="btn ghost" data-ankscan${inVK ? "" : " disabled"}>Найти персонажей в анкетах</button>
+      <button type="button" class="btn" data-plload${inVK ? "" : " disabled"}>Загрузить участников группы</button>
       <small id="pl-upd">${inVK ? "Нажимать может админ группы — ВК один раз спросит разрешение." : "Кнопка работает только внутри приложения ВК: главное меню → «Документы» → «Мастерская»."}</small>
     </div>
     <div class="pl-bar">
@@ -2473,7 +2473,6 @@ function playersHTML() {
       <div class="filters">${[["all", "Все"], ["play", "Играют"], ["staff", "Руководство"], ["left", "Вышли"]].map(([k, t]) => `<button type="button" class="chip" data-plf="${k}" aria-pressed="${plFilter === k}">${t}<span data-plc="${k}"></span></button>`).join("")}</div>
     </div>
     <div class="pl-add"><input type="text" id="pl-addurl" placeholder="Добавить игрока не из группы: ссылка vk.ru/id… или короткое имя"><button type="button" class="btn ghost" data-pladd>Добавить</button></div>
-    <div id="ank-box"></div>
     <div id="pl-list"><p class="lw-lead">Загружаю список…</p></div>
     ${ghCfg().token ? "" : `<p class="lw-lead">Чтобы сохранять список, подключите ключ GitHub:</p>${ghSetHTML()}`}
   </div>`;
@@ -2686,7 +2685,7 @@ function memberChip(m) {
 }
 function factionsAdminHTML() {
   return `<div class="fa wide">
-    <p class="lw-lead">Кто из персонажей к какой фракции принадлежит. «+» — добавить персонажа игрока или NPC мастера. Фракцию можно вписать и автоматически: «Игроки» → «Найти персонажей в анкетах» (8-й пункт анкеты).</p>
+    <p class="lw-lead">Кто из персонажей к какой фракции принадлежит. «+» — добавить персонажа игрока или NPC мастера.</p>
     <div id="fa-list"><p class="lw-lead">Загружаю…</p></div>
     ${ghCfg().token ? "" : `<p class="lw-lead">Чтобы сохранять, подключите ключ GitHub:</p>${ghSetHTML()}`}
   </div>`;
