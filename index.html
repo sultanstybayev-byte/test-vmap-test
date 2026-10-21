@@ -1031,6 +1031,37 @@ function askYes(text, yes = "Да", no = "Отмена", danger = false) {
   });
 }
 
+/* ---------- КВЕСТЫ: статусы и итоги (docs/quests.json) ----------
+   states[название квеста] = { st: "free" | "busy" | "done", end: "итоги", date } */
+async function qsLoad(fresh) {
+  const c = ghCfg();
+  if (fresh && c.token) { const { data } = await ghRead(c, "docs/quests.json"); return (data && data.states) || {}; }
+  try { const r = await fetch("docs/quests.json?t=" + Date.now(), { cache: "no-store" }); if (r.ok) return (await r.json()).states || {}; } catch (_) {}
+  return {};
+}
+async function qsUpdate(mutate, message) {
+  const c = ghCfg();
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const { data, sha } = await ghRead(c, "docs/quests.json");
+    const obj = { states: (data && data.states) || {} };
+    mutate(obj.states);
+    try { await ghWrite(c, "docs/quests.json", obj, sha, message); return obj.states; }
+    catch (e) { if (e.status !== 409 && e.status !== 422) throw e; }
+  }
+  throw new Error("Квесты менялись одновременно с вами. Попробуйте ещё раз.");
+}
+/* наложить статусы на доску квестов: занятые помечаются, завершённые уходят в архив с итогом */
+function applyQuestStates(st) {
+  if (!st || typeof QUESTS === "undefined") return false;
+  let changed = false;
+  for (let i = QUESTS.length - 1; i >= 0; i--) {
+    const q = QUESTS[i], s = st[q.n]; if (!s) continue;
+    if (s.st === "done") { QUEST_ARCHIVE.unshift({ n: q.n, g: q.g, d: q.d, end: s.end || "", date: s.date || "" }); QUESTS.splice(i, 1); changed = true; }
+    else if (!!q.busy !== (s.st === "busy")) { q.busy = s.st === "busy"; changed = true; }
+  }
+  return changed;
+}
+
 
 /* =====================================================================
    ОБЛОЖКИ КНИГ: 20 узоров тиснения и набор знаков для обложки.
@@ -1204,7 +1235,7 @@ const SECTIONS = {
   ]},
   mir: { title: "О мире", tabs: LORE.map(t => [t.id, t.tab, () => loreHTML(t)]).concat([["npc", "NPC мастера", () => charsHTML("master")], ["npcp", "NPC игроков", () => charsHTML("players")]]) },
   vlast: { title: "Фракции", tabs: [["known", "Известны всем", () => factionsHTML(true)], ["secret", "Тайные общества", () => factionsHTML(false)]] },
-  kvesty: { title: "Квесты", tabs: [["board", "Доска заданий", () => questsHTML()]] },
+  kvesty: { title: "Квесты", tabs: [["board", "Доска заданий", () => (ADMIN ? `<div class="doc-admin"><button type="button" class="btn" data-workshop="kvesty">Статусы и итоги квестов</button><small>Отметить «занят / свободен» или записать итоги — в Мастерской.</small></div>` : "") + questsHTML()]] },
   skverna: { title: "Скверна", tabs: [
     ["what", "Что такое скверна", () => head("Скверна", "Скверна и обескровленные", "Смертельная болезнь, которая перерождает мир.") + blocks(D.skverna)],
     ["stages", "Стадии заражения", () => head("Скверна", "Стадии заражения", "Период может быть короче или дольше — указаны обобщённые знания.") +
@@ -1441,6 +1472,7 @@ function openMap(h) {
 function closeMap() { const ov = $("#mapov"); try { const fe = document.fullscreenElement || document.webkitFullscreenElement; if (fe) (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (_) {} if (ov) ov.hidden = true; if (document.documentElement.classList.contains("map-open")) { document.documentElement.classList.remove("map-open"); scrollTo(0, hubScroll); } }
 addEventListener("message", e => {
   if (e.data && e.data.velaris === "closeOverlay") { closeOverlay(); return; }
+  if (e.data && e.data.velaris === "openWorkshop") { openOverlay(workshopHref(e.data.h || "docs")); return; }
   if (e.data && e.data.velaris === "closeMap") { if (location.hash.startsWith("#karta")) history.back(); else closeMap(); }
 });
 
@@ -1605,7 +1637,7 @@ document.addEventListener("click", e => {
 });
 /* документ и Мастерская открываются поверх меню, не уходя из приложения */
 function openOverlay(src) { const ov = $("#docov"); ov.innerHTML = `<iframe title="Документ" src="${src}" allow="fullscreen; clipboard-write"></iframe>`; if (!document.documentElement.classList.contains("map-open")) hubScroll = scrollY; ov.hidden = false; document.documentElement.classList.add("map-open"); }
-function closeOverlay() { const ov = $("#docov"); ov.hidden = true; ov.innerHTML = ""; document.documentElement.classList.remove("map-open"); scrollTo(0, hubScroll); if (route === "dokumenty") docsLoad(); }
+function closeOverlay() { const ov = $("#docov"); ov.hidden = true; ov.innerHTML = ""; document.documentElement.classList.remove("map-open"); scrollTo(0, hubScroll); if (route === "dokumenty") docsLoad(); if (route === "kvesty" && ADMIN) location.reload(); }
 const workshopHref = h => "masterskaya.html" + KEEP + "#" + h;
 function setTab(id) {
   tab[route] = id; const sec = SECTIONS[route], t = sec.tabs.find(x => x[0] === id);
@@ -1686,6 +1718,8 @@ addEventListener("popstate", render);
   } catch (e) {}
 })();
 render();
+/* статусы и итоги квестов из Мастерской (docs/quests.json) */
+qsLoad(ADMIN && !!ghCfg().token).then(st => { if (applyQuestStates(st) && route === "kvesty") render(); }).catch(() => {});
 </script>
 </body>
 </html>

@@ -1622,6 +1622,7 @@ function questsHTML() {
     `<p class="kind">Доска заданий</p>`, `<h2>Квесты</h2>`,
     `<p class="motto">Чтобы начать любой квест, напишите ${esc(QUEST_CONTACT.to)}. Квесты фракций доступны не только их участникам, но лучше уточнять.</p>`,
     `<div class="qcontact"><a class="qbtn" href="${QUEST_CONTACT.url}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H8l-4 4z"/></svg>Написать Моргане</a><span class="qurl">${esc(QUEST_CONTACT.url.replace("https://", ""))}</span></div>`,
+    window.MAP_ADMIN ? `<button type="button" class="qmap" data-qadmin style="margin:4px 0 2px">Статусы и итоги — в Мастерской</button>` : "",
     `<div class="rule"></div>`,
     `<div class="qfilters" role="tablist">${[["all-groups", "Все"], ...QUEST_GROUPS].map(([g, n]) => `<button type="button" class="qf" data-qf="${g}" aria-pressed="${questFilter === g}">${esc(n)}<span>${count(g)}</span></button>`).join("")}<button type="button" class="qf" data-qf="archive" aria-pressed="${questFilter === "archive"}">Архив<span>${QUEST_ARCHIVE.length}</span></button></div>
      <label class="qtoggle"><input type="checkbox" id="q-free" ${questFree ? "checked" : ""}> Только свободные</label>`,
@@ -2242,7 +2243,19 @@ $("#b-quests").addEventListener("click", () => { if (view === "quests") closePan
   let tok = ""; try { tok = (JSON.parse(localStorage.getItem("velaris-gh-v1")) || {}).token || ""; } catch (_) {}
   const member = !!tok || ["member", "moder", "editor", "admin"].includes(role) || (q.has("vk_group_id") && !role);
   if (!member) $("#b-quests").style.display = "none";
+  window.MAP_ADMIN = !!tok || role === "admin" || role === "editor";
+  /* статусы и итоги квестов из Мастерской: занятые помечаются, завершённые уходят в архив */
+  fetch("docs/quests.json?t=" + Date.now(), { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(j => {
+    const st = j && j.states; if (!st) return; let ch = false;
+    for (let i = QUESTS.length - 1; i >= 0; i--) { const q = QUESTS[i], s = st[q.n]; if (!s) continue;
+      if (s.st === "done") { QUEST_ARCHIVE.unshift({ n: q.n, g: q.g, d: q.d, end: s.end || "" }); QUESTS.splice(i, 1); ch = true; }
+      else if (!!q.busy !== (s.st === "busy")) { q.busy = s.st === "busy"; ch = true; } }
+    if (ch && view === "quests") showQuests();
+  }).catch(() => {});
 })();
+document.addEventListener("click", e => { if (!e.target.closest("[data-qadmin]")) return; e.preventDefault();
+  if (window.parent !== window) { try { window.parent.postMessage({ velaris: "openWorkshop", h: "kvesty" }, "*"); } catch (_) {} }
+  else location.href = "masterskaya.html" + location.search + "#kvesty"; });
 
 /* ---------- Intro ---------- */
 function boot() {
