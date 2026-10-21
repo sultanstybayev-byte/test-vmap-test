@@ -391,6 +391,24 @@ html.rail-narrow .bar small { display: none; }
 .ava-c small { max-width: 76px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 11.5px/1.1 var(--font-body); color: var(--text-ink); }
 .qa-who { align-items: flex-start; }
 .qa-res b { font-weight: 700; } .qa-res i.busy { color: var(--blood); }
+.pc.hasfac { background: color-mix(in srgb, var(--fc) 13%, #f6efdc); border-color: color-mix(in srgb, var(--fc) 45%, rgba(111,85,50,.4)); }
+.pc.hasfac.busy { box-shadow: inset 0 -2px 0 rgba(142,47,28,.55); }
+.pl-add { display: flex; gap: 6px; margin-bottom: 12px; } .pl-add input { flex: 1; } .pl-add .btn { padding: 8px 14px; }
+.pl-mname { width: auto; max-width: 200px; padding: 4px 6px; font: 700 15px var(--font-display); } .pl-who > a[title] { margin-left: 4px; text-decoration: none; }
+.ank-row { grid-template-columns: 26px minmax(140px, 1fr) minmax(120px, 190px) minmax(120px, 190px) 92px; }
+.ank-row { background: linear-gradient(90deg, color-mix(in srgb, var(--fc) 14%, transparent), transparent 60%); }
+.ank-nm { display: flex; align-items: center; gap: 4px; } .ank-nm input { padding: 4px 6px; font: 700 15px var(--font-display); } .ank-nm a { text-decoration: none; color: var(--text-muted); }
+.ank-row small.new { color: var(--blood); }
+@media (max-width: 760px) { .ank-row { grid-template-columns: 26px 1fr 1fr; } .ank-row small { grid-column: 2 / -1; } }
+.fa-card { margin-bottom: 10px; padding: 10px 12px; border: 1px solid color-mix(in srgb, var(--fc) 40%, rgba(111,85,50,.35)); border-left: 5px solid var(--fc); border-radius: 5px; background: color-mix(in srgb, var(--fc) 7%, rgba(255,252,240,.6)); }
+.fa-card header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; } .fa-card header b { font: 700 18px var(--font-display); } .fa-card header span { padding: 1px 8px; border-radius: 999px; background: rgba(111,85,50,.15); font: 700 13px var(--font-body); color: var(--text-muted); }
+.fa-mem { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.fm { display: inline-flex; align-items: center; gap: 6px; padding: 3px 6px 3px 3px; border: 1px solid rgba(111,85,50,.35); border-radius: 999px; background: rgba(255,252,240,.85); }
+.fm img, .fm > b { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; display: grid; place-items: center; background: var(--leather); color: var(--gold-hi); font: 700 12px var(--font-display); }
+.fm > b.npc { background: var(--fc); color: #fff; font-size: 9.5px; letter-spacing: .04em; }
+.fm-n { font: 700 14.5px/1.1 var(--font-body); color: var(--text-ink); } .fm small { font: italic 600 12px var(--font-body); color: var(--text-muted); }
+.fm button { width: 18px; height: 18px; padding: 0; border: 0; border-radius: 50%; background: rgba(111,85,50,.18); font-size: 12px; line-height: 1; cursor: pointer; }
+.fa-free { margin-top: 12px; font-size: 15px; color: var(--text-muted); }
 </style>
 </head>
 <body>
@@ -922,6 +940,21 @@ function whoHTML(ids, players) {
   if (!ids || !ids.length) return "";
   return `<div class="q-who"><span>Участники</span>${ids.map(w => { const I = whoInfo(w, players); return `<a class="q-ava${I.c ? " named" : ""}" href="https://vk.com/id${I.pid}" target="_blank" rel="noopener" title="${esc(I.label)}">${I.p && I.p.photo ? `<img src="${esc(I.p.photo)}" alt="">` : `<b>${esc(I.short.charAt(0))}</b>`}${I.c ? `<em>${esc(I.c.name)}</em>` : ""}</a>`; }).join("")}</div>`;
 }
+
+/* ---------- ФРАКЦИИ ПЕРСОНАЖЕЙ ---------- */
+const FAC_NONE = { id: "none", name: "Странники", color: "#8a8170" };
+const facById = id => id === "none" ? FAC_NONE : (typeof FACTIONS !== "undefined" ? FACTIONS.find(f => f.id === id) : null);
+const facColor = id => (facById(id) || {}).color || "";
+/* распознать фракцию по тексту пункта «Принадлежность» анкеты */
+const FAC_KEYS = [["order", /орден|пылающ|инквизи/i], ["shadows", /тен[иь]\s*кальдерон|кальдерон/i], ["guild", /гильди|плата\s*и\s*сталь|авантюрист/i], ["dead", /усопш|погребен/i], ["council", /тайн\w*\s*совет/i], ["health", /совет\w*\s*здрав/i], ["tri", /триедин/i], ["souls", /певч/i], ["houses", /знатн|благородн\w*\s*дом|дом\s+[А-ЯЁ]/], ["crown", /импер|корон|престол|двор(?!ян)|страж/i]];
+function facFromText(t) {
+  t = String(t || "").replace(/[_*]+/g, " ").trim();
+  if (!t) return "";
+  for (const [id, re] of FAC_KEYS) if (re.test(t)) return id;
+  return "none";
+}
+const normName = s => String(s || "").toLowerCase().replace(/ё/g, "е").replace(/[^a-zа-я]+/g, "");
+const initials = n => String(n || "").split(/\s+/).filter(Boolean).slice(0, 2).map(w => w.charAt(0).toUpperCase() + ".").join(" ");
 
 
 /* =====================================================================
@@ -2439,6 +2472,7 @@ function playersHTML() {
       <input type="search" id="pl-q" placeholder="Поиск по имени или персонажу" value="${esc(plQuery)}">
       <div class="filters">${[["all", "Все"], ["play", "Играют"], ["staff", "Руководство"], ["left", "Вышли"]].map(([k, t]) => `<button type="button" class="chip" data-plf="${k}" aria-pressed="${plFilter === k}">${t}<span data-plc="${k}"></span></button>`).join("")}</div>
     </div>
+    <div class="pl-add"><input type="text" id="pl-addurl" placeholder="Добавить игрока не из группы: ссылка vk.ru/id… или короткое имя"><button type="button" class="btn ghost" data-pladd>Добавить</button></div>
     <div id="ank-box"></div>
     <div id="pl-list"><p class="lw-lead">Загружаю список…</p></div>
     ${ghCfg().token ? "" : `<p class="lw-lead">Чтобы сохранять список, подключите ключ GitHub:</p>${ghSetHTML()}`}
@@ -2458,9 +2492,9 @@ function plDraw() {
   if (!L.length) { box.innerHTML = `<p class="lw-lead">Список пуст. Откройте Мастерскую из приложения ВК и нажмите «Загрузить участников группы».</p>`; return; }
   box.innerHTML = list.length ? list.map(p => `<div class="pl-row${p.left ? " left" : ""}" data-pid="${p.id}">
       ${p.photo ? `<img src="${esc(p.photo)}" alt="" loading="lazy">` : `<span class="pl-ava"></span>`}
-      <div class="pl-who"><a href="https://vk.com/id${p.id}" target="_blank" rel="noopener">${esc(p.name)}</a>${isStaff(p) ? `<span class="pl-role r-${p.role}">${ROLE_NAMES[p.role]}</span>` : ""}${p.left ? `<span class="pl-role">вышел из группы</span>` : ""}</div>
+      <div class="pl-who">${p.manual ? `<input type="text" class="pl-mname" value="${esc(p.name)}" data-plname="${p.id}" aria-label="Имя игрока"><a href="https://vk.com/id${p.id}" target="_blank" rel="noopener" title="Страница ВК">↗</a><span class="pl-role">не в группе</span>` : `<a href="https://vk.com/id${p.id}" target="_blank" rel="noopener">${esc(p.name)}</a>`}${isStaff(p) ? `<span class="pl-role r-${p.role}">${ROLE_NAMES[p.role]}</span>` : ""}${p.left ? `<span class="pl-role">вышел из группы</span>` : ""}</div>
       <label class="lw-chk pl-play"><input type="checkbox" data-plplay="${p.id}"${p.play ? " checked" : ""}> играет</label>
-      <div class="pl-chars">${charsOf(p).map(c => { const q = charQuest(p.id, c.id); return `<span class="pc${q ? " busy" : ""}" title="${q ? "В квесте «" + esc(q) + "»" : "Свободен от квестов"}"><input type="text" value="${esc(c.name)}" data-pcn="${p.id}" data-cid="${c.id}" size="${Math.max(4, c.name.length)}" aria-label="Имя персонажа"><i>${q ? "в квесте" : "свободен"}</i><button type="button" data-pcdel="${p.id}" data-cid="${c.id}" aria-label="Удалить персонажа">×</button></span>`; }).join("")}<button type="button" class="pc-add" data-pcadd="${p.id}">+ персонаж</button></div>
+      <div class="pl-chars">${charsOf(p).map(c => { const q = charQuest(p.id, c.id); return `<span class="pc${q ? " busy" : ""}${c.fac ? " hasfac" : ""}" style="--fc:${facColor(c.fac) || "transparent"}" title="${esc((facById(c.fac) || {}).name ? (c.fac === "none" ? "Странник" : facById(c.fac).name) + " · " : "")}${q ? "В квесте «" + esc(q) + "»" : "Свободен от квестов"}"><input type="text" value="${esc(c.name)}" data-pcn="${p.id}" data-cid="${c.id}" size="${Math.max(4, c.name.length)}" aria-label="Имя персонажа"><i>${q ? "в квесте" : "свободен"}</i><button type="button" data-pcdel="${p.id}" data-cid="${c.id}" aria-label="Удалить персонажа">×</button></span>`; }).join("")}<button type="button" class="pc-add" data-pcadd="${p.id}">+ персонаж</button></div>
     </div>`).join("") : `<p class="lw-lead">Никого не нашлось.</p>`;
 }
 /* в каком незавершённом квесте сейчас персонаж */
@@ -2494,7 +2528,7 @@ async function plLoadFromVK(btn) {
       const by = new Map(P.list.map(p => [p.id, p])), seen = new Set();
       members.forEach(m => { const p = by.get(m.id) || { id: m.id, play: false, char: "" }; Object.assign(p, { name: m.name, photo: m.photo, role: "member", left: false }); by.set(m.id, p); seen.add(m.id); });
       managers.forEach(m => { const p = by.get(m.id); if (p) p.role = m.role; });
-      by.forEach(p => { if (!seen.has(p.id)) p.left = true; });
+      by.forEach(p => { if (!seen.has(p.id) && !p.manual) p.left = true; if (seen.has(p.id)) delete p.manual; });
       P.list = [...by.values()]; P.updated = dbToday();
     }, `Игроки: загружено ${members.length} участников`);
     toast(`Загружено участников: ${members.length}${managers.length ? `, из них в руководстве: ${managers.length}` : ""}.`);
@@ -2520,31 +2554,47 @@ document.addEventListener("change", e => { const t = e.target; if (t.dataset && 
    Имя персонажа = строка после «1. Имя, возраст, пол» (до первой точки или запятой).
    ===================================================================== */
 let ANK = null;
+function ankClean(n) {
+  n = String(n || "").replace(/_{2,}/g, " ").replace(/^[^A-Za-zА-Яа-яЁё«"(]+/, "");
+  n = n.split(/\s*\|\s*|[.,;:]\s|\s[—–-]\s|\s\d/)[0];
+  n = n.replace(/[^A-Za-zА-Яа-яЁё»")]+$/, "").replace(/\s+/g, " ").trim();
+  return n.slice(0, 60);
+}
 function ankParse(p) {
   const t = p.text || "";
-  if (!/Имя[^\n]{0,20}возраст/i.test(t) && !(/Навыки/i.test(t) && /Биограф/i.test(t))) return null;
+  if (!/Имя[^\n]{0,30}(возраст|прозвищ)/i.test(t) && !(/Навыки/i.test(t) && /Биограф/i.test(t))) return null;
   const m = t.match(/\[id(\d+)\|([^\]]+)\]/) || t.match(/vk\.(?:com|ru)\/id(\d+)/);
   const player = m ? +m[1] : p.signer || 0;
-  let name = "";
   const lines = t.replace(/\[(?:id|club)\d+\|([^\]]+)\]/g, "$1").split("\n").map(x => x.trim());
+  let name = "", fac = "", facRaw = "";
   for (let i = 0; i < lines.length; i++) {
-    const L = lines[i], mm = L.match(/^(?:\d+\.\s*)?Имя(?:[^:\n]{0,25})?:\s*(.+)$/i);
-    if (mm && mm[1].trim()) { name = mm[1]; break; }
-    if (/^(?:\d+\.\s*)?Имя[, ]/i.test(L) && !/:\s*\S/.test(L)) { name = lines.slice(i + 1).find(x => x) || ""; break; }
+    const L = lines[i];
+    if (!name && /^(?:[\d.)]+\s*)?Имя(?![а-яё])/i.test(L)) {
+      const after = L.replace(/^(?:[\d.)]+\s*)?Имя(?![а-яё])[^:]*:?/i, "");
+      const inline = L.includes(":") ? after.trim() : "";
+      name = ankClean(inline && !/^[_\s]*$/.test(inline) ? inline : (lines.slice(i + 1).find(x => x && !/^[_\-—\s]+$/.test(x)) || ""));
+    }
+    if (/^(?:8\s*[.)]|[\d.)]*\s*Принадлежност)/i.test(L) && /принадлеж|фракц|обществ|8\s*[.)]/i.test(L)) {
+      const parts = [L.replace(/^[\d.)\s]*/, "").replace(/^Принадлежност\S*(\s+к\s+(какому-?либо\s+)?(обществу|фракци\S*)(,\s*(обществу|фракци\S*))?)?[\s.:—–-]*/i, "")];
+      for (let k = i + 1; k < Math.min(lines.length, i + 6); k++) { if (/^\d+\s*[.)]/.test(lines[k])) break; if (lines[k]) parts.push(lines[k]); }
+      facRaw = parts.join(" ").replace(/\s+/g, " ").trim().slice(0, 160); fac = facFromText(facRaw) || "none";
+    }
   }
-  name = name.split(/[.,;]| — | - |\s\d/)[0].replace(/\s+/g, " ").trim().slice(0, 50);
   if (!name) return null;
-  return { post: p.id, date: p.date, player, name };
+  return { post: p.id, date: p.date, player, name, fac, facRaw };
 }
+const findChar = (p, name) => p ? charsOf(p).find(c => normName(c.name) === normName(name) || (normName(name).length > 4 && (normName(c.name).includes(normName(name)) || normName(name).includes(normName(c.name))))) : null;
+const facOpts = sel => `<option value="">— не определена —</option>${FACTIONS.map(f => `<option value="${f.id}"${sel === f.id ? " selected" : ""}>${esc(f.name)}</option>`).join("")}<option value="none"${sel === "none" ? " selected" : ""}>Странник</option>`;
 function ankHTML() {
   if (!ANK) return "";
   const byId = new Map(PL.list.map(p => [p.id, p]));
   const opts = sel => `<option value="0">— не выбран —</option>` + PL.list.filter(p => !p.left).sort((a, b) => a.name.localeCompare(b.name, "ru")).map(p => `<option value="${p.id}"${p.id === sel ? " selected" : ""}>${esc(p.name)}</option>`).join("");
-  return `<div class="ank"><header><b>Найдено анкет: ${ANK.list.length}</b><small>Проверьте пары «персонаж → игрок». Без отметки или без игрока — не впишутся.</small></header>
-    ${ANK.list.map((a, i) => { const p = byId.get(a.player), has = p && charsOf(p).some(c => c.name === a.name);
-      return `<div class="ank-row${has ? " done" : ""}"><label class="lw-chk"><input type="checkbox" data-ankon="${i}"${a.on ? " checked" : ""}></label>
-        <a href="https://vk.com/wall-${ANK.gid}_${a.post}" target="_blank" rel="noopener" class="ank-n">${esc(a.name)}</a><span class="ank-ar">→</span>
-        <select data-ankpl="${i}">${opts(a.player)}</select>${has ? `<small>уже вписан</small>` : ""}</div>`; }).join("")}
+  return `<div class="ank"><header><b>Найдено анкет: ${ANK.list.length}</b><small>Отмеченные строки впишут персонажа (или, если он уже есть, обновят его фракцию).</small></header>
+    ${ANK.list.map((a, i) => { const c = findChar(byId.get(a.player), a.name);
+      return `<div class="ank-row${c && c.fac === a.fac ? " done" : ""}" style="--fc:${facColor(a.fac) || "transparent"}"><label class="lw-chk"><input type="checkbox" data-ankon="${i}"${a.on ? " checked" : ""}></label>
+        <span class="ank-nm"><input type="text" value="${esc(a.name)}" data-ankname="${i}" aria-label="Имя персонажа"><a href="https://vk.com/wall-${ANK.gid}_${a.post}" target="_blank" rel="noopener" title="Открыть анкету">↗</a></span>
+        <select data-ankpl="${i}">${opts(a.player)}</select>
+        <select data-ankfac="${i}" title="${esc(a.facRaw || "")}">${facOpts(a.fac)}</select>${c ? `<small>${c.fac === a.fac ? "уже вписан" : "обновить фракцию"}</small>` : "<small class='new'>новый</small>"}</div>`; }).join("")}
     <div class="actions"><button type="button" class="btn" data-ankapply>Вписать отмеченных</button><button type="button" class="btn ghost" data-ankclose>Закрыть</button></div></div>`;
 }
 const ankDraw = () => { const b = $("#ank-box"); if (b) b.innerHTML = ankHTML(); };
@@ -2557,7 +2607,7 @@ async function ankScan(btn) {
   if (!res.ok) { toast("Не получилось: " + res.error); return; }
   const known = new Set(PL.list.map(p => p.id)), seen = new Set();
   const list = res.res.posts.map(ankParse).filter(Boolean).filter(a => { const k = a.player + "|" + a.name; if (seen.has(k)) return false; seen.add(k); return true; });
-  list.forEach(a => { if (!known.has(a.player)) a.player = 0; const p = PL.list.find(x => x.id === a.player); a.on = !!a.player && !(p && charsOf(p).some(c => c.name === a.name)); });
+  list.forEach(a => { if (!known.has(a.player)) a.player = 0; const c = findChar(PL.list.find(x => x.id === a.player), a.name); a.on = !!a.player && (!c || (a.fac && c.fac !== a.fac)); });
   ANK = { gid: res.res.gid, list }; ankDraw();
   toast(list.length ? `Найдено анкет: ${list.length}. Проверьте и нажмите «Вписать».` : "Анкет на стене не нашлось.");
 }
@@ -2565,6 +2615,7 @@ document.addEventListener("change", e => {
   const t = e.target; if (!t.dataset || !ANK) return;
   if (t.dataset.ankon) ANK.list[+t.dataset.ankon].on = t.checked;
   if (t.dataset.ankpl) { const a = ANK.list[+t.dataset.ankpl]; a.player = +t.value; a.on = !!a.player; ankDraw(); }
+  if (t.dataset.ankfac) { const a = ANK.list[+t.dataset.ankfac]; a.fac = t.value; a.on = !!a.player; ankDraw(); }
 });
 document.addEventListener("click", async e => {
   const b = e.target.closest && e.target.closest("[data-ankscan],[data-ankapply],[data-ankclose]"); if (!b) return;
@@ -2573,8 +2624,8 @@ document.addEventListener("click", async e => {
   const pick = ANK.list.filter(a => a.on && a.player); if (!pick.length) { toast("Ничего не отмечено."); return; }
   if (!ghCfg().token) { toast("Чтобы сохранить, подключите ключ GitHub."); return; }
   b.disabled = true;
-  const add = (P) => pick.forEach(a => { const p = P.list.find(x => x.id === a.player); if (!p) return; const cs = charsOf(p).map(c => Object.assign({}, c)); if (!cs.some(c => c.name === a.name)) cs.push({ id: newCid(), name: a.name, post: a.post }); setChars(p, cs); p.play = true; p.ank = Array.from(new Set([...(p.ank || []), a.post])); });
-  try { PL = await plUpdate(P => add(P), `Игроки: персонажи из анкет (${pick.length})`); toast(`Вписано персонажей: ${pick.length}.`); ANK = null; ankDraw(); plDraw(); }
+  const add = (P) => pick.forEach(a => { const p = P.list.find(x => x.id === a.player); if (!p || !a.name) return; const cs = charsOf(p).map(c => Object.assign({}, c)); let c = cs.find(x => findChar({ id: 0, chars: [x] }, a.name)); if (!c) { c = { id: newCid(), name: a.name, post: a.post }; cs.push(c); } if (a.fac) c.fac = a.fac; if (!c.post) c.post = a.post; setChars(p, cs); p.play = true; p.ank = Array.from(new Set([...(p.ank || []), a.post])); });
+  try { PL = await plUpdate(P => add(P), `Игроки: персонажи из анкет (${pick.length})`); toast(`Готово: ${pick.length} — вписаны или обновлены.`); ANK = null; ankDraw(); plDraw(); }
   catch (err) { b.disabled = false; toast("Не получилось: " + err.message); }
 });
 
@@ -2592,6 +2643,97 @@ document.addEventListener("click", e => {
   const id = +b.dataset.pcdel, cid = b.dataset.cid, p = PL.list.find(x => x.id === id), c = charsOf(p).find(x => x.id === cid);
   askYes(`Удалить персонажа «${c ? c.name : ""}» у игрока ${p.name}?`, "Удалить", "Отмена", true).then(ok => { if (ok) { plChars(id, L => L.filter(x => x.id !== cid), "Персонаж удалён."); plDraw(); } });
 });
+document.addEventListener("input", e => { const t = e.target; if (t.dataset && t.dataset.ankname && ANK) ANK.list[+t.dataset.ankname].name = t.value.trim(); });
+
+/* игроки не из группы: добавить по ссылке (имя и фото подтянутся через ВК, если открыто в приложении) */
+let vkWait = {}, vkSeq = 0;
+addEventListener("message", e => { if (e.data && e.data.velaris === "vkCallResult" && vkWait[e.data.seq]) { const w = vkWait[e.data.seq]; delete vkWait[e.data.seq]; w(e.data); } });
+const vkCall = (method, params) => new Promise(r => { const seq = ++vkSeq; vkWait[seq] = r; try { window.parent.postMessage({ velaris: "vkCall", seq, method, params }, "*"); } catch (_) { r({ ok: false }); } setTimeout(() => { if (vkWait[seq]) { delete vkWait[seq]; r({ ok: false, error: "ВК не ответил" }); } }, 60000); });
+async function plAddManual(btn) {
+  const raw = ($("#pl-addurl").value || "").trim(); if (!raw) return;
+  if (!ghCfg().token) { toast("Чтобы сохранить, подключите ключ GitHub."); return; }
+  let m = raw.match(/(?:^|\/|^id)(\d{3,})\s*$/) || raw.match(/id(\d{3,})/), id = m ? +m[1] : 0, name = "", photo = "";
+  const sn = !id ? raw.replace(/^.*vk\.(?:com|ru)\//, "").replace(/[/?#].*$/, "") : "";
+  const inVK = window.parent !== window && VK_P.has("vk_app_id");
+  btn.disabled = true;
+  if (inVK) { const r = await vkCall("users.get", { user_ids: id || sn, fields: "photo_100" }); const u = r.ok && r.res && r.res[0]; if (u) { id = u.id; name = (u.first_name + " " + u.last_name).trim(); photo = u.photo_100 || ""; } }
+  btn.disabled = false;
+  if (!id) { toast(inVK ? "Не нашёл такую страницу." : "Вставьте ссылку вида vk.ru/id123456 (короткие имена распознаются только в приложении ВК)."); return; }
+  if (PL.list.some(p => p.id === id && !p.left)) { toast("Этот игрок уже в списке."); return; }
+  try { PL = await plUpdate(P => { const x = P.list.find(p => p.id === id); if (x) Object.assign(x, { left: false, manual: true, play: true, name: name || x.name, photo: photo || x.photo }); else P.list.push({ id, name: name || "id" + id, photo, role: "member", play: true, manual: true, chars: [], char: "" }); }, `Игрок id${id} добавлен вручную`);
+    $("#pl-addurl").value = ""; plDraw(); toast(name ? `Добавлен: ${name}.` : "Добавлен. Впишите его имя — поле рядом с аватаркой."); }
+  catch (err) { toast("Не получилось: " + err.message); }
+}
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-pladd]"); if (b) plAddManual(b); });
+document.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.id === "pl-addurl") plAddManual($("[data-pladd]")); });
+document.addEventListener("input", e => { const t = e.target; if (t.dataset && t.dataset.plname) { const id = +t.dataset.plname; clearTimeout(plTimers["n" + id]); plTimers["n" + id] = setTimeout(() => plSaveOne(id, { name: t.value.trim() || "id" + id }), 900); } });
+
+/* =====================================================================
+   ФРАКЦИИ В МАСТЕРСКОЙ: какие персонажи (игроков и мастера) к кому принадлежат.
+   Хранится у персонажей в docs/players.json: chars[].fac, а NPC мастера — в npcs[].
+   ===================================================================== */
+let FPL = { list: [], npcs: [] }, fPick = null;
+const facAll = () => FACTIONS.concat([FAC_NONE]);
+function facMembers(fid) {
+  const out = [];
+  (FPL.list || []).filter(p => !p.left).forEach(p => charsOf(p).forEach(c => { if (c.fac === fid) out.push({ key: p.id + ":" + c.id, c, p }); }));
+  (FPL.npcs || []).forEach(n => { if (n.fac === fid) out.push({ key: "npc:" + n.id, c: n, p: null }); });
+  return out.sort((a, b) => a.c.name.localeCompare(b.c.name, "ru"));
+}
+function memberChip(m) {
+  const pl = m.p, title = pl ? `${m.c.name} — игрок ${pl.name}` : `${m.c.name} — NPC мастера`;
+  return `<span class="fm" title="${esc(title)}">${pl && pl.photo ? `<img src="${esc(pl.photo)}" alt="">` : `<b class="${pl ? "" : "npc"}">${pl ? esc(pl.name.charAt(0)) : "NPC"}</b>`}<span class="fm-n">${esc(m.c.name)}</span><small>${pl ? esc(initials(pl.name)) : "мастер"}</small><button type="button" data-fmrm="${esc(m.key)}" aria-label="Убрать из фракции">×</button></span>`;
+}
+function factionsAdminHTML() {
+  return `<div class="fa wide">
+    <p class="lw-lead">Кто из персонажей к какой фракции принадлежит. «+» — добавить персонажа игрока или NPC мастера. Фракцию можно вписать и автоматически: «Игроки» → «Найти персонажей в анкетах» (8-й пункт анкеты).</p>
+    <div id="fa-list"><p class="lw-lead">Загружаю…</p></div>
+    ${ghCfg().token ? "" : `<p class="lw-lead">Чтобы сохранять, подключите ключ GitHub:</p>${ghSetHTML()}`}
+  </div>`;
+}
+function faDraw() {
+  const box = $("#fa-list"); if (!box) return;
+  const free = []; (FPL.list || []).filter(p => !p.left && p.play).forEach(p => charsOf(p).forEach(c => { if (!c.fac) free.push(c.name); }));
+  box.innerHTML = facAll().map(f => { const M = facMembers(f.id);
+    return `<section class="fa-card" style="--fc:${f.color}"><header><i></i><b>${esc(f.name)}</b><span>${M.length}</span></header>
+      <div class="fa-mem">${M.map(memberChip).join("")}<button type="button" class="ava-add" data-faadd="${f.id}" aria-label="Добавить персонажа" title="Добавить персонажа">+</button></div>
+      ${fPick === f.id ? `<div class="qa-pick"><input type="search" data-faq placeholder="Найти персонажа или вписать NPC мастера…" autocomplete="off"><div class="qa-res"></div></div>` : ""}</section>`; }).join("") +
+    (free.length ? `<p class="fa-free"><b>Без фракции (${free.length}):</b> ${free.map(esc).join(", ")}</p>` : "");
+}
+function faResults(box, val) {
+  const v = (val || "").trim(), lv = v.toLowerCase(), rows = [];
+  (FPL.list || []).filter(p => !p.left).forEach(p => charsOf(p).forEach(c => { if (c.fac !== fPick) rows.push({ key: p.id + ":" + c.id, c, p, hay: (c.name + " " + p.name).toLowerCase() }); }));
+  (FPL.npcs || []).forEach(n => { if (n.fac !== fPick) rows.push({ key: "npc:" + n.id, c: n, p: null, hay: n.name.toLowerCase() }); });
+  const list = rows.filter(r => !lv || r.hay.includes(lv)).sort((a, b) => (a.c.fac ? 1 : 0) - (b.c.fac ? 1 : 0) || a.c.name.localeCompare(b.c.name, "ru")).slice(0, 10);
+  box.querySelector(".qa-res").innerHTML = list.map(r => `<button type="button" data-fapick="${esc(r.key)}">${r.p && r.p.photo ? `<img src="${esc(r.p.photo)}" alt="">` : ""}<span><b>${esc(r.c.name)}</b> · ${r.p ? esc(r.p.name) : "NPC мастера"}</span>${r.c.fac ? `<i class="busy">сейчас: ${esc(r.c.fac === "none" ? "Странник" : (facById(r.c.fac) || {}).name || "")}</i>` : ""}</button>`).join("") +
+    (v.length > 1 ? `<button type="button" data-fanpc="${esc(v)}"><span>＋ NPC мастера: <b>${esc(v)}</b></span></button>` : "");
+}
+async function faInit() { try { FPL = await plLoad(!!ghCfg().token); FPL.list = FPL.list || []; FPL.npcs = FPL.npcs || []; } catch (err) { toast("Не получилось загрузить: " + err.message); } faDraw(); }
+async function faSet(key, fac) {
+  if (!ghCfg().token) { toast("Чтобы сохранить, подключите ключ GitHub."); return; }
+  const apply = P => {
+    if (key.startsWith("npc:")) { P.npcs = P.npcs || []; const n = P.npcs.find(x => x.id === key.slice(4)); if (n) { if (fac) n.fac = fac; else P.npcs = P.npcs.filter(x => x !== n); } return; }
+    const [pid, cid] = key.split(":"), p = P.list.find(x => x.id === +pid); if (!p) return;
+    const cs = charsOf(p).map(c => Object.assign({}, c)), c = cs.find(x => x.id === cid); if (!c) return; if (fac) c.fac = fac; else delete c.fac; setChars(p, cs);
+  };
+  apply(FPL); faDraw();
+  try { FPL = await plUpdate(P => apply(P), "Фракции персонажей"); FPL.npcs = FPL.npcs || []; faDraw(); }
+  catch (err) { toast("Не получилось: " + err.message); faInit(); }
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-faadd],[data-fapick],[data-fanpc],[data-fmrm]"); if (!b) return;
+  if (b.dataset.faadd) { fPick = fPick === b.dataset.faadd ? null : b.dataset.faadd; faDraw(); const i = document.querySelector("[data-faq]"); if (i) { i.focus(); faResults(i.closest(".qa-pick"), ""); } return; }
+  if (b.dataset.fapick) { const f = fPick; fPick = null; faSet(b.dataset.fapick, f); return; }
+  if (b.dataset.fanpc) { const f = fPick, id = newCid(); fPick = null; FPL.npcs.push({ id, name: b.dataset.fanpc, fac: f }); faDraw();
+    if (ghCfg().token) plUpdate(P => { P.npcs = P.npcs || []; P.npcs.push({ id, name: b.dataset.fanpc, fac: f }); }, "NPC мастера: " + b.dataset.fanpc).then(P => { FPL = P; FPL.npcs = FPL.npcs || []; faDraw(); }).catch(err => toast("Не получилось: " + err.message)); return; }
+  if (b.dataset.fmrm) {
+    const k = b.dataset.fmrm;
+    if (k.startsWith("npc:")) askYes("Удалить этого NPC мастера из списка?", "Удалить", "Отмена", true).then(ok => { if (ok) faSet(k, ""); });
+    else faSet(k, "");
+  }
+});
+document.addEventListener("input", e => { if (e.target.hasAttribute && e.target.hasAttribute("data-faq")) faResults(e.target.closest(".qa-pick"), e.target.value); });
+document.addEventListener("pointerdown", e => { if (fPick && !(e.target.closest && e.target.closest(".fa-card .qa-pick, [data-faadd]"))) { fPick = null; faDraw(); } });
 
 
 /* ---------- Инструменты мастерской ----------
@@ -2603,11 +2745,13 @@ const TOOLS = [
   ["kniga", "Книга", bookHTML, bookInit, true],
   ["stopka", "Стопка бумаг", stackHTML, stackInit, true],
   ["kvesty", "Квесты", questsAdminHTML, questsAdminInit],
+  ["frakcii", "Фракции", factionsAdminHTML, faInit],
   ["igroki", "Игроки", playersHTML, playersInit]
 ];
 const RAIL_IC = {
   docs: '<path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4M10 11h6M10 15h6"/><path d="M4 6v15h11"/>',
   kvesty: '<path d="M7 3h10a2 2 0 0 1 2 2v1h-4M7 3a2 2 0 0 0-2 2v13a3 3 0 0 0 3 3h9a2 2 0 0 0 2-2v-1H10"/><path d="M15 6v12M9 8h3M9 12h3"/>',
+  frakcii: '<path d="M6 21V3M6 4h11l-2.5 4L17 12H6"/>',
   igroki: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.6"/><path d="M16 14.6a5 5 0 0 1 5.5 5.4"/>'
 };
 /* узкая панель (только значки): сама в приложении ВК и на небольших экранах, переключается стрелкой */

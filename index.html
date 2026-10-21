@@ -1142,6 +1142,21 @@ function whoHTML(ids, players) {
   return `<div class="q-who"><span>Участники</span>${ids.map(w => { const I = whoInfo(w, players); return `<a class="q-ava${I.c ? " named" : ""}" href="https://vk.com/id${I.pid}" target="_blank" rel="noopener" title="${esc(I.label)}">${I.p && I.p.photo ? `<img src="${esc(I.p.photo)}" alt="">` : `<b>${esc(I.short.charAt(0))}</b>`}${I.c ? `<em>${esc(I.c.name)}</em>` : ""}</a>`; }).join("")}</div>`;
 }
 
+/* ---------- ФРАКЦИИ ПЕРСОНАЖЕЙ ---------- */
+const FAC_NONE = { id: "none", name: "Странники", color: "#8a8170" };
+const facById = id => id === "none" ? FAC_NONE : (typeof FACTIONS !== "undefined" ? FACTIONS.find(f => f.id === id) : null);
+const facColor = id => (facById(id) || {}).color || "";
+/* распознать фракцию по тексту пункта «Принадлежность» анкеты */
+const FAC_KEYS = [["order", /орден|пылающ|инквизи/i], ["shadows", /тен[иь]\s*кальдерон|кальдерон/i], ["guild", /гильди|плата\s*и\s*сталь|авантюрист/i], ["dead", /усопш|погребен/i], ["council", /тайн\w*\s*совет/i], ["health", /совет\w*\s*здрав/i], ["tri", /триедин/i], ["souls", /певч/i], ["houses", /знатн|благородн\w*\s*дом|дом\s+[А-ЯЁ]/], ["crown", /импер|корон|престол|двор(?!ян)|страж/i]];
+function facFromText(t) {
+  t = String(t || "").replace(/[_*]+/g, " ").trim();
+  if (!t) return "";
+  for (const [id, re] of FAC_KEYS) if (re.test(t)) return id;
+  return "none";
+}
+const normName = s => String(s || "").toLowerCase().replace(/ё/g, "е").replace(/[^a-zа-я]+/g, "");
+const initials = n => String(n || "").split(/\s+/).filter(Boolean).slice(0, 2).map(w => w.charAt(0).toUpperCase() + ".").join(" ");
+
 
 /* =====================================================================
    ОБЛОЖКИ КНИГ: 20 узоров тиснения и набор знаков для обложки.
@@ -1553,6 +1568,7 @@ function openMap(h) {
 function closeMap() { const ov = $("#mapov"); try { const fe = document.fullscreenElement || document.webkitFullscreenElement; if (fe) (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (_) {} if (ov) ov.hidden = true; if (document.documentElement.classList.contains("map-open")) { document.documentElement.classList.remove("map-open"); scrollTo(0, hubScroll); } }
 addEventListener("message", e => {
   if (e.data && e.data.velaris === "closeOverlay") { closeOverlay(); return; }
+  if (e.data && e.data.velaris === "vkCall") { vkApi(e.data.method, e.data.params).then(res => e.source.postMessage({ velaris: "vkCallResult", seq: e.data.seq, ok: true, res }, "*")).catch(err => e.source.postMessage({ velaris: "vkCallResult", seq: e.data.seq, ok: false, error: vkErr(err) }, "*")); return; }
   if (e.data && e.data.velaris === "vkWall") { vkWall().then(res => e.source.postMessage({ velaris: "vkWallResult", ok: true, res }, "*")).catch(err => e.source.postMessage({ velaris: "vkWallResult", ok: false, error: vkErr(err) }, "*")); return; }
   if (e.data && e.data.velaris === "vkMembers") { vkMembers().then(res => e.source.postMessage({ velaris: "vkMembersResult", ok: true, res }, "*")).catch(err => e.source.postMessage({ velaris: "vkMembersResult", ok: false, error: vkErr(err) }, "*")); return; }
   if (e.data && e.data.velaris === "openWorkshop") { openOverlay(workshopHref(e.data.h || "docs")); return; }
@@ -1765,6 +1781,14 @@ async function vkMembers() {
   while (off < total) { const r = await call("groups.getMembers", { group_id: gid, offset: off, count: 1000, fields: "photo_100" }); total = r.count; items = items.concat(r.items || []); if (!(r.items || []).length) break; off += 1000; }
   let managers = []; try { const r = await call("groups.getMembers", { group_id: gid, filter: "managers", count: 1000 }); managers = (r.items || []).map(m => ({ id: m.id, role: m.role })); } catch (_) {}
   return { members: items.map(u => ({ id: u.id, name: ((u.first_name || "") + " " + (u.last_name || "")).trim() || "id" + u.id, photo: u.photo_100 || "" })), managers };
+}
+/* любой метод API ВК от имени админа (для Мастерской) */
+async function vkApi(method, params) {
+  const app = +(VK_P.get("vk_app_id") || 0); if (!app) throw new Error("откройте приложение из ВК");
+  const b = await loadBridge(); try { await b.send("VKWebAppInit"); } catch (_) {}
+  const t = await b.send("VKWebAppGetAuthToken", { app_id: app, scope: "groups,wall" });
+  const r = await b.send("VKWebAppCallAPIMethod", { method, params: Object.assign({ v: "5.199", access_token: t.access_token }, params || {}) });
+  return r.response;
 }
 /* посты со стены группы (для поиска анкет) */
 async function vkWall() {
