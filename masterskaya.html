@@ -2708,10 +2708,11 @@ function factionsAdminHTML() {
 function faDraw() {
   const box = $("#fa-list"); if (!box) return;
   const free = []; (FPL.list || []).filter(p => !p.left && p.play).forEach(p => charsOf(p).forEach(c => { if (!facsOf(c).length) free.push(c.name); }));
-  /* Императорская власть всегда первая, остальные — по числу персонажей (больше — выше), Странники последние */
+  /* Императорская власть и Знатные дома всегда первые, остальные — по числу персонажей (больше — выше), Странники последние */
   const cnt = id => facMembers(id).length;
-  const order = FACTIONS.filter(f => f.id !== "crown").sort((a, b) => cnt(b.id) - cnt(a.id) || FACTIONS.indexOf(a) - FACTIONS.indexOf(b));
-  const all = FACTIONS.filter(f => f.id === "crown").concat(order, [FAC_NONE]);
+  const TOP = ["crown", "houses"]; /* Императорская власть, затем Знатные дома — всегда сверху */
+  const order = FACTIONS.filter(f => !TOP.includes(f.id)).sort((a, b) => cnt(b.id) - cnt(a.id) || FACTIONS.indexOf(a) - FACTIONS.indexOf(b));
+  const all = TOP.map(id => FACTIONS.find(f => f.id === id)).filter(Boolean).concat(order, [FAC_NONE]);
   box.innerHTML = all.map(f => { const M = facMembers(f.id);
     return `<section class="fa-card" data-fid="${f.id}" style="--fc:${f.color}"><header><i></i><b>${esc(f.name)}</b><span>${M.length}</span></header>
       <div class="fa-mem">${M.map(memberChip).join("")}<button type="button" class="ava-add" data-faadd="${f.id}" aria-label="Добавить персонажа" title="Добавить персонажа">+</button></div>
