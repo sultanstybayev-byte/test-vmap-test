@@ -674,7 +674,11 @@
     },
     {
      "id": "cmvifyzc84vf",
-     "name": "Баллиста"
+     "name": "Баллиста",
+     "facs": [
+      "none"
+     ],
+     "fac": "none"
     }
    ]
   },
