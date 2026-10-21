@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Мастерская Велариса</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Cormorant+SC:wght@600;700&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=Ruslan+Display&family=Kurale&family=Marck+Script&family=Bad+Script&family=Caveat:wght@500&display=swap">
+<style>
+/* Рукописные шрифты из папки fonts/ */
+@font-face { font-family: "Lastochka"; src: url("fonts/lastochka.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Kosmos129"; src: url("fonts/kosmos129.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Roscherk SHA"; src: url("fonts/roscherk.otf") format("opentype"); font-display: swap; }
+@font-face { font-family: "Denistina"; src: url("fonts/denistina.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Aquiline"; src: url("fonts/aquiline.ttf") format("truetype"); font-display: swap; }
+/* Мастерская: отдельная страница с инструментами мастера (письма и всё, что добавится потом). Тот же вид, что у главного меню. */
+:root {
+  --ink: #17110b; --leather: #2a1d12; --leather-hi: #3a2817;
+  --gold: #c9a25a; --gold-hi: #f0d696;
+  --parchment: #ecdcb6; --parchment-deep: #d6bd8c;
+  --text-ink: #34230f; --text-muted: #6f5532; --blood: #8e2f1c;
+  --shadow: rgba(10, 6, 2, .55);
+  --font-display: "Cormorant SC", "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-body: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --ease: cubic-bezier(.22, .8, .24, 1);
+  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35  0 0 0 0 .24  0 0 0 0 .1  0 0 0 .16 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  color-scheme: dark;
+}
+* , *::before, *::after { box-sizing: border-box; }
+html { background: var(--ink); }
+body { min-height: 100%; background: var(--ink); color: var(--parchment); font: 500 18px/1.5 var(--font-body); -webkit-font-smoothing: antialiased;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 0; }
+.bg { position: fixed; inset: 0; z-index: 0; background: url("map-mobile.jpg?v=8") center 40% / cover no-repeat; filter: saturate(.8) brightness(.42) blur(2px); transform: scale(1.04); }
+.bg::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 30%, rgba(23,17,11,.25), rgba(23,17,11,.88) 75%); }
+main { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; padding-block: 24px 60px; }
+a { color: inherit; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 2px; }
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; display: flex; align-items: center; gap: 12px; margin: 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))); padding: 12px max(16px, env(safe-area-inset-left, 0px)); background: linear-gradient(180deg, rgba(23,17,11,.97), rgba(23,17,11,.88)); border-bottom: 1px solid rgba(201,162,90,.35); backdrop-filter: blur(6px); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--ink); }
+.back { display: inline-flex; align-items: center; gap: 8px; flex: none; padding: 9px 14px 9px 10px; border: 1px solid rgba(201,162,90,.7); border-radius: 4px; background: var(--leather); font: 700 15px/1 var(--font-display); letter-spacing: .06em; color: var(--parchment); cursor: pointer; text-decoration: none; transition: border-color .3s, color .3s; }
+.back svg { width: 16px; height: 16px; stroke: var(--gold); fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; transition: transform .35s var(--ease); }
+.back:hover { border-color: var(--gold-hi); color: var(--gold-hi); } .back:hover svg { transform: translateX(-3px); }
+.bar h1 { margin: 0; min-width: 0; font: 700 22px/1.1 var(--font-display); letter-spacing: .04em; color: var(--gold-hi); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.layout { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 22px; margin-top: 20px; align-items: start; }
+.rail { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 82px); display: flex; flex-direction: column; gap: 6px; }
+.rail button { padding: 10px 14px; border: 1px solid rgba(201,162,90,.4); border-radius: 4px; background: rgba(42,29,18,.85); color: var(--parchment-deep); font: 700 15.5px/1.2 var(--font-display); letter-spacing: .03em; text-align: left; cursor: pointer; transition: border-color .25s, color .25s, background .25s, transform .3s var(--ease); }
+.rail button:hover { border-color: var(--gold); color: var(--parchment); transform: translateX(3px); }
+.rail button[aria-selected="true"] { color: #2a1a0c; border-color: var(--gold-hi); background: linear-gradient(180deg, #f1d79a, #c99a4e); }
+.sheet { min-width: 0; padding: 30px clamp(18px, 4vw, 44px) 36px; color: var(--text-ink); background-color: var(--parchment); background-image: var(--grain), radial-gradient(ellipse at 20% 0%, rgba(255,255,255,.4), transparent 55%), linear-gradient(180deg, var(--parchment), var(--parchment-deep));
+  border: 1px solid var(--gold); border-radius: 5px; box-shadow: inset 0 0 0 5px var(--parchment), inset 0 0 0 6px rgba(111,85,50,.4), 0 16px 44px var(--shadow); animation: rise .5s var(--ease) both; }
+.sheet > * { max-width: 70ch; }
+.sheet > .wide { max-width: none; }
+.sheet h3 { display: flex; align-items: center; gap: 10px; margin: 30px 0 10px; font: 700 16px/1.15 var(--font-display); letter-spacing: .13em; text-transform: uppercase; color: var(--text-ink); }
+.sheet h3::before { content: ""; flex: none; width: 7px; height: 7px; background: var(--blood); transform: rotate(45deg); }
+.sheet h3::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(111,85,50,.6), transparent); }
+.sheet p { margin: 0 0 11px; line-height: 1.55; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 16px; border: 1px solid var(--gold); border-radius: 3px; background: linear-gradient(180deg, #f1d79a, #c99a4e); color: #2a1a0c; font: 700 16px/1 var(--font-display); letter-spacing: .05em; cursor: pointer; text-decoration: none; transition: filter .25s, transform .3s var(--ease); }
+.btn:hover { filter: brightness(1.06); transform: translateY(-1px); }
+.btn.ghost { background: rgba(255,248,228,.45); border-color: rgba(111,85,50,.55); }
+.btn.dark { background: var(--leather); color: var(--gold-hi); }
+#zoom { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: max(16px, env(safe-area-inset-top, 0px)) 16px; background: rgba(10,6,2,.88); opacity: 0; visibility: hidden; cursor: zoom-out; transition: opacity .3s, visibility 0s .3s; }
+#zoom.on { opacity: 1; visibility: visible; transition: opacity .3s, visibility 0s; }
+#zoom img { max-width: 100%; max-height: 100%; border-radius: 4px; box-shadow: 0 20px 60px rgba(0,0,0,.6); transform: scale(.97); transition: transform .4s var(--ease); }
+#zoom.on img { transform: none; }
+.f2 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; }
+.fld label { display: block; margin-bottom: 4px; font: 700 13px/1.3 var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); }
+.fld small { display: block; margin-top: 3px; font: italic 500 14.5px/1.35 var(--font-body); color: var(--text-muted); }
+input[type=text], input[type=url], textarea, select { width: 100%; padding: 9px 11px; border: 1px solid rgba(111,85,50,.5); border-radius: 3px; background: rgba(255,252,240,.7); color: var(--text-ink); font: 500 17px/1.4 var(--font-body); }
+textarea { resize: vertical; min-height: 86px; }
+input:focus, textarea:focus, select:focus { outline: 2px solid var(--gold); outline-offset: 0; border-color: var(--gold); }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.toast { position: fixed; left: 50%; bottom: max(20px, env(safe-area-inset-bottom, 0px)); z-index: 40; transform: translate(-50%, 20px); padding: 11px 16px; border-radius: 4px; background: var(--leather); border: 1px solid var(--gold); color: var(--parchment); font: 600 16px var(--font-body); opacity: 0; transition: opacity .3s, transform .4s var(--ease); pointer-events: none; max-width: calc(100% - 32px); }
+.toast.on { opacity: 1; transform: translate(-50%, 0); }
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; gap: 12px; }
+  .rail { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 64px); z-index: 4; flex-direction: row; overflow-x: auto; gap: 6px; margin: 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))); padding: 8px max(16px, env(safe-area-inset-left, 0px)); background: rgba(23,17,11,.92); scrollbar-width: none; }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail button { flex: none; white-space: nowrap; padding: 8px 12px; font-size: 14.5px; }
+  .rail button:hover { transform: none; }
+  .bar h1 { font-size: 19px; }
+}
+@media (max-width: 560px) { body { font-size: 17px; } .sheet { padding: 22px 16px 26px; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+.bar .sig { width: 30px; height: 30px; flex: none; stroke: var(--gold); fill: none; stroke-width: 1.4; }
+.bar small { margin-left: auto; font: italic 500 15px/1.2 var(--font-body); color: var(--parchment-deep); white-space: nowrap; }
+.rail .soon { padding: 10px 14px; border: 1px dashed rgba(201,162,90,.3); border-radius: 4px; color: rgba(214,189,140,.55); font: italic 500 15px/1.3 var(--font-body); }
+@media (max-width: 860px) { .rail .soon, .bar small { display: none; } }
+/* ---------- Письма ---------- */
+.sheet:has(.lw) { padding-top: 24px; }
+.lw { display: grid; grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); gap: 26px; align-items: start; }
+.lw-ctl h3 { margin: 22px 0 10px; }
+.lw-lead { font-style: italic; color: var(--text-muted); }
+.lw-ctl .fld { margin-bottom: 12px; }
+.lw-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; margin-top: 12px; }
+.lw-seg { display: flex; flex-wrap: wrap; gap: 4px; }
+.lw-seg button { flex: 1 1 auto; padding: 8px 10px; border: 1px solid rgba(111,85,50,.5); border-radius: 3px; background: rgba(255,252,240,.6); color: var(--text-ink); font: 700 15px/1 var(--font-display); letter-spacing: .03em; cursor: pointer; transition: background .2s, color .2s; }
+.lw-seg button[aria-pressed="true"] { background: var(--leather); border-color: var(--leather); color: var(--gold-hi); }
+.lw-wax { display: flex; flex-wrap: wrap; gap: 8px; }
+.lw-wax button { width: 34px; height: 34px; border-radius: 50%; border: 2px solid transparent; background: radial-gradient(circle at 35% 30%, var(--h), var(--w) 55%); box-shadow: 0 2px 4px rgba(0,0,0,.3); cursor: pointer; }
+.lw-wax button[aria-pressed="true"] { border-color: var(--text-ink); outline: 2px solid var(--gold); outline-offset: 1px; }
+.lw-chks { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; margin-bottom: 12px; }
+.lw-chk { display: flex; align-items: center; gap: 7px; font-size: 16px; cursor: pointer; }
+.lw-chk input { width: 17px; height: 17px; accent-color: var(--blood); }
+.lw-prev { position: sticky; top: 14px; }
+.lw-cv { padding: 0; border-radius: 4px; background: repeating-conic-gradient(rgba(111,85,50,.08) 0 25%, transparent 0 50%) 0 0 / 18px 18px; }
+.lw-cv canvas { display: block; width: 100%; height: auto; }
+.lw-prev .actions { margin-top: 12px; }
+.lw-hint { display: block; margin-top: 8px; font: italic 500 14.5px/1.35 var(--font-body); color: var(--text-muted); }
+@media (max-width: 860px) { .lw { grid-template-columns: 1fr; } .lw-prev { position: static; order: -1; } }
+
+.lw-full { grid-column: 1 / -1; }
+.lw-font { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 0 0 6px; }
+.lw-font label.btn { padding: 8px 14px; font-size: 15px; }
+.lw-font small { flex: 1 1 200px; font: italic 500 14.5px/1.35 var(--font-body); color: var(--text-muted); }
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"></div>
+<main id="app">
+  <header class="bar"><svg class="sig" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="29"/><circle cx="32" cy="32" r="24" stroke-dasharray="2 4"/><path d="M32 8v48M8 32h48"/><path d="M32 14l5 18-5 18-5-18z" fill="rgba(201,162,90,.25)"/><path d="M14 32l18-4 18 4-18 4z"/></svg><h1>Мастерская Велариса</h1><small>Инструменты для квестов и отыгрыша</small></header>
+  <div class="layout">
+    <nav class="rail" id="rail" aria-label="Инструменты"></nav>
+    <article class="sheet" id="sheet"></article>
+  </div>
+</main>
+<div class="toast" id="toast" role="status"></div>
+<div id="zoom" role="dialog" aria-modal="true" aria-label="Картинка"><img alt=""></div>
+
+<script>
+/* Гербы и фракции — те же, что на карте */
+const EMBLEMS = {
+  order: `<path d="M12 20s-7-4.4-7-9.5A3.8 3.8 0 0 1 12 8a3.8 3.8 0 0 1 7 2.5C19 15.6 12 20 12 20z"/><path d="M12 3.2c1.6 1.7 1.7 3.2 0 4.6-1.7-1.4-1.6-2.9 0-4.6z"/>`,
+  crown: `<path d="M4.5 17 3.5 8l4.8 3.8L12 5l3.7 6.8L20.5 8l-1 9z"/><path d="M4.5 20h15"/>`,
+  shadows: `<path d="M12 2.8 13.6 5v9.4h-3.2V5z"/><path d="M8.5 14.4h7M12 14.4v4.4M10.4 20.6h3.2"/>`,
+  guild: `<circle cx="8.2" cy="15.8" r="3.6"/><path d="M10.8 13.2 19.5 4.5M17 3.8l3.2 3.2M12.4 11.6l1.3 1.3"/>`,
+  dead: `<path d="M6.5 3.5h11M6.5 20.5h11M8 3.5c0 5 8 5.2 8 8.5s-8 3.5-8 8.5M16 3.5c0 5-8 5.2-8 8.5s8 3.5 8 8.5"/>`,
+  houses: `<path d="M5.5 20.5V9.5h13v11M5.5 9.5V5h2.4v2h2.6V5h3v2h2.6V5h2.4v4.5M10 20.5v-3.6a2 2 0 0 1 4 0v3.6"/>`,
+  council: `<path d="M3 12s3.4-6 9-6 9 6 9 6-3.4 6-9 6-9-6-9-6z"/><circle cx="12" cy="12" r="2.6"/><path d="M4 4l16 16"/>`,
+  tri: `<circle cx="12" cy="7.5" r="3.4"/><circle cx="7.6" cy="15.2" r="3.4"/><circle cx="16.4" cy="15.2" r="3.4"/>`,
+  souls: `<path d="M12 3c3.6 4 5.6 7.2 5.6 10.2a5.6 5.6 0 0 1-11.2 0C6.4 10.2 8.4 7 12 3z"/><path d="M9.6 14.4c.8 1.4 3.9 1.4 4.8 0"/>`,
+  health: `<path d="M9.5 3.5h5M10.5 3.5v5.2L5.6 17.4A2.2 2.2 0 0 0 7.5 20.5h9a2.2 2.2 0 0 0 1.9-3.1l-4.9-8.7V3.5"/><path d="M7.6 14h8.8"/>`
+};
+/* known: true — известны всем; false — тайные общества.
+   main/presence — города на карте (для блока «Власть» в карточке города).
+   rel — отношения: [подпись, текст] */
+const FACTIONS = [
+  { id: "crown", known: true, name: "Императорская власть", color: "#2f4b7c", kind: "Престол Велариса",
+    motto: "Кассель Торнвуд I, Пепельный Король, правит почти три десятилетия.",
+    main: ["verkhniy-predel"], presence: ["tenegrad"],
+    desc: ["Правящий Император Кассель находится на троне почти три десятилетия. Он не выглядит больным, не стареет и не прячется во дворце — он регулярно выходит к народу, раздаёт милостыню и посещает заражённые районы. Никто никогда не видел на его коже следов скверны, и народ считает его избранным, защищённым самой судьбой.",
+           "Формально столицей правит Император и его приближённые, а повседневное управление доверено дому Лимерия. Власть в Тенеграде перешла к семье Верн с согласия самого Императора.",
+           "Гильдию «Плата и сталь» Император официально признал: авантюристы охраняют дороги, чистят окрестности и помогают поддерживать порядок."],
+    facts: [["Престол", "Верхний Предел, Императорский дворец"], ["Правитель", "Кассель Торнвуд I, Пепельный Король"], ["Опора", "Орден Пылающего Сердца"]],
+    lore: "dvor" },
+  { id: "order", known: true, name: "Орден Пылающего Сердца", color: "#9a2a19", kind: "Церковь, инквизиция, армия и суд",
+    motto: "Они сжигают упырей, но они же сжигают людей.",
+    main: ["sarkoniya"], presence: ["verkhniy-predel", "epira"],
+    desc: ["Самая могущественная организация в империи после самого Императора. Это своего рода церковь, которая совмещает функции инквизиции, армии, полиции и суда. Они появились одновременно с первой вспышкой скверны и за три десятилетия превратились в главную силу, контролирующую жизнь каждого жителя Велариса.",
+           "Их символ — пылающее сердце. Он вышит на знамёнах, выбит на доспехах и выжжен на дверях домов, где объявлен приговор. Для простого народа Орден — одновременно защита и угроза.",
+           "Народ боится и ненавидит Орден, но терпит. Без них города были бы захвачены обескровленными, а без доносов никто не узнал бы о скрывающихся магах. Инквизиторы имеют право арестовать любого, даже самого знатного лорда, если есть подозрение в магии.",
+           "Вступающий проходит подготовку в Железной цитадели (от года до пяти лет) и три испытания: исповедь о всех грехах, наблюдение за казнью мага и собственноручное сожжение обвинённого. Предательство карается смертью через огонь — и это считается самой милосердной казнью."],
+    facts: [["Цель", "искоренить скверну истреблением магов, укрепить позиции Императора"], ["Глава", "Верховный инквизитор Элиас фон Торн"], ["Где", "храмы по всей империи, главный — в Сарконии"], ["Народ и знать", "осторожно, чаще положительно"]],
+    people: [["Верховный инквизитор", "Глава Ордена, подчиняется только Императору. Элиас фон Торн — фанатик, верящий в священную миссию Ордена."],
+             ["Старший инквизитор и Старший паладин", "Высшие чины с равным статусом. Инквизитор — стратег и сыщик, паладин — командир военных сил. Носят маски; при себе блокатор, воспламенитель, иногда артефакт поиска магии."],
+             ["Инквизиторы и паладины", "Равны по статусу. Первые расследуют — допросы, поиск магов, улики. Вторые действуют — штурмы, облавы, сопровождение. При себе флакон с пламенем или воспламенитель и артефакт-блокатор."],
+             ["Жрецы", "Служат в храмах, поддерживают веру, собирают сведения через исповеди. Жрецы высокого статуса носят артефакт поиска магии."],
+             ["Новобранцы", "Ученики Железной цитадели. Ещё не полноценные члены Ордена, артефактов не носят."]],
+    rel: [["Союзники", "Императорская власть, «Плата и сталь»"], ["Враги", "Тайный совет, Триединство, Певчие души"], ["Нейтралитет", "Тени Кальдерона, Усопшие Души"], ["Не знают о", "Совете Здравия"]] },
+  { id: "shadows", known: true, name: "Тени Кальдерона", color: "#2c2622", kind: "Преступный синдикат",
+    motto: "«Император сохранит трон. Но он будет знать, что его власть — это только то, что мы позволяем ему видеть!»",
+    main: ["kalderon"], presence: [],
+    desc: ["Это не просто банда мародёров, засевшая в старом шахтёрском посёлке. Тени Кальдерона — преступный синдикат, который контролирует подпольный мир едва ли не всей империи. Их влияние простирается далеко за пределы поселения, а их сети опутывают города, дороги и даже некоторые знатные дома.",
+           "Лидер мародёров, Костолом (Вильгельм Жестокий), укрепил свою власть над городом и окрестностями. Он контролирует шахты, кузницы и торговлю оружием. Местные жители давно научились платить дань тем, кто сильнее.",
+           "«…Города не будут гореть! Маги перестанут бояться! Мы не будем сжигать храмы. Мы просто сделаем так, чтобы слово Ордена не было законом на улицах!» — из Декларации об установлении нового порядка.",
+           "Настоящая сила Теней скрыта в трёх подпольях, каждое со своим предводителем. Вместе они образуют тёмную троицу."],
+    facts: [["Цель", "захват власти постепенным захватом территорий; ведут войну против Ордена и Императора"], ["Глава", "Костолом (Вильгельм Жестокий)"], ["Логово", "посёлок Кость, Кальдерон"], ["Народ", "страх и подчинение"], ["Знать", "осторожность, страх"]],
+    people: [["Лиса — мастерство над монетой", "Воры, ростовщики и подделки во всех крупных городах. Лицо Лисы знают единицы; говорят, она никогда не носит одно лицо дольше недели."],
+             ["Хирург — мастерство над мечами", "Убийцы и наёмники: устранение неугодных, охрана запрещённых грузов, штурмы. Авторитет Хирурга держится на силе, предательства он не терпит."],
+             ["Малум — мастерство над коварством", "Маги, избранные и иммунные, бежавшие от Ордена, получают в Кости убежище и платят за него работой: артефакты, зелья, сокрытие следов. Малум не покидает Кость и никогда не улыбается."]],
+    rel: [["Союзники", "«Плата и сталь», Триединство"], ["Враги", "Император"], ["Перемирие", "с Орденом: обязуются выдавать магов, ищущих укрытия"], ["Нейтралитет", "Усопшие Души, Тайный совет"], ["Не знают о", "Совете Здравия"]] },
+  { id: "guild", known: true, name: "Гильдия «Плата и сталь»", color: "#8a6a22", kind: "Гильдия авантюристов",
+    motto: "Никакой романтики, только работа и оплата.",
+    main: ["torgovyy-forpost"], presence: ["verkhniy-predel", "kalderon", "gniloy-udel"],
+    desc: ["Гильдия объединяет наёмников, охотников на упырей, искателей сокровищ и тех, кто готов выполнить любую работу за деньги. В империи, раздираемой скверной, она стала одной из немногих структур, которая сохранила нейтралитет и продолжает работать даже в самых опасных регионах.",
+           "В каждом крупном городе есть Дом гильдии — укреплённое здание с комнатами, общей трапезной, кузницей и арсеналом. Член гильдии может остановиться там бесплатно в любой момент, получить первую помощь, пополнить припасы, продать добычу и найти союзников.",
+           "Гильдия официально признана Императором. Орден терпит её, но относится с подозрением: гильдия не принимает заказы против Ордена, а инквизиторы не проверяют каждого члена на наличие Дара. На практике теневые заказы обходят это соглашение.",
+           "Чтобы вступить, нужно прийти в штаб-квартиру, оплатить взнос в 50 серебряных грошей и выполнить пробное задание. Предательство карается смертью — чёрный список гильдии охотится за такими без остановки."],
+    facts: [["Цель", "создание устойчивой фигуры в Веларисе"], ["Штаб", "Торговый Форпост"], ["Дома гильдии", "Верхний Предел, Кальдерон, Гнилой Удел"], ["Глава", "Мастер гильдии, личность скрыта"], ["Значок", "скрещённые меч и монета"], ["Народ и знать", "нейтрально, положительно"]],
+    table: [["Стандартные — охрана, патрули, сопровождение", "30–100 грошей"], ["Опасные — упыри, гнёзда, поиск людей", "100–300 грошей"], ["Особо опасные — заражённые зоны, артефакты", "от 500 грошей"], ["Секретные — шпионаж, устранение, кража", "по договорённости"]],
+    rel: [["Союзники", "договорной союз со всеми фракциями, кроме Певчих душ"], ["Не знают о", "Совете Здравия"]] },
+  { id: "dead", known: true, name: "Усопшие Души", color: "#46564a", kind: "Погребальное бюро и гильдия костоправов",
+    motto: "«Каждый заслуживает покой. Но некоторые — лишь после того, как послужат науке или эшафоту».",
+    main: [], presence: ["verkhniy-predel"],
+    desc: ["Для народа «Усопшие Души» берут на себя всё, что связано со смертью: похороны по любым обрядам, отпевания, бальзамирование. В их лавках можно купить всё — от гробовых гвоздей, похоронных свечей и горючих масел до обезболивающих трав, амулетов и украшений из костей казнённых преступников. В филиалах работают опытные палачи и костоправы.",
+           "Гильдия зародилась в трущобах столицы и быстро пустила корни по всему государству. Обители открываются там, где вспыхивают эпидемии, бедствия или чумные бунты. Гильдия держится подчёркнуто нейтрально и помогает властям сжигать трупы после массовых моров, за что получает неприкосновенность и доступ к «материалу».",
+           "За закрытыми дверями — подпольный научный синдикат, анатомическая чёрная биржа и охотники за нечистью. Гильдия ловит обескровленных для опытов, проводит нелегальные операции, торгует органами и редкими порошками. Криминальный мир ценит её за идеальную «утилизацию» улик.",
+           "Официально гильдия зарабатывает на смерти. На деле Эдмунд ищет способ уничтожить скверну или лекарство от неё: зараза забрала его родителей. Об этой цели знают лишь основатели и узкий круг доверенных хирургов."],
+    facts: [["Основатель", "Эдмунд Аушвиц Пэрес, Палач Верхнего Предела"], ["Заместитель", "Рафалия Аушвиц Пэрес"], ["Где", "столица и Обители по всей империи"], ["Символ", "череп в песочных часах; на одежде — треугольник с кругом, разделённым линией"], ["Маги", "не приветствуются"]],
+    people: [["Секачи", "Специалисты по охоте на обескровленных."], ["Отряд Зачистки", "Личная охрана и люди главы."], ["Стрижи", "Сироты и уличные гавроши: гильдия даёт им кров, а они служат её глазами и ушами и разносят шифрованные послания."],
+             ["Известные члены", "Гидеон Мартель, Сольяти Ван Де Сол, Маргарет Жан Первэль, Ёхан Гассельский, Гордон Вален Тайн."]],
+    rel: [["Союзники", "нет"], ["Нейтралитет", "Императорская власть, Орден, «Плата и сталь», Совет Здравия"], ["Перемирие", "Тени Кальдерона"], ["Враждебны", "Триединство, Певчие души"]] },
+  { id: "houses", known: true, name: "Знатные дома и советы", color: "#6a4a7e", kind: "Местная власть в городах",
+    motto: "Те, кто правит городами от имени Императора или по старой традиции.",
+    main: ["gniloy-udel", "tenegrad", "epira"], presence: ["verkhniy-predel"],
+    desc: [],
+    list: [["verkhniy-predel", "Дом Лимерия", "Старая аристократическая семья, управляет столицей от имени Императора: порядок, налоги, лояльность знати."],
+           ["gniloy-udel", "Дом Спенсеров", "Глава — Джорах Спенсер, старый и уставший человек. Недавно семья почти полностью убита; дело расследует Орден."],
+           ["tenegrad", "Семья Верн", "Получила власть с согласия Императора, когда прежние правители не справились. Влияние семьи растёт."],
+           ["epira", "Совет мудрецов", "Пять старейшин, правивших Эпирой ещё до Касселя. Младшая в совете — Кассандра Валенстер, 25 лет."],
+           ["krasnaya-marka", "Дом Торнов — пал", "Владел Красной Маркой и виноградниками, чьё вино подавали к столу Императора. Пару недель назад скверна за неделю выкосила дом и жителей; лорд Альдрик Торн пропал без вести."]] },
+
+  { id: "council", known: false, name: "Тайный совет", color: "#3d5a5a", kind: "Подпольная организация",
+    motto: "Они видели слишком много, чтобы верить в сказки о магической каре.",
+    main: [], presence: [],
+    desc: ["Подпольная организация тех, кто не верит в официальную версию о происхождении скверны. Они уверены, что Император Кассель связан с болезнью, а Орден Пылающего Сердца — лишь инструмент для уничтожения неугодных и сокрытия правды. Совет собирается в старых особняках, подвалах и заброшенных храмах. Орден и Император знают о его существовании и некоторых его членах.",
+           "В Совет входят обедневшие дворяне, бывшие инквизиторы, учёные из Сарконии, торговцы, потерявшие свои империи из-за эпидемий, и простые люди, чьи семьи были сожжены Орденом. Формального лидера нет — решения принимаются голосованием, но голос нескольких ключевых фигур весит больше.",
+           "Одним из самых влиятельных членов был дом Торнов, владевший Красной Маркой. Пару недель назад скверна пришла туда внезапно и за неделю выкосила дом и множество жителей. Лорд Альдрик Торн пропал без вести; свидетели говорят, что он поджёг собственный дом, отпугнув большую часть обескровленных."],
+    facts: [["Цель", "свержение Императора и Ордена. Совет клянётся остановить скверну и создать королевство, где каждый будет в безопасности"], ["Главное лицо", "Винсент де Вольвунд (свободная роль)"], ["Знать", "чаще игнорирует ради безопасности"]],
+    people: [["Винсент де Вольвунд", "Аристократ, направляет бунты и восстания. Вхож во дворец как гость, дальний родственник императорской семьи. Торнвуды не знают, что он в Совете."],
+             ["Мастер Олдрик", "Бывший инквизитор, сжёг сотни магов, пока одним из них не оказался его сын. Передаёт сведения о перемещениях Ордена и не снимает маску даже среди союзников."],
+             ["Леди Ирена из Сарконии", "Учёная, чью лабораторию сжёг Орден. Уверена, что Кассель — создатель вируса, и ищет противоядие; для этого ей нужна кровь самого Императора."],
+             ["Графиня Элиан де Верис", "Аристократка из Эпиры, потерявшая трёх сыновей на кострах. Финансирует Совет и даёт убежище в своих поместьях. Её дом когда-то был главным соперником за трон."]],
+    peopleNote: "Все известные члены сейчас в бегах.",
+    rel: [["Союзники", "«Плата и сталь»"], ["Враги", "Орден, императорская знать, Триединство, Певчие души"], ["Нейтралитет", "Тени Кальдерона, Усопшие Души"], ["Не знают о", "Совете Здравия"]] },
+  { id: "tri", known: false, name: "Триединство", color: "#7a5a1e", kind: "Тайный союз трёх домов",
+    motto: "Магия — это право. Те, кто обладает Даром, должны управлять миром.",
+    main: [], presence: [],
+    desc: ["Тайный союз трёх аристократических домов, которые внешне существуют отдельно друг от друга, но связаны общей целью: свергнуть Императора Касселя и занять трон, перекроив мир под власть магов. Все три семьи скрывают, что подверглись скверне или имеют наследственные Дары.",
+           "Пока у Триединства нет армии, оно не может выступить открыто. Оно действует из тени, копит ресурсы, вербует сторонников и ждёт момента, когда империя ослабнет. Его главный козырь — информация, связи и терпение. После переворота власть должна перейти к трём семьям, которые будут править совместно."],
+    facts: [["Цель", "свержение Императора, захват власти, новый порядок с магами во главе"], ["Народ", "не знает о нём"], ["Знать", "отношение разное"]],
+    people: [["Дом Золотого Колоса — Саркония", "Продовольствие, скот, снабжение армии и городов. Их Дар ускоряет рост растений даже в заражённых землях; они выдают его за «особые методы земледелия». Представитель — Лестат Краун, 26 лет, глава дома."],
+             ["Дом Серого Клинка — инквизиторы", "Формально часть Ордена, на деле ослабляют его изнутри и передают сведения. Скверна превратила дом в одержимых кровью. Представитель — Лорен фон Торн, 37 лет, жрец высокого ранга с доступом к архивам Ордена."],
+             ["Дом Чёрного волка — дороги и караваны", "Контролируют перевозки и знают, куда движутся войска и какие пути открыты. Диковатая знать с наследственным Даром. Представитель — Ирена Вульфстронг, 29 лет, глава транспортной сети в Торговом Форпосте."]],
+    rel: [["Союзники", "Певчие души, Тени Кальдерона"], ["Враги", "Император, Орден, Тайный совет"], ["Нейтралитет", "Усопшие Души, «Плата и сталь»"], ["Не знают о", "Совете Здравия"]] },
+  { id: "souls", known: false, name: "Певчие души", color: "#5e2a4a", kind: "Секта скверны",
+    motto: "Скверна — не зло и не проклятие. Это любовь, которую просто не приняли.",
+    main: [], presence: [],
+    desc: ["Немногочисленная, но крайне опасная фракция, объявленная Орденом главным врагом империи. Император относится к ней с настороженностью и страхом. Центр влияния — заброшенная деревня с храмом, где идут проповеди; последователи рассеяны по империи.",
+           "Вера строится вокруг княжны Лираны, что исцеляла взглядом и словом и берегла свои цветущие земли. Предок Касселя убил её ради власти, но земля отвергла завоевателя: благодатные края обратились в болота, а деревья — в мертвецов с руками-ветвями. Те, кому Лирана успела подарить частицу силы, обрели вечную жизнь — скверна стала их новым телом.",
+           "Каждый должен пройти через скверну: слабый погибнет, сильный возродится новым человеком. Певчие души идут через народ — лечат и кормят там, где Орден не помогает, тайно проповедуют, укрывают магов и иммунных. Некоторые старожилы действительно умеют замедлять и даже обращать скверну вспять."],
+    facts: [["Цель", "подчинить Веларис и заставить каждого принять скверну как дар или наказание"], ["Главное лицо", "Моргана Эшворд, дева скверны"], ["Народ и знать", "не знают или осторожны"]],
+    people: [["Моргана Эшворд", "Юная жрица, рождённая в скверне, — дар миру от самой Лираны. Проводит проповеди в храме заброшенной деревни."],
+             ["Старожилы", "Помнят Лирану и получили от неё вечную жизнь. Хранят знания, учат новичков и направляют Моргану."],
+             ["Души", "Прошедшие через скверну и выжившие. Действуют подпольно и вербуют новых."],
+             ["Заблудшие", "Те, кого скверна не приняла, или кто ещё не сделал шага к правильной жизни."]],
+    rel: [["Союзники", "Триединство, Совет Здравия"], ["Враги", "Император, Орден, Тайный совет"]] },
+  { id: "health", known: false, name: "Совет Здравия", color: "#2f6a5a", kind: "Тайное общество учёных",
+    motto: "Скверна — не проклятие и не кара, а болезнь, которую можно понять и вылечить.",
+    main: [], presence: [],
+    desc: ["Тайное общество учёных, алхимиков и лекарей, которые хотят понять природу скверны. Они не поклоняются ей, как Певчие души, и не сжигают её, как Орден, — они её изучают. Официально Совета не существует: о нём не знают ни Орден, ни Тайный совет, ни Триединство, ни Император.",
+           "Когда Орден объявил исследования болезни ересью и учёных стали отправлять на костёр, придворный советник Орион Кси'лур создал Совет, чтобы продолжить работу подпольно. Долго Совет кочевал, пока не обосновался в Тенеграде: в союзе с Певчими душами там основана лечебница, которая официально помогает больным, а тайно прикрывает исследования.",
+           "У Совета нет гербов и символики. Но они первыми смогли изменить цвет собственной магии — природной или от скверны — и тем доказали, что магия и скверна подвластны людям, а не наоборот."],
+    facts: [["Цель", "изучение скверны и поиск лекарства"], ["Где", "лечебница в Тенеграде"], ["Основатель", "Орион Кси'лур"]],
+    people: [["Орион Кси'лур", "Основатель и единоличный глава."], ["Эквира Кси'лур", "Супруга Ориона, изучала скверну ещё тогда, когда та считалась второстепенной угрозой."],
+             ["Вистивилла Могучая", "Молодой маг с крайне нестабильной магией скверны. Пришла из Певчих душ и посвятила жизнь науке."],
+             ["Генри Ламар, «Проклятый змей»", "Бывший аристократ, поражённый скверной, один из первых членов. Специализация — магия обращений, физическая магия."]],
+    rel: [["Союзники", "Певчие души"], ["Нейтралитет", "Усопшие Души"], ["Нет контакта", "Триединство, Орден, «Плата и сталь», Тайный совет"]] }
+];
+
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const toast = m => { const t = $("#toast"); t.textContent = m; t.classList.add("on"); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove("on"), 3200); };
+
+/* =====================================================================
+   ПИСЬМА — рукописные письма, указы и записки для квестов.
+   Всё рисуется на холсте: что видно в предпросмотре, то и сохранится картинкой.
+   ===================================================================== */
+const LW_KEY = "velaris-letter-v1";
+const LW_HANDS = {
+  marck:  { name: "Изящный",   f: "Marck Script",    k: 1.22, lh: 1.38 },
+  bad:    { name: "Беглый",    f: "Bad Script",      k: 1.0,  lh: 1.62 },
+  caveat: { name: "Небрежный", f: "Caveat",          k: 1.34, lh: 1.26 },
+  kurale: { name: "Писарский", f: "Kurale",          k: 0.98, lh: 1.52 },
+  oldst:  { name: "Книжный",   f: "Old Standard TT", k: 0.98, lh: 1.5, ital: true },
+  /* шрифты из папки fonts/ (подключены в начале страницы через @font-face) */
+  lastochka: { name: "Ласточка",  f: "Lastochka",    k: 1.45,  lh: 1.5 },
+  kosmos:    { name: "Космос",    f: "Kosmos129",    k: 0.9, lh: 1.42 },
+  roscherk:  { name: "Росчерк",   f: "Roscherk SHA", k: 1.28,  lh: 1.5 },
+  denistina: { name: "Денистина", f: "Denistina",    k: 1.35, lh: 1.5 },
+  aquiline:  { name: "Аквилин",   f: "Aquiline",     k: 1.12, lh: 1.95 }
+};
+/* Свои шрифты: загружаются кнопкой «Свой шрифт» и запоминаются в этом браузере */
+const LW_UFONTS = "velaris-fonts-v1";
+const lwB64 = buf => { let s = "", b = new Uint8Array(buf); for (let i = 0; i < b.length; i += 32768) s += String.fromCharCode.apply(null, b.subarray(i, i + 32768)); return btoa(s); };
+const lwUnB64 = t => { const s = atob(t), b = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) b[i] = s.charCodeAt(i); return b.buffer; };
+async function lwAddFont(name, buf, save) {
+  const key = "u-" + name.toLowerCase().replace(/[^a-zа-яё0-9]+/gi, "-"), fam = "LWUser " + key;
+  const ff = new FontFace(fam, buf); await ff.load(); document.fonts.add(ff);
+  /* подгоняем размер: у разных шрифтов строчные буквы разной высоты */
+  let k = 1; try { const m = document.createElement("canvas").getContext("2d"); m.font = `100px "${fam}"`; const t = m.measureText("оже"), xh = (t.actualBoundingBoxAscent || 0) + (t.actualBoundingBoxDescent || 0); if (xh > 5) k = Math.min(2, Math.max(.6, 52 / xh)); } catch (_) {}
+  LW_HANDS[key] = { name: name + " (свой)", f: fam, k, lh: 1.55, user: true };
+  if (save) { try { const all = JSON.parse(localStorage.getItem(LW_UFONTS) || "[]").filter(x => x.name !== name); all.push({ name, data: lwB64(buf) }); localStorage.setItem(LW_UFONTS, JSON.stringify(all)); } catch (_) { toast("Шрифт подключён, но браузер не дал его запомнить: после перезагрузки загрузите снова."); } }
+  return key;
+}
+const lwUserReady = (async () => { try { for (const x of JSON.parse(localStorage.getItem(LW_UFONTS) || "[]")) { try { await lwAddFont(x.name, lwUnB64(x.data), false); } catch (_) {} } } catch (_) {} })();
+const LW_PAPERS = {
+  parch: { name: "Пергамент",       top: "#ecdaae", bot: "#d9be86", vign: "rgba(120,78,30,.34)", stain: [120, 80, 30, .11], amp: 1.4 },
+  light: { name: "Светлая бумага",  top: "#f6efdc", bot: "#eadcbc", vign: "rgba(140,100,50,.17)", stain: [130, 95, 45, .06], amp: .6 },
+  old:   { name: "Старая, опалённая", top: "#dcc089", bot: "#c6a265", vign: "rgba(70,38,12,.58)", stain: [95, 58, 20, .17], amp: 3.4, burnt: true },
+  dark:  { name: "Чёрная (тайная)", top: "#30271e", bot: "#1f1913", vign: "rgba(0,0,0,.5)", stain: [210, 190, 150, .05], amp: 1.2, dark: true }
+};
+const LW_INKS = { black: ["Чёрные", "#1f160e"], sepia: ["Бурые", "#4a2b12"], blue: ["Синие", "#1c2b4f"], red: ["Красные", "#74160f"], silver: ["Серебряные", "#ddd4bf"], gold: ["Золотые", "#d6b062"] };
+const LW_WAX = {
+  red: ["Алый", "#a01f15", "#da5a48", "#4a0905"], wine: ["Винный", "#6d1022", "#ac4459", "#2e040d"], black: ["Чёрный", "#2b2623", "#67605a", "#0b0908"],
+  green: ["Зелёный", "#2f5b2e", "#679a5c", "#11240e"], blue: ["Синий", "#25416f", "#6283b6", "#0d1a33"], gold: ["Золотой", "#b98a30", "#efcf7c", "#5a3d0e"]
+};
+const LW_KINDS = { letter: "Письмо", decree: "Указ", note: "Записка", secret: "Тайное" };
+const lwToday = () => new Date().toLocaleDateString("ru-RU", { day: "numeric", month: "long" });
+const LW_PRESETS = {
+  guild: { name: "Письмо гильдии", s: { kind: "letter", paper: "parch", ink: "sepia", hand: "marck", place: "Кальдерон, " + lwToday(), greet: "Уважаемый авантюрист,",
+    body: "Гильдия «Плата и сталь» имеет к вам дело, требующее крепкой руки и тихого языка. Подробности — при личной встрече: в таверне у восточных ворот, после вечернего колокола.\nПлата достойная. Задаток — по прибытии.\nЭто письмо сожгите.",
+    close: "С уважением,", sign: "Мастер гильдии", ps: "", seal: "guild", wax: "red", dropcap: true, corners: false, folds: true, blots: true } },
+  decree: { name: "Императорский указ", s: { kind: "decree", paper: "parch", ink: "black", hand: "kurale", title: "Указ", sub: "Именем Его Величества Касселя Торнвуда I", place: "Дано в Верхнем Пределе, " + lwToday(), greet: "",
+    body: "Повелеваю: всякому подданному империи, видевшему обескровленных в черте городских стен, немедля доложить о том страже или Ордену.\nУкрывающий заражённого карается наравне с ним.\nСей указ огласить на всех площадях.",
+    close: "", sign: "Кассель I", ps: "", seal: "crown", wax: "red", dropcap: true, corners: true, folds: false, blots: false } },
+  secret: { name: "Тайное послание", s: { kind: "secret", paper: "dark", ink: "silver", hand: "bad", title: "Тайно · сжечь по прочтении", place: "", greet: "",
+    body: "Тот, кого вы ищете, будет в Тенеграде через три ночи. Приходите один. Без огня и без Ордена.", close: "", sign: "Т.", ps: "", seal: "shadows", wax: "black", dropcap: false, corners: false, folds: true, blots: false } },
+  note: { name: "Короткая записка", s: { kind: "note", paper: "light", ink: "black", hand: "caveat", place: "", greet: "",
+    body: "Жду у старой мельницы на закате. Возьми фонарь — и ничего не говори брату.", close: "", sign: "Л.", ps: "", seal: "none", wax: "red", dropcap: false, corners: false, folds: true, blots: true } }
+};
+const LW_BASE = { sigHand: "", size: 1, title: "", sub: "", initial: "", wobble: true, backdrop: true, seed: 7 };
+let LW = (() => { try { const s = JSON.parse(localStorage.getItem(LW_KEY)); if (s && s.kind) return Object.assign({}, LW_BASE, LW_PRESETS.guild.s, s); } catch (_) {} return Object.assign({}, LW_BASE, LW_PRESETS.guild.s); })();
+const lwSave = () => { try { localStorage.setItem(LW_KEY, JSON.stringify(LW)); } catch (_) {} };
+
+/* ---------- редактор ---------- */
+const handOpts = cur => {
+  const own = Object.entries(LW_HANDS).filter(([, h]) => !h.user), user = Object.entries(LW_HANDS).filter(([, h]) => h.user);
+  const o = ([k, h]) => `<option value="${k}"${k === cur ? " selected" : ""} style="font-family:'${h.f}'">${esc(h.name)}</option>`;
+  return own.map(o).join("") + (user.length ? `<optgroup label="Свои шрифты">${user.map(o).join("")}</optgroup>` : "");
+};
+function letterHTML() {
+  const opt = (obj, cur, lab = v => v.name || v[0]) => Object.entries(obj).map(([k, v]) => `<option value="${k}"${k === cur ? " selected" : ""}>${esc(lab(v))}</option>`).join("");
+  const seg = (attr, items, cur) => `<div class="lw-seg">${items.map(([k, t]) => `<button type="button" ${attr}="${k}" aria-pressed="${String(k) === String(cur)}">${esc(t)}</button>`).join("")}</div>`;
+  const inp = (k, label, ph) => `<div class="fld"><label for="lw-${k}">${label}</label><input type="text" id="lw-${k}" data-lw="${k}" value="${esc(LW[k])}" placeholder="${esc(ph || "")}"></div>`;
+  const seals = [["none", "Без печати"], ["initial", "Инициал (буква)"]].concat(FACTIONS.filter(f => EMBLEMS[f.id]).map(f => [f.id, f.name]));
+  const chk = (k, t) => `<label class="lw-chk"><input type="checkbox" data-lwc="${k}"${LW[k] ? " checked" : ""}> ${t}</label>`;
+  const showTitle = LW.kind === "decree" || LW.kind === "secret";
+  return `<div class="lw wide">
+  <div class="lw-ctl">
+    <p class="lw-lead">Письма, указы и записки для квестов. Заполните поля — справа сразу видно, как выйдет. Готовую картинку можно скачать или скопировать и вставить в беседу ВК.</p>
+    <div class="fld"><label for="lw-preset">Образец</label><select id="lw-preset"><option value="">— выбрать образец —</option>${opt(LW_PRESETS, "")}</select></div>
+    <h3>Вид</h3>
+    ${seg("data-lwk", Object.entries(LW_KINDS), LW.kind)}
+    <div class="lw-2">
+      <div class="fld"><label for="lw-paper">Бумага</label><select id="lw-paper" data-lw="paper">${opt(LW_PAPERS, LW.paper)}</select></div>
+      <div class="fld"><label for="lw-ink">Чернила</label><select id="lw-ink" data-lw="ink">${opt(LW_INKS, LW.ink)}</select></div>
+      <div class="fld"><label for="lw-hand">Почерк текста</label><select id="lw-hand" data-lw="hand">${handOpts(LW.hand)}</select></div>
+      <div class="fld"><label for="lw-sighand">Почерк подписи</label><select id="lw-sighand" data-lw="sigHand"><option value="">Как в тексте</option>${handOpts(LW.sigHand)}</select></div>
+      <div class="fld lw-full"><label>Размер букв</label>${seg("data-lws", [[0, "Мелко"], [1, "Средне"], [2, "Крупно"]], LW.size)}</div>
+    </div>
+    <div class="lw-font"><label class="btn ghost" for="lw-file">+ Свой шрифт</label><input type="file" id="lw-file" accept=".ttf,.otf,.woff,.woff2" hidden><small>Файл .ttf или .otf — он сразу появится в списке почерков и запомнится в этом браузере.</small></div>
+    <h3>Текст</h3>
+    ${showTitle ? inp("title", LW.kind === "decree" ? "Заголовок" : "Штамп", LW.kind === "decree" ? "Указ" : "Тайно") : ""}
+    ${LW.kind === "decree" ? inp("sub", "Под заголовком", "Именем Его Величества…") : ""}
+    ${inp("place", LW.kind === "decree" ? "Где и когда дано" : "Место и дата", "Кальдерон, " + lwToday())}
+    ${LW.kind === "decree" ? "" : inp("greet", "Обращение", "Дорогой друг,")}
+    <div class="fld"><label for="lw-body">Текст письма</label><textarea id="lw-body" data-lw="body" rows="8">${esc(LW.body)}</textarea><small>Новый абзац — с новой строки.</small></div>
+    ${LW.kind === "decree" ? "" : inp("close", "Прощание", "С почтением,")}
+    ${inp("sign", "Подпись", "Имя")}
+    ${inp("ps", "P.S. (необязательно)", "")}
+    <h3>Печать</h3>
+    <div class="fld"><label for="lw-seal">Оттиск</label><select id="lw-seal" data-lw="seal">${seals.map(([k, t]) => `<option value="${k}"${k === LW.seal ? " selected" : ""}>${esc(t)}</option>`).join("")}</select></div>
+    ${LW.seal === "initial" ? inp("initial", "Буква на печати", (LW.sign || "А")[0]) : ""}
+    ${LW.seal === "none" ? "" : `<div class="fld"><label>Сургуч</label><div class="lw-wax">${Object.entries(LW_WAX).map(([k, w]) => `<button type="button" data-lwx="${k}" aria-pressed="${k === LW.wax}" title="${w[0]}" aria-label="${w[0]}" style="--w:${w[1]};--h:${w[2]}"></button>`).join("")}</div></div>`}
+    <h3>Украшения</h3>
+    <div class="lw-chks">${chk("dropcap", "Расписная буквица")}${chk("corners", "Узоры в углах")}${chk("folds", "Сгибы")}${chk("blots", "Кляксы")}${chk("wobble", "Живой почерк")}${chk("backdrop", "Тёмный фон вокруг")}</div>
+    <button type="button" class="btn ghost" id="lw-reseed">Другие пятна и кляксы</button>
+  </div>
+  <div class="lw-prev">
+    <div class="lw-cv"><canvas id="lw-cv" aria-label="Предпросмотр письма"></canvas></div>
+    <div class="actions"><button type="button" class="btn" id="lw-dl">Скачать картинку</button><button type="button" class="btn ghost" id="lw-copy">Копировать</button><button type="button" class="btn ghost" id="lw-open">Открыть крупно</button></div>
+    <small class="lw-hint">На телефоне: «Открыть крупно», затем зажмите картинку пальцем и сохраните.</small>
+  </div>
+</div>`;
+}
+function letterInit() { lwFonts().then(lwDraw); lwDraw(); lwUserReady.then(() => { if ($("#lw-hand") && Object.values(LW_HANDS).some(h => h.user)) lwRefreshForm(); lwFonts().then(lwDraw); }); }
+function lwRefreshForm() { const y = scrollY; $("#sheet").innerHTML = letterHTML(); scrollTo(0, y); lwDraw(); }
+
+document.addEventListener("input", e => {
+  const t = e.target; if (!t.dataset || t.dataset.lw == null) return;
+  LW[t.dataset.lw] = t.value; lwSave();
+  if (t.dataset.lw === "paper") { const dark = LW_PAPERS[t.value].dark; if (dark && ["black", "sepia", "blue", "red"].includes(LW.ink)) LW.ink = "silver"; if (!dark && LW.ink === "silver") LW.ink = "black"; lwSave(); lwRefreshForm(); return; }
+  if (t.dataset.lw === "seal") { lwRefreshForm(); return; }
+  if (t.dataset.lw === "hand" || t.dataset.lw === "sigHand") lwFonts().then(lwDraw);
+  lwDraw();
+});
+document.addEventListener("change", e => {
+  const t = e.target;
+  if (t.id === "lw-file" && t.files && t.files[0]) {
+    const f = t.files[0], name = f.name.replace(/\.(ttf|otf|woff2?)$/i, "");
+    f.arrayBuffer().then(buf => lwAddFont(name, buf, true)).then(key => { LW.hand = key; lwSave(); lwRefreshForm(); lwFonts().then(lwDraw); toast("Шрифт «" + name + "» подключён."); })
+      .catch(() => toast("Не получилось прочитать этот файл как шрифт."));
+    return;
+  }
+  if (t.id === "lw-preset" && t.value) { LW = Object.assign({}, LW_BASE, { seed: LW.seed }, LW_PRESETS[t.value].s); lwSave(); lwFonts().then(lwDraw); lwRefreshForm(); return; }
+  if (t.dataset && t.dataset.lwc) { LW[t.dataset.lwc] = t.checked; lwSave(); lwDraw(); }
+});
+document.addEventListener("click", e => {
+  const t = e.target, b = t.closest && t.closest("[data-lwk],[data-lws],[data-lwx],#lw-reseed,#lw-dl,#lw-copy,#lw-open");
+  if (!b) return;
+  if (b.dataset.lwk) { LW.kind = b.dataset.lwk; if (LW.kind === "decree" && !LW.title) LW.title = "Указ"; if (LW.kind === "secret" && !LW.title) LW.title = "Тайно"; lwSave(); lwRefreshForm(); return; }
+  if (b.dataset.lws) { LW.size = +b.dataset.lws; lwSave(); b.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); lwDraw(); return; }
+  if (b.dataset.lwx) { LW.wax = b.dataset.lwx; lwSave(); b.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); lwDraw(); return; }
+  if (b.id === "lw-reseed") { LW.seed = (LW.seed * 7 + 13) % 9973; lwSave(); lwDraw(); return; }
+  const cv = $("#lw-cv"); if (!cv) return;
+  const name = "pismo-" + (LW.sign || "velaris").replace(/[^\wа-яё]+/gi, "-").toLowerCase() + ".png";
+  if (b.id === "lw-dl") {
+    cv.toBlob(bl => { const u = URL.createObjectURL(bl), a = document.createElement("a"); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000);
+      toast("Картинка сохраняется. Если ничего не скачалось — нажмите «Открыть крупно»."); }, "image/png");
+  }
+  if (b.id === "lw-copy") {
+    const fail = () => toast("Браузер не дал скопировать. Нажмите «Открыть крупно» → правой кнопкой → «Копировать картинку».");
+    try { cv.toBlob(bl => { navigator.clipboard.write([new ClipboardItem({ "image/png": bl })]).then(() => toast("Скопировано. Вставьте в беседу: Ctrl+V."), fail); }, "image/png"); } catch (_) { fail(); }
+  }
+  if (b.id === "lw-open") { const z = $("#zoom"); z.querySelector("img").src = cv.toDataURL("image/png"); z.classList.add("on"); }
+});
+
+/* ---------- шрифты и картинки ---------- */
+function lwFonts() {
+  if (!document.fonts || !document.fonts.load) return Promise.resolve();
+  const fams = new Set([(LW_HANDS[LW.hand] || LW_HANDS.marck).f, (LW_HANDS[LW.sigHand] || LW_HANDS.marck).f, "Marck Script", "Ruslan Display", "Old Standard TT"]);
+  return Promise.all([...fams].map(f => document.fonts.load(`32px "${f}"`, "АаЖж").catch(() => {}))).catch(() => {});
+}
+const lwImgs = new Map();
+function lwImg(svgText) {
+  if (lwImgs.has(svgText)) return lwImgs.get(svgText);
+  const p = new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svgText); });
+  lwImgs.set(svgText, p); return p;
+}
+const LW_SVG = {
+  corner: c => `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'><g fill='none' stroke='${c}' stroke-width='1.6' stroke-linecap='round'><path d='M4 76V20C4 10 10 4 20 4h56'/><path d='M10 76V26c0-9 7-16 16-16h50'/><path d='M20 24c6-8 18-8 20 2s-10 14-14 6 6-12 10-4'/><path d='M24 20c-8-6-8-16 0-16'/><path d='M20 24c-6 8-16 8-16 0'/><path d='M40 26c8 2 14-2 18-8'/><path d='M26 40c2 8-2 14-8 18'/></g><g fill='#7a2414'><circle cx='20' cy='24' r='3'/><path d='M58 18l4-4 2 6z'/><path d='M18 58l-4 4 6 2z'/></g></svg>`,
+  vine: c => `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 24'><g fill='none' stroke='${c}' stroke-width='1.3' stroke-linecap='round'><path d='M20 12h140M240 12h140'/><path d='M160 12c10-10 22-10 26 0-4 10-16 10-26 0z'/><path d='M240 12c-10-10-22-10-26 0 4 10 16 10 26 0z'/><path d='M120 12c6-8 14-8 16-2s-6 8-8 3M280 12c-6-8-14-8-16-2s6 8 8 3'/><path d='M80 12c6 8 14 8 16 2s-6-8-8-3M320 12c-6 8-14 8-16 2s6-8 8-3'/><path d='M20 12c-6-6-12-4-12 0s6 6 12 0M380 12c6-6 12-4 12 0s-6 6-12 0'/></g><path d='M200 3l7 9-7 9-7-9z' fill='#7a2414'/><circle cx='186' cy='12' r='2' fill='${c}'/><circle cx='214' cy='12' r='2' fill='${c}'/></svg>`,
+  illum: () => `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='3' y='3' width='94' height='94' fill='#c99a4e' stroke='#241a10' stroke-width='2'/><rect x='9' y='9' width='82' height='82' fill='#efe0b8' stroke='#7a2414' stroke-width='1.5'/><g fill='none' stroke='#2f5a3a' stroke-width='1.6' stroke-linecap='round'><path d='M14 86c10-6 8-18 18-20M86 14c-10 6-8 18-18 20M14 14c6 10 18 8 20 18M86 86c-6-10-18-8-20-18'/></g><g fill='#2f5a3a'><circle cx='32' cy='66' r='2.6'/><circle cx='68' cy='34' r='2.6'/><circle cx='34' cy='32' r='2.6'/><circle cx='66' cy='68' r='2.6'/></g></svg>`,
+  emblem: (id, c, w) => `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='96' height='96' fill='none' stroke='${c}' stroke-width='${w}' stroke-linecap='round' stroke-linejoin='round'>${EMBLEMS[id]}</svg>`
+};
+
+/* ---------- случайность, которая не прыгает при наборе текста ---------- */
+const lwHash = (...a) => { let h = 2166136261; for (const v of a) { h ^= Math.floor(v * 1000) | 0; h = Math.imul(h, 16777619); h ^= h >>> 13; } return ((h >>> 0) % 100000) / 100000; };
+function lwRng(seed) { let s = seed >>> 0 || 1; return () => { s = Math.imul(s ^ (s >>> 15), 2246822507) + 0x9e3779b9 >>> 0; s ^= s >>> 13; return (s >>> 0) / 4294967296; }; }
+let lwNoise = null;
+function lwNoisePat(ctx) {
+  if (!lwNoise) { const c = document.createElement("canvas"); c.width = c.height = 160; const x = c.getContext("2d"), d = x.createImageData(160, 160), r = lwRng(99);
+    for (let i = 0; i < d.data.length; i += 4) { const v = r(); d.data[i] = 70; d.data[i + 1] = 45; d.data[i + 2] = 20; d.data[i + 3] = v < .5 ? v * 46 : v * 22; } x.putImageData(d, 0, 0); lwNoise = c; }
+  return ctx.createPattern(lwNoise, "repeat");
+}
+
+/* ---------- раскладка и рисование ---------- */
+let lwTok = 0, lwRaf = 0;
+function lwDraw() { if (lwRaf) return; lwRaf = requestAnimationFrame(() => { lwRaf = 0; lwRender(); }); }
+async function lwRender() {
+  const cv = $("#lw-cv"); if (!cv) return;
+  const tok = ++lwTok, L = LW, P = LW_PAPERS[L.paper] || LW_PAPERS.parch, H = LW_HANDS[L.hand] || LW_HANDS.marck;
+  let ink = (LW_INKS[L.ink] || LW_INKS.black)[1];
+  if (P.dark && ["black", "sepia", "blue", "red"].includes(L.ink)) ink = LW_INKS.silver[1];
+  const red = P.dark ? "#c0503a" : "#7a2414";
+  const W = { letter: 720, decree: 760, note: 520, secret: 640 }[L.kind] || 720;
+  const pad = (L.kind === "note" ? 46 : 66) + (L.corners ? 14 : 0);
+  const fs = [17, 20, 24][L.size] * H.k, lh = fs * H.lh;
+  const SH = LW_HANDS[L.sigHand], sigF = SH ? SH.f : (L.hand === "kurale" || L.hand === "oldst") ? "Marck Script" : H.f, sigK = SH ? SH.k / H.k : 1;
+  const font = (sz, fam = H.f, ital = H.ital) => `${ital ? "italic " : ""}${sz.toFixed(1)}px "${fam}", "Marck Script", cursive`;
+  const M = L.backdrop ? 46 : 8, S = 2;
+  const wax = LW_WAX[L.wax] || LW_WAX.red;
+  const seal = L.seal && L.seal !== "none" ? L.seal : "";
+  const need = [];
+  if (L.corners) need.push(lwImg(LW_SVG.corner(ink)));
+  if (L.kind === "decree") { need.push(lwImg(LW_SVG.vine(ink)), lwImg(LW_SVG.emblem(seal && EMBLEMS[seal] ? seal : "crown", ink, 1.3))); }
+  if (L.dropcap) need.push(lwImg(LW_SVG.illum()));
+  if (seal && EMBLEMS[seal]) need.push(lwImg(LW_SVG.emblem(seal, wax[3], 1.7)), lwImg(LW_SVG.emblem(seal, wax[2], 1.7)), lwImg(LW_SVG.emblem(seal, wax[1], 1.7)));
+  const imgs = await Promise.all(need);
+  if (tok !== lwTok) return;
+  const I = {}; let k = 0;
+  if (L.corners) I.corner = imgs[k++];
+  if (L.kind === "decree") { I.vine = imgs[k++]; I.crest = imgs[k++]; }
+  if (L.dropcap) I.illum = imgs[k++];
+  if (seal && EMBLEMS[seal]) { I.eLo = imgs[k++]; I.eHi = imgs[k++]; I.eMid = imgs[k++]; }
+
+  /* 1. раскладка */
+  const m = document.createElement("canvas").getContext("2d");
+  const ops = [];
+  const cw = W - pad * 2;
+  let y = pad;
+  if (L.kind === "decree") {
+    ops.push({ t: "img", im: I.crest, x: W / 2 - 28, y: y - 6, w: 56, h: 56 }); y += 62;
+    if (L.title) { y += 40; ops.push({ t: "txt", s: L.title, x: W / 2, y, f: `400 42px "Ruslan Display", "Old Standard TT", serif`, a: "center", c: ink }); y += 14; }
+    if (L.sub) { y += fs * 1.05; ops.push({ t: "txt", s: L.sub, x: W / 2, y, f: font(fs * .95), a: "center", c: ink }); y += 6; }
+    ops.push({ t: "img", im: I.vine, x: W / 2 - 180, y: y + 6, w: 360, h: 22 }); y += 44;
+  }
+  if (L.kind === "secret" && L.title) { ops.push({ t: "stamp", s: L.title, x: W / 2, y: y + 26 }); y += 70; }
+  if (L.kind !== "decree" && L.place) { y += fs * .9; ops.push({ t: "txt", s: L.place, x: W - pad, y, f: font(fs * .85), a: "right", c: ink, wob: 1 }); y += lh * .7; }
+  if (L.kind !== "decree" && L.greet) { y += lh; ops.push({ t: "txt", s: L.greet, x: pad, y, f: font(fs * 1.06), a: "left", c: ink, wob: 2 }); y += lh * .35; }
+  /* текст */
+  m.font = font(fs);
+  const sp = m.measureText(" ").width;
+  const paras = String(L.body || "").split("\n");
+  let dc = null, lineNo = 0;
+  const bodyLines = [];
+  paras.forEach((par, pi) => {
+    par = par.trim();
+    if (!par) { y += lh * .5; return; }
+    let first = pi === 0 || !bodyLines.length;
+    let text = par, indent = fs * 1.6;
+    if (first && L.dropcap && /^[«"]?[A-Za-zА-Яа-яЁё]/.test(par) && !dc) {
+      const ch = par.match(/[A-Za-zА-Яа-яЁё]/)[0], at = par.indexOf(ch);
+      const size = Math.round(Math.max(lh * 2.3, 58));
+      dc = { x: pad, y: y + lh * .28, s: size, ch: ch.toUpperCase() };
+      ops.push({ t: "dc", ...dc });
+      text = par.slice(0, at) + par.slice(at + 1); indent = 0;
+    }
+    const words = text.split(/\s+/).filter(Boolean);
+    let line = [], lw = 0, li = 0;
+    const lineX = yy => dc && yy - lh * .8 < dc.y + dc.s + 4 ? dc.s + 14 : 0;
+    const flush = last => {
+      y += lh; const off = lineX(y) + (li === 0 ? indent : 0);
+      const op = { t: "line", words: line, x: pad + off, y, f: font(fs), c: ink, n: lineNo++, w: lw };
+      ops.push(op); bodyLines.push(op); line = []; lw = 0; li++;
+    };
+    words.forEach(w => {
+      const ww = m.measureText(w).width;
+      const avail = cw - lineX(y + lh) - (li === 0 ? indent : 0);
+      if (line.length && lw + sp + ww > avail) flush();
+      lw += (line.length ? sp : 0) + ww; line.push(w);
+    });
+    if (line.length) flush(true);
+    y += lh * .22;
+  });
+  if (dc && y < dc.y + dc.s + 6) y = dc.y + dc.s + 6;
+  y += lh * .3;
+  const yBody = y;
+  if (L.kind !== "decree" && L.close) { y += lh; ops.push({ t: "txt", s: L.close, x: W - pad - fs * 2, y, f: font(fs), a: "right", c: ink, wob: 3 }); }
+  if (L.kind === "decree" && L.place) { y += lh; ops.push({ t: "txt", s: L.place, x: pad, y, f: font(fs * .9), a: "left", c: ink, wob: 4 }); }
+  const sigSize = fs * 1.6 * sigK;
+  let sigY = y;
+  if (L.sign) { y += sigSize * 1.15; sigY = y; ops.push({ t: "sig", s: L.sign, x: W - pad, y, f: font(sigSize, sigF, false), c: ink }); y += 14; }
+  const R = L.kind === "decree" ? 54 : L.kind === "note" ? 36 : 44;
+  if (seal) {
+    if (L.kind === "decree") { y += 18; ops.push({ t: "seal", x: W / 2, y: y + R, r: R, ribbon: true }); y += R * 2 + 46; }
+    else { const sy = Math.max(sigY - sigSize * .3, yBody + R + 4); ops.push({ t: "seal", x: pad + R + 6, y: sy, r: R }); y = Math.max(y, sy + R + 6); }
+  }
+  if (L.ps) {
+    y += lh * .6; m.font = font(fs * .92);
+    const words = ("P.S. " + L.ps).split(/\s+/); let line = [], lw = 0; const sp2 = m.measureText(" ").width;
+    const push = () => { y += lh * .95; ops.push({ t: "line", words: line, x: pad, y, f: font(fs * .92), c: ink, n: 500 + ops.length, w: lw }); line = []; lw = 0; };
+    words.forEach(w => { const ww = m.measureText(w).width; if (line.length && lw + sp2 + ww > cw) push(); lw += (line.length ? sp2 : 0) + ww; line.push(w); });
+    if (line.length) push();
+  }
+  y += pad * .8;
+  const minH = { letter: W * .85, decree: W * 1.05, note: W * .5, secret: W * .62 }[L.kind] || W;
+  const Hp = Math.ceil(Math.max(y, minH));
+
+  /* 2. холст */
+  const CW = W + M * 2, CH = Hp + M * 2;
+  cv.width = CW * S; cv.height = CH * S;
+  const c = cv.getContext("2d");
+  c.setTransform(S, 0, 0, S, 0, 0);
+  c.clearRect(0, 0, CW, CH);
+  const rnd = lwRng(L.seed * 31 + 5);
+  if (L.backdrop) {
+    const g = c.createRadialGradient(CW / 2, CH * .45, 40, CW / 2, CH / 2, Math.max(CW, CH) * .75);
+    g.addColorStop(0, "#3d2a18"); g.addColorStop(1, "#140d07");
+    c.fillStyle = g; c.fillRect(0, 0, CW, CH);
+    c.globalAlpha = .55; c.fillStyle = lwNoisePat(c); c.fillRect(0, 0, CW, CH); c.globalAlpha = 1;
+  }
+  c.translate(M, M);
+  const path = lwEdge(W, Hp, P, rnd);
+  if (L.backdrop) { c.save(); c.shadowColor = "rgba(0,0,0,.55)"; c.shadowBlur = 26; c.shadowOffsetY = 10; c.fillStyle = P.bot; c.fill(path); c.restore(); }
+  c.save(); c.clip(path);
+  const pg = c.createLinearGradient(0, 0, W * .3, Hp); pg.addColorStop(0, P.top); pg.addColorStop(1, P.bot);
+  c.fillStyle = pg; c.fillRect(-5, -5, W + 10, Hp + 10);
+  c.globalAlpha = P.dark ? .35 : .9; c.fillStyle = lwNoisePat(c); c.fillRect(0, 0, W, Hp); c.globalAlpha = 1;
+  /* волокна */
+  c.lineWidth = .6;
+  for (let i = 0; i < 70; i++) {
+    const x = rnd() * W, yy = rnd() * Hp, l = 10 + rnd() * 40, a = rnd() * Math.PI;
+    c.strokeStyle = P.dark ? `rgba(255,240,210,${.03 + rnd() * .04})` : `rgba(110,75,35,${.04 + rnd() * .06})`;
+    c.beginPath(); c.moveTo(x, yy); c.quadraticCurveTo(x + Math.cos(a) * l / 2 + 4, yy + Math.sin(a) * l / 2, x + Math.cos(a) * l, yy + Math.sin(a) * l); c.stroke();
+  }
+  /* пятна */
+  const [sr, sg, sb, sa] = P.stain, nSt = 3 + Math.floor(rnd() * 4);
+  for (let i = 0; i < nSt; i++) {
+    const x = rnd() * W, yy = rnd() * Hp, r = 20 + rnd() * (P.burnt ? 110 : 70), ring = rnd() < .45;
+    const g = c.createRadialGradient(x, yy, 0, x, yy, r);
+    if (ring) { g.addColorStop(0, `rgba(${sr},${sg},${sb},${sa * .25})`); g.addColorStop(.86, `rgba(${sr},${sg},${sb},${sa * .45})`); g.addColorStop(.94, `rgba(${sr},${sg},${sb},${sa * 1.6})`); g.addColorStop(1, `rgba(${sr},${sg},${sb},0)`); }
+    else { g.addColorStop(0, `rgba(${sr},${sg},${sb},${sa})`); g.addColorStop(1, `rgba(${sr},${sg},${sb},0)`); }
+    c.fillStyle = g; c.beginPath(); c.ellipse(x, yy, r, r * (.7 + rnd() * .5), rnd() * 3, 0, Math.PI * 2); c.fill();
+  }
+  /* виньетка у краёв */
+  const vg = c.createRadialGradient(W / 2, Hp / 2, Math.min(W, Hp) * .38, W / 2, Hp / 2, Math.hypot(W, Hp) * .56);
+  vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, P.vign); c.fillStyle = vg; c.fillRect(0, 0, W, Hp);
+  if (P.burnt) { c.save(); c.shadowColor = "rgba(40,16,4,.95)"; c.shadowBlur = 22; c.strokeStyle = "rgba(45,20,6,.85)"; c.lineWidth = 5; c.stroke(path); c.restore(); }
+  else { c.strokeStyle = P.dark ? "rgba(255,240,210,.12)" : "rgba(90,60,25,.28)"; c.lineWidth = 1.4; c.stroke(path); }
+  /* сгибы */
+  if (L.folds) {
+    const folds = L.kind === "note" ? [[0, Hp / 2, W, Hp / 2]] : [[0, Hp / 3, W, Hp / 3], [0, Hp * 2 / 3, W, Hp * 2 / 3]];
+    if (L.kind === "note") folds.push([W / 2, 0, W / 2, Hp]);
+    folds.forEach(([x1, y1, x2, y2]) => {
+      const hor = y1 === y2, g = hor ? c.createLinearGradient(0, y1 - 14, 0, y1 + 14) : c.createLinearGradient(x1 - 14, 0, x1 + 14, 0);
+      g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(.47, P.dark ? "rgba(0,0,0,.28)" : "rgba(80,50,20,.13)"); g.addColorStop(.5, P.dark ? "rgba(255,240,210,.10)" : "rgba(255,250,235,.45)"); g.addColorStop(.56, "rgba(0,0,0,0)");
+      c.fillStyle = g; hor ? c.fillRect(0, y1 - 14, W, 28) : c.fillRect(x1 - 14, 0, 28, Hp);
+    });
+  }
+  c.restore();
+  /* узоры в углах */
+  if (I.corner) {
+    const s = 64, o = 12;
+    [[o, o, 1, 1], [W - o, o, -1, 1], [o, Hp - o, 1, -1], [W - o, Hp - o, -1, -1]].forEach(([x, yy, sx, sy]) => { c.save(); c.translate(x, yy); c.scale(sx, sy); c.globalAlpha = .9; c.drawImage(I.corner, 0, 0, s, s); c.restore(); });
+    c.save(); c.globalAlpha = .55; c.strokeStyle = ink; c.lineWidth = 1.2; c.strokeRect(o + 4, o + 4, W - o * 2 - 8, Hp - o * 2 - 8); c.restore();
+  }
+  /* 3. текст и украшения */
+  const inkA = (n, j) => L.wobble ? .82 + lwHash(L.seed, n, j, 3) * .18 : 1;
+  for (const op of ops) {
+    if (op.t === "img" && op.im) { c.save(); c.globalAlpha = .92; c.drawImage(op.im, op.x, op.y, op.w, op.h); c.restore(); }
+    else if (op.t === "txt") {
+      c.save(); c.font = op.f; c.fillStyle = op.c; c.textAlign = op.a; c.textBaseline = "alphabetic";
+      if (L.wobble && op.wob) { c.translate(op.x, op.y); c.rotate((lwHash(L.seed, op.wob, 9) - .5) * .02); c.globalAlpha = inkA(op.wob, 1); c.fillText(op.s, 0, 0); }
+      else c.fillText(op.s, op.x, op.y);
+      c.restore();
+    }
+    else if (op.t === "line") {
+      c.save(); c.font = op.f; c.fillStyle = op.c; c.textBaseline = "alphabetic";
+      const rot = L.wobble ? (lwHash(L.seed, op.n, 1) - .5) * .009 : 0;
+      c.translate(op.x, op.y); c.rotate(rot);
+      let x = 0; const spw = c.measureText(" ").width;
+      op.words.forEach((w, j) => {
+        const dy = L.wobble ? (lwHash(L.seed, op.n, j, 2) - .5) * 1.6 : 0;
+        c.globalAlpha = inkA(op.n, j); c.fillText(w, x, dy); x += c.measureText(w).width + spw;
+      });
+      c.restore();
+    }
+    else if (op.t === "dc" && I.illum) {
+      c.drawImage(I.illum, op.x, op.y, op.s, op.s);
+      c.save(); c.font = `400 ${Math.round(op.s * .6)}px "Ruslan Display", "Old Standard TT", serif`; c.fillStyle = "#7a2414"; c.textAlign = "center"; c.textBaseline = "middle";
+      c.shadowColor = "rgba(255,240,200,.8)"; c.shadowOffsetX = 1; c.shadowOffsetY = 1; c.fillText(op.ch, op.x + op.s / 2, op.y + op.s * .54); c.restore();
+    }
+    else if (op.t === "sig") {
+      c.save(); c.font = op.f; c.fillStyle = op.c; c.textAlign = "right";
+      c.translate(op.x, op.y); c.rotate(-.035); c.fillText(op.s, 0, 0);
+      const w = c.measureText(op.s).width;
+      c.strokeStyle = op.c; c.lineWidth = 1.7; c.lineCap = "round"; c.globalAlpha = .9;
+      c.beginPath(); c.moveTo(-w - 6, 10); c.bezierCurveTo(-w * .55, 4, -w * .3, 18, 6, 6); c.bezierCurveTo(18, 2, 14, -10, 2, -4); c.stroke();
+      c.restore();
+    }
+    else if (op.t === "stamp") lwStamp(c, op, P);
+    else if (op.t === "seal") lwSeal(c, op, wax, I, L, rnd);
+  }
+  /* кляксы */
+  if (L.blots && bodyLines.length) {
+    const br = lwRng(L.seed * 17 + 3), n = 1 + Math.floor(br() * 2);
+    for (let i = 0; i < n; i++) {
+      const ln = bodyLines[Math.floor(br() * bodyLines.length)];
+      lwBlot(c, ln.x + ln.w + 18 + br() * 14, ln.y - fs * .3, 3.5 + br() * 4.5, ink, br);
+    }
+    if (br() < .7) { const x = pad + br() * cw, yy = Hp - pad * .6 - br() * 30; lwBlot(c, x, yy, 2.5 + br() * 3, ink, br); }
+  }
+}
+function lwEdge(W, H, P, rnd) {
+  const pts = [], step = 12, amp = P.amp;
+  let v = 0;
+  const side = (x1, y1, x2, y2, nx, ny) => {
+    const len = Math.hypot(x2 - x1, y2 - y1), n = Math.max(2, Math.round(len / step));
+    for (let i = 0; i < n; i++) {
+      const t = i / n; v = v * .55 + (rnd() - .5) * amp * 2 * .45;
+      let d = v + amp * .6;
+      if (P.burnt && rnd() < .035) d += 5 + rnd() * 9;
+      pts.push([x1 + (x2 - x1) * t + nx * d, y1 + (y2 - y1) * t + ny * d]);
+    }
+  };
+  side(0, 0, W, 0, 0, 1); side(W, 0, W, H, -1, 0); side(W, H, 0, H, 0, -1); side(0, H, 0, 0, 1, 0);
+  const p = new Path2D(); p.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i <= pts.length; i++) { const a = pts[i % pts.length], b = pts[(i + 1) % pts.length]; p.quadraticCurveTo(a[0], a[1], (a[0] + b[0]) / 2, (a[1] + b[1]) / 2); }
+  p.closePath(); return p;
+}
+function lwBlot(c, x, y, r, ink, rnd) {
+  c.save(); c.fillStyle = ink; c.globalAlpha = .88;
+  c.beginPath();
+  const n = 14;
+  for (let i = 0; i <= n; i++) { const a = i / n * Math.PI * 2, rr = r * (.75 + rnd() * .5), px = x + Math.cos(a) * rr, py = y + Math.sin(a) * rr; i ? c.lineTo(px, py) : c.moveTo(px, py); }
+  c.fill();
+  for (let i = 0; i < 6; i++) { const a = rnd() * Math.PI * 2, d = r * (1.3 + rnd() * 1.8); c.beginPath(); c.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, .6 + rnd() * r * .28, 0, Math.PI * 2); c.fill(); }
+  c.restore();
+}
+function lwStamp(c, op, P) {
+  const s = String(op.s).toUpperCase(), o = document.createElement("canvas"), x = o.getContext("2d");
+  const f = `700 22px "Old Standard TT", Georgia, serif`;
+  x.font = f; const tw = x.measureText(s).width, w = Math.ceil(tw + 44), h = 52, k = 2;
+  o.width = w * k; o.height = h * k; x.scale(k, k);
+  const col = P.dark ? "#c8523d" : "#a3261a";
+  x.strokeStyle = col; x.lineWidth = 2.6; x.strokeRect(3, 3, w - 6, h - 6); x.lineWidth = 1.2; x.strokeRect(8, 8, w - 16, h - 16);
+  x.font = f; x.fillStyle = col; x.textAlign = "center"; x.textBaseline = "middle"; x.fillText(s, w / 2, h / 2 + 1);
+  x.globalCompositeOperation = "destination-out"; const r = lwRng(s.length * 7 + 1);
+  for (let i = 0; i < 260; i++) { x.globalAlpha = .3 + r() * .7; x.beginPath(); x.arc(r() * w, r() * h, .3 + r() * 1.3, 0, Math.PI * 2); x.fill(); }
+  c.save(); c.translate(op.x, op.y); c.rotate(-.06); c.globalAlpha = .85; c.drawImage(o, -w / 2, -h / 2, w, h); c.restore();
+}
+function lwSeal(c, op, wax, I, L, rnd) {
+  const { x, y, r } = op, [, base, hi, lo] = wax;
+  c.save();
+  if (op.ribbon) {
+    c.fillStyle = lo; c.globalAlpha = .95;
+    [[-1, .35], [1, -.35]].forEach(([d, sk]) => {
+      c.beginPath(); c.moveTo(x + d * r * .25, y + r * .3); c.lineTo(x + d * r * .95 + sk * 4, y + r * 1.9); c.lineTo(x + d * r * .62, y + r * 1.72); c.lineTo(x + d * r * .42, y + r * 1.98); c.lineTo(x + d * r * -.05, y + r * .5); c.closePath(); c.fill();
+    });
+    c.globalAlpha = 1;
+  }
+  /* капля сургуча с неровным краем */
+  const p = new Path2D(), n = 36;
+  for (let i = 0; i <= n; i++) { const a = i / n * Math.PI * 2, rr = r * (1 + (lwHash(L.seed, i % n, 7) - .5) * .13), px = x + Math.cos(a) * rr, py = y + Math.sin(a) * rr; i ? p.lineTo(px, py) : p.moveTo(px, py); }
+  p.closePath();
+  c.shadowColor = "rgba(0,0,0,.45)"; c.shadowBlur = 8; c.shadowOffsetY = 3;
+  const g = c.createRadialGradient(x - r * .35, y - r * .4, r * .1, x, y, r * 1.1);
+  g.addColorStop(0, hi); g.addColorStop(.45, base); g.addColorStop(1, lo);
+  c.fillStyle = g; c.fill(p); c.shadowColor = "transparent";
+  /* вдавленный круг */
+  const ri = r * .72, g2 = c.createRadialGradient(x + ri * .2, y + ri * .25, ri * .1, x, y, ri);
+  g2.addColorStop(0, base); g2.addColorStop(1, lo);
+  c.fillStyle = g2; c.beginPath(); c.arc(x, y, ri, 0, Math.PI * 2); c.fill();
+  c.lineWidth = 2; c.strokeStyle = hi; c.globalAlpha = .55; c.beginPath(); c.arc(x, y, ri + 1.5, Math.PI * .65, Math.PI * 1.75); c.stroke();
+  c.strokeStyle = lo; c.globalAlpha = .9; c.beginPath(); c.arc(x, y, ri + 1, Math.PI * 1.75, Math.PI * 2.65); c.stroke();
+  c.globalAlpha = 1;
+  /* оттиск */
+  const s = ri * 1.35;
+  if (I.eMid) {
+    c.globalAlpha = .9; c.drawImage(I.eLo, x - s / 2 + 1.2, y - s / 2 + 1.2, s, s);
+    c.globalAlpha = .7; c.drawImage(I.eHi, x - s / 2 - 1, y - s / 2 - 1, s, s);
+    c.globalAlpha = 1; c.drawImage(I.eMid, x - s / 2, y - s / 2, s, s);
+  } else if (L.seal === "initial") {
+    const ch = (L.initial || L.sign || "В").trim().charAt(0).toUpperCase() || "В";
+    c.font = `400 ${Math.round(ri * 1.15)}px "Ruslan Display", "Old Standard TT", serif`; c.textAlign = "center"; c.textBaseline = "middle";
+    c.fillStyle = lo; c.fillText(ch, x + 1.3, y + 3.3); c.fillStyle = hi; c.globalAlpha = .7; c.fillText(ch, x - 1, y + 1); c.globalAlpha = 1; c.fillStyle = base; c.fillText(ch, x, y + 2);
+  }
+  /* блик */
+  c.globalAlpha = .35; c.fillStyle = "#fff"; c.beginPath(); c.ellipse(x - r * .45, y - r * .5, r * .16, r * .07, -.7, 0, Math.PI * 2); c.fill();
+  c.restore();
+}
+
+
+/* ---------- Инструменты мастерской ----------
+   Новый инструмент: добавьте строку в TOOLS — [адрес, название, функция-разметка, функция-запуск]. */
+const TOOLS = [
+  ["pisma", "Письма и указы", letterHTML, letterInit]
+];
+function route() {
+  const id = location.hash.slice(1), t = TOOLS.find(x => x[0] === id) || TOOLS[0];
+  $("#rail").innerHTML = TOOLS.map(x => `<button type="button" data-tool="${x[0]}" aria-selected="${x === t}">${esc(x[1])}</button>`).join("") + `<div class="soon">Скоро здесь появятся новые инструменты</div>`;
+  $("#sheet").innerHTML = t[2](); if (t[3]) t[3]();
+  document.title = t[1] + " — Мастерская Велариса";
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-tool]"); if (b) { location.hash = b.dataset.tool; return; }
+  if (e.target.closest("#zoom")) $("#zoom").classList.remove("on");
+});
+addEventListener("keydown", e => { if (e.key === "Escape") $("#zoom").classList.remove("on"); });
+addEventListener("hashchange", route);
+route();
+</script>
+</body>
+</html>
