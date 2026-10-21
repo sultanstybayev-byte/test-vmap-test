@@ -72,7 +72,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .rail { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 82px); display: flex; flex-direction: column; gap: 6px; }
 .rail button { padding: 10px 14px; border: 1px solid rgba(201,162,90,.4); border-radius: 4px; background: rgba(42,29,18,.85); color: var(--parchment-deep); font: 700 15.5px/1.2 var(--font-display); letter-spacing: .03em; text-align: left; cursor: pointer; transition: border-color .25s, color .25s, background .25s, transform .3s var(--ease); }
 .rail button:hover { border-color: var(--gold); color: var(--parchment); transform: translateX(3px); }
-.rail button[data-tab="npc"] { margin-top: 10px; }
+@media (min-width: 861px) { #app .rail button[data-tab="npc"]:not(:first-child) { margin-top: 10px; } }
 .rail button[aria-selected="true"] { color: #2a1a0c; border-color: var(--gold-hi); background: linear-gradient(180deg, #f1d79a, #c99a4e); }
 .sheet { min-width: 0; padding: 30px clamp(18px, 4vw, 44px) 36px; color: var(--text-ink); background-color: var(--parchment); background-image: var(--grain), radial-gradient(ellipse at 20% 0%, rgba(255,255,255,.4), transparent 55%), linear-gradient(180deg, var(--parchment), var(--parchment-deep));
   border: 1px solid var(--gold); border-radius: 5px; box-shadow: inset 0 0 0 5px var(--parchment), inset 0 0 0 6px rgba(111,85,50,.4), 0 16px 44px var(--shadow); animation: rise .5s var(--ease) both; }
@@ -119,6 +119,10 @@ figcaption { margin-top: 6px; font: italic 500 15px/1.4 var(--font-body); color:
 .kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 8px 0 14px; }
 .kv dt { font: 700 13px/1.6 var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); }
 .kv dd { margin: 0; min-width: 0; }
+
+#mapov { position: fixed; inset: 0; z-index: 60; background: var(--ink); }
+#mapov iframe { width: 100%; height: 100%; border: 0; display: block; }
+html.map-open, html.map-open body { overflow: hidden; }
 
 /* Search, factions, quests */
 .search { margin-bottom: 10px; max-width: 420px; }
@@ -301,7 +305,8 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--gold); outl
   .layout { grid-template-columns: 1fr; gap: 12px; }
   .rail { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 64px); z-index: 4; flex-direction: row; overflow-x: auto; gap: 6px; margin: 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))); padding: 8px max(16px, env(safe-area-inset-left, 0px)); background: rgba(23,17,11,.92); scrollbar-width: none; }
   .rail::-webkit-scrollbar { display: none; }
-  .rail button { flex: none; white-space: nowrap; padding: 8px 12px; font-size: 14.5px; }
+  .rail { align-items: stretch; }
+  .rail button { flex: none; white-space: nowrap; padding: 8px 12px; font-size: 14.5px; margin: 0 !important; }
   .rail button:hover { transform: none; }
   .tile.big { grid-column: auto; }
   .bar h1 { font-size: 19px; }
@@ -331,6 +336,7 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--gold); outl
 <main id="app"></main>
 <div id="ov" role="dialog" aria-modal="true" aria-label="Персонаж"><div class="sheet" id="ovs"></div></div>
 <div class="toast" id="toast" role="status"></div>
+<div id="mapov" hidden></div>
 <div id="zoom" role="dialog" aria-modal="true" aria-label="Внешность"><img alt=""></div>
 
 <script>
@@ -539,6 +545,7 @@ const LORE = [
   ]}
 ];
 
+
 const EMBLEMS = {
   order: `<path d="M12 20s-7-4.4-7-9.5A3.8 3.8 0 0 1 12 8a3.8 3.8 0 0 1 7 2.5C19 15.6 12 20 12 20z"/><path d="M12 3.2c1.6 1.7 1.7 3.2 0 4.6-1.7-1.4-1.6-2.9 0-4.6z"/>`,
   crown: `<path d="M4.5 17 3.5 8l4.8 3.8L12 5l3.7 6.8L20.5 8l-1 9z"/><path d="M4.5 20h15"/>`,
@@ -667,6 +674,7 @@ const FACTIONS = [
              ["Генри Ламар, «Проклятый змей»", "Бывший аристократ, поражённый скверной, один из первых членов. Специализация — магия обращений, физическая магия."]],
     rel: [["Союзники", "Певчие души"], ["Нейтралитет", "Усопшие Души"], ["Нет контакта", "Триединство, Орден, «Плата и сталь», Тайный совет"]] }
 ];
+
 const QUEST_CONTACT = { name: "Моргана Эшворд", to: "Моргане Эшворд", url: "https://vk.ru/id1120771500" };
 const QUEST_GROUPS = [
   ["all", "Для всех"], ["temp", "Временные"], ["council", "Тайный совет"], ["health", "Совет Здравия"],
@@ -1110,12 +1118,25 @@ function anketaRefresh() {
   saveAk();
 }
 
+/* ---------- Карта открывается здесь же, поверх меню — без перехода на другую страницу (во ВК так она не уходит в браузер) */
+let mapSrc = "";
+function openMap(h) {
+  const ov = $("#mapov"), src = mapHref(h);
+  if (!ov.firstChild || mapSrc !== src) { ov.innerHTML = `<iframe title="Атлас земель" src="${src}" allow="fullscreen"></iframe>`; mapSrc = src; }
+  ov.hidden = false; document.documentElement.classList.add("map-open");
+}
+function closeMap() { const ov = $("#mapov"); if (ov) ov.hidden = true; document.documentElement.classList.remove("map-open"); }
+addEventListener("message", e => {
+  if (e.data && e.data.velaris === "closeMap") { if (location.hash.startsWith("#karta")) history.back(); else closeMap(); }
+});
+
 /* ---------- router ---------- */
 let route = "", tab = {};
 function render() {
   /* #karta — сразу карта; #karta-epira — карта на нужном городе */
   const full = location.hash.slice(1);
-  if (full === "karta" || full.startsWith("karta-")) { location.replace(mapHref(full === "karta" ? "" : "mesto-" + full.slice(6))); return; }
+  if (full === "karta" || full.startsWith("karta-")) { openMap(full === "karta" ? "" : "mesto-" + full.slice(6)); if (!$("#app").innerHTML) { $("#app").innerHTML = homeHTML(); } return; }
+  closeMap();
   if (full === "personazhi") { tab.mir = "npc"; history.replaceState(null, "", "#mir"); }
   const h = full === "personazhi" ? "mir" : full.split("-")[0];
   const sec = SECTIONS[h];
@@ -1144,6 +1165,8 @@ document.addEventListener("click", e => {
   const t = e.target;
   const home = t.closest("[data-home]"); if (home) { e.preventDefault(); history.pushState(null, "", location.pathname + KEEP); render(); scrollTo(0, 0); return; }
   const tb = t.closest("[data-tab]"); if (tb) return setTab(tb.dataset.tab);
+  const ml = t.closest('a[href^="karta.html"]');
+  if (ml) { e.preventDefault(); const hh = (ml.getAttribute("href").split("#")[1] || ""); location.hash = hh.startsWith("mesto-") ? "karta-" + hh.slice(6) : "karta"; return; }
   const go = t.closest("[data-go]"); if (go) { location.hash = go.dataset.go; return; }
   const cf = t.closest("[data-cf]"); if (cf) { charFilter = cf.dataset.cf; document.querySelectorAll("[data-cf]").forEach(b => b.setAttribute("aria-pressed", String(b === cf))); $("#npc-list").innerHTML = charCards(MASTER_NPCS()); return; }
   const vi = t.closest("[data-vi]"); if (vi) { vIssue = +vi.dataset.vi; $("#sheet").innerHTML = vestnikHTML(); const sh = $("#sheet"); if (sh.getBoundingClientRect().top < 0) sh.scrollIntoView({ behavior: "smooth" }); return; }

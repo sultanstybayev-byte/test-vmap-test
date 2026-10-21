@@ -1077,6 +1077,8 @@ $("#b-zin").addEventListener("click", () => zoomBtn(1.4));
 $("#b-zout").addEventListener("click", () => zoomBtn(1 / 1.4));
 
 $("#b-hub").href = "index.html" + location.search;
+/* Если карта открыта внутри главного меню — «Главное меню» просто закрывает её */
+$("#b-hub").addEventListener("click", e => { if (window.parent !== window) { e.preventDefault(); try { window.parent.postMessage({ velaris: "closeMap" }, "*"); } catch (_) {} } });
 $("#b-fold").addEventListener("click", e => { e.stopPropagation(); fold(!document.body.classList.contains("fold")); });
 const menuEl = $("#menu"), finePointer = matchMedia("(hover: hover) and (pointer: fine)").matches;
 /* Наведение мыши в область, где стоит открытое меню, разворачивает его */
