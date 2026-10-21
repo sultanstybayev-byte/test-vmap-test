@@ -72,7 +72,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .rail { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 82px); display: flex; flex-direction: column; gap: 6px; }
 .rail button { padding: 10px 14px; border: 1px solid rgba(201,162,90,.4); border-radius: 4px; background: rgba(42,29,18,.85); color: var(--parchment-deep); font: 700 15.5px/1.2 var(--font-display); letter-spacing: .03em; text-align: left; cursor: pointer; transition: border-color .25s, color .25s, background .25s, transform .3s var(--ease); }
 .rail button:hover { border-color: var(--gold); color: var(--parchment); transform: translateX(3px); }
-@media (min-width: 861px) { #app .rail button[data-tab="npc"]:not(:first-child) { margin-top: 10px; } }
+@media (min-width: 861px) { #app .rail button.sep:not(:first-child) { margin-top: 14px; } }
 .rail button[aria-selected="true"] { color: #2a1a0c; border-color: var(--gold-hi); background: linear-gradient(180deg, #f1d79a, #c99a4e); }
 .sheet { min-width: 0; padding: 30px clamp(18px, 4vw, 44px) 36px; color: var(--text-ink); background-color: var(--parchment); background-image: var(--grain), radial-gradient(ellipse at 20% 0%, rgba(255,255,255,.4), transparent 55%), linear-gradient(180deg, var(--parchment), var(--parchment-deep));
   border: 1px solid var(--gold); border-radius: 5px; box-shadow: inset 0 0 0 5px var(--parchment), inset 0 0 0 6px rgba(111,85,50,.4), 0 16px 44px var(--shadow); animation: rise .5s var(--ease) both; }
@@ -1538,7 +1538,7 @@ const SECTIONS = {
     ["npc", "NPC", () => head("Правила · 4", "NPC: создание и использование", "Хотите добавить в мир своих персонажей? Отлично.") + ol(D.rulesNpc) +
       `<p>Анкеты NPC: <a class="vk" href="${D.npcTopic}" target="_blank" rel="noopener">обсуждение в группе</a>.</p>`]
   ]},
-  mir: { title: "О мире", tabs: LORE.map(t => [t.id, t.tab, () => loreHTML(t)]).concat([["npc", "NPC мастера", () => charsHTML("master")], ["npcp", "NPC игроков", () => charsHTML("players")]]) },
+  mir: { title: "О мире", tabs: null },
   vlast: { title: "Фракции", tabs: [["known", "Известны всем", () => factionsHTML(true)], ["secret", "Тайные общества", () => factionsHTML(false)]] },
   kvesty: { title: "Квесты", tabs: [["board", "Доска заданий", () => (ADMIN ? `<div class="doc-admin"><button type="button" class="btn" data-workshop="kvesty">Статусы и итоги квестов</button><small>Отметить «занят / свободен» или записать итоги — в Мастерской.</small></div>` : "") + questsHTML()]] },
   skverna: { title: "Скверна", tabs: [
@@ -1565,15 +1565,21 @@ const SECTIONS = {
   dokumenty: { title: "Документы", tabs: [["all", "Документы", () => docsHubHTML()]] }
 };
 
+/* «О мире»: летопись → Магия и Дар → Скверна → NPC (каждая группа с отступом) */
+const sepFirst = arr => arr.map((x, i) => i ? x : [x[0], x[1], x[2], "sep"]);
+SECTIONS.mir.tabs = LORE.map(t => [t.id, t.tab, () => loreHTML(t)])
+  .concat(sepFirst(SECTIONS.magiya.tabs), sepFirst(SECTIONS.skverna.tabs))
+  .concat(sepFirst([["npc", "NPC мастера", () => charsHTML("master")], ["npcp", "NPC игроков", () => charsHTML("players")]]));
+const OLD_TO_MIR = { magiya: "dar", skverna: "what" };
 /* ---------- home ---------- */
 const GROUPS = [
   ["Главное", [["atlas", "Атлас земель", "Интерактивная карта Велариса", mapHref(""), "big map"], ["vestnik", "Вестник Велариса", "Свежие новости империи", "#vestnik", "big news"]]],
-  ["Мир", [["rules", "Правила", "Беседы, анкета, бой, NPC", "#pravila"], ["world", "О мире", "Империя, двор, быт, соседи, NPC", "#mir"], ["power", "Фракции", "Кто правит и кто в тени", "#vlast"], ["quests", "Квесты", "Доска заданий", "#kvesty"]]],
-  ["Знания", [["skverna", "Скверна", "Обескровленные и стадии", "#skverna"], ["magic", "Магия и Дар", "След, запрет, артефакты", "#magiya"], ["scripts", "Писания", "Догмат, кодексы, Слово", "#pisaniya"], ["docs", "Документы", "Письма, книги и бумаги", "#dokumenty"]]],
+  ["Мир", [["rules", "Правила", "Беседы, анкета, бой, NPC", "#pravila"], ["world", "О мире", "Империя, магия, скверна, NPC", "#mir"], ["power", "Фракции", "Кто правит и кто в тени", "#vlast"]], "three"],
+  ["Знания", [["quests", "Квесты", "Доска заданий", "#kvesty"], ["scripts", "Писания", "Догмат, кодексы, Слово", "#pisaniya"], ["docs", "Документы", "Письма, книги и бумаги", "#dokumenty"]], "three"],
   ["Шатёр", [["tarot", "Гадалка", "Шатёр старой Мирры: сядь за её стол, и она разложит карты", "gadalka.html", "big tarot"]]]
 ];
 /* Гостям (кто не состоит в группе) открыты только карта, правила и мир */
-const GUEST_TILES = new Set(["atlas", "rules", "world"]), GUEST_SECTIONS = new Set(["pravila", "mir"]), GUEST_HIDDEN_TABS = new Set(["anketa-req"]);
+const GUEST_TILES = new Set(["atlas", "rules", "world"]), GUEST_SECTIONS = new Set(["pravila", "mir"]), GUEST_HIDDEN_TABS = new Set(["anketa-req"].concat(SECTIONS.magiya.tabs.map(x => x[0]), SECTIONS.skverna.tabs.map(x => x[0])));
 const MEMBER = isMember(), ADMIN = isAdmin();
 var QPLAYERS = [];
 function homeHTML() {
@@ -1795,6 +1801,7 @@ function render() {
   if (full === "karta" || full.startsWith("karta-")) { openMap(full === "karta" ? "" : "mesto-" + full.slice(6)); if (!$("#app").innerHTML) { $("#app").innerHTML = homeHTML(); } return; }
   closeMap();
   if (full === "personazhi") { tab.mir = "npc"; history.replaceState(null, "", "#mir"); }
+  if (OLD_TO_MIR[full.split("-")[0]]) { tab.mir = OLD_TO_MIR[full.split("-")[0]]; history.replaceState(null, "", "#mir"); return render(); }
   const h = full === "personazhi" ? "mir" : full.split("-")[0];
   let sec = SECTIONS[h];
   const app = $("#app");
@@ -1810,7 +1817,7 @@ function render() {
   const t = sec.tabs.find(x => x[0] === cur) || sec.tabs[0];
   app.innerHTML = `<div class="bar"><a class="back" href="#" data-home>${svg("back")}<b>Меню</b></a><h1>${esc(sec.title)}</h1></div>
     <div class="layout"${sec.tabs.length < 2 ? ' style="grid-template-columns:1fr"' : ""}>
-      ${sec.tabs.length > 1 ? `<nav class="rail" aria-label="Разделы">${sec.tabs.map(x => `<button type="button" data-tab="${x[0]}" aria-selected="${x[0] === t[0]}">${esc(x[1])}</button>`).join("")}</nav>` : ""}
+      ${sec.tabs.length > 1 ? `<nav class="rail" aria-label="Разделы">${sec.tabs.map(x => `<button type="button" data-tab="${x[0]}"${x[3] ? ' class="sep"' : ""} aria-selected="${x[0] === t[0]}">${esc(x[1])}</button>`).join("")}</nav>` : ""}
       <article class="sheet" id="sheet">${t[2]()}</article></div>`;
   document.title = sec.title + " — Империя Веларис";
   if (h === "anketa") anketaRefresh();
