@@ -45,7 +45,7 @@ button { font: inherit; color: inherit; }
 
 /* карты на столе */
 .slots { position: absolute; left: 14%; right: 14%; top: 62%; height: 22%; container-type: size; display: flex; justify-content: center; align-items: center; gap: 2.2%; z-index: 3; perspective: 900px; pointer-events: auto; }
-.slot { position: relative; height: 100%; aspect-ratio: 120 / 200; border-radius: 6px; border: 1px dashed rgba(240,214,150,.28); display: grid; place-items: center; }
+.slot { position: relative; height: 100%; aspect-ratio: 120 / 206; border-radius: 6px; border: 1px dashed rgba(240,214,150,.28); display: grid; place-items: center; }
 .slot > span { position: absolute; bottom: -2px; left: 50%; transform: translate(-50%, 100%); font: 600 11px/1 var(--fd); letter-spacing: .08em; color: rgba(240,214,150,.75); white-space: nowrap; text-shadow: 0 1px 3px #000; }
 .slot { background: rgba(0,0,0,.18); }
 .slot.has { border-color: transparent; }
@@ -119,7 +119,7 @@ button { font: inherit; color: inherit; }
 /* веер — тянуть карты */
 .fan { position: fixed; left: 0; right: 0; bottom: 0; height: min(46vh, 330px); z-index: 9; pointer-events: none; }
 .fan::before { content: ""; position: absolute; inset: 30% 0 0; background: linear-gradient(180deg, transparent, rgba(8,4,6,.75)); pointer-events: none; }
-.fan button { pointer-events: auto; position: absolute; left: 50%; bottom: -13%; width: clamp(84px, 10vw, 128px); aspect-ratio: 120 / 200; padding: 0; border: 0; background: none; cursor: pointer; transform-origin: 50% 280%; transform: translateX(-50%) rotate(calc((var(--k) - 10.5) * var(--sp, 3.6deg))); transition: transform .45s var(--ease), opacity .35s; filter: drop-shadow(0 3px 5px rgba(0,0,0,.6)); animation: deal .7s var(--ease) both; animation-delay: calc(var(--k) * 22ms); }
+.fan button { pointer-events: auto; position: absolute; left: 50%; bottom: -13%; width: clamp(84px, 10vw, 128px); aspect-ratio: 120 / 206; padding: 0; border: 0; background: none; cursor: pointer; transform-origin: 50% 280%; transform: translateX(-50%) rotate(calc((var(--k) - 10.5) * var(--sp, 3.6deg))); transition: transform .45s var(--ease), opacity .35s; filter: drop-shadow(0 3px 5px rgba(0,0,0,.6)); animation: deal .7s var(--ease) both; animation-delay: calc(var(--k) * 22ms); }
 .fan button:hover, .fan button:focus-visible { transform: translateX(-50%) rotate(calc((var(--k) - 10.5) * var(--sp, 3.6deg))) translateY(-14px); outline: none; }
 .fan button.taken { opacity: 0; pointer-events: none; transform: translateX(-50%) rotate(calc((var(--k) - 10.5) * var(--sp, 3.6deg))) translateY(-120px); }
 @keyframes deal { from { transform: translateX(-50%) rotate(0deg); opacity: 0; } }
@@ -506,35 +506,44 @@ const TA = (() => {
 
 /* лицевая сторона и рубашка: тёмно-синяя карта с золотой гравированной рамкой */
 const TF_STAR = (x, y, r) => `<path d="M${x} ${y - r}L${x + r * .22} ${y - r * .22}L${x + r} ${y}L${x + r * .22} ${y + r * .22}L${x} ${y + r}L${x - r * .22} ${y + r * .22}L${x - r} ${y}L${x - r * .22} ${y - r * .22}Z"/>`;
+/* карта 120×206 — пропорции настоящей колоды (70×120 мм) */
 function tarotFrame(inner, bottom) {
-  const c = (x, y, sx, sy) => `<g transform="translate(${x} ${y}) scale(${sx} ${sy})"><path d="M0 9 V3 Q3 0 9 0" fill="none"/><path d="M4 13 V7 Q7 4 13 4" fill="none" stroke-opacity=".6"/>${TF_STAR(11, 11, 3.2)}</g>`;
-  return `<svg viewBox="0 0 120 200" class="tc-svg"><defs><linearGradient id="tfg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7e2a6"/><stop offset=".35" stop-color="#c9963f"/><stop offset=".6" stop-color="#f3d88e"/><stop offset="1" stop-color="#9a6e22"/></linearGradient>
+  const c = (x, y, sx, sy, star) => `<g transform="translate(${x} ${y}) scale(${sx} ${sy})"><path d="M0 9 V3 Q3 0 9 0" fill="none"/><path d="M4 13 V7 Q7 4 13 4" fill="none" stroke-opacity=".6"/>${star ? TF_STAR(11, 11, 3.2) : ""}</g>`;
+  return `<svg viewBox="0 0 120 206" class="tc-svg"><defs><linearGradient id="tfg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7e2a6"/><stop offset=".35" stop-color="#c9963f"/><stop offset=".6" stop-color="#f3d88e"/><stop offset="1" stop-color="#9a6e22"/></linearGradient>
     <radialGradient id="tfn" cx=".5" cy=".4" r=".75"><stop offset="0" stop-color="#1d2650"/><stop offset="1" stop-color="#0c1026"/></radialGradient></defs>
-    <rect x=".5" y=".5" width="119" height="199" rx="8" fill="url(#tfn)" stroke="#05070f"/>
-    <g fill="none" stroke="url(#tfg)"><rect x="3.5" y="3.5" width="113" height="193" rx="6" stroke-width="1.1"/><rect x="6" y="6" width="108" height="188" rx="4" stroke-width=".5" stroke-opacity=".7"/>
-      <path d="M26 8.6 H94 M26 191.4 H94" stroke-width=".9" stroke-dasharray=".1 2.6" stroke-linecap="round"/><path d="M8.6 30 V170 M111.4 30 V170" stroke-width=".9" stroke-dasharray=".1 2.6" stroke-linecap="round"/></g>
-    <g fill="url(#tfg)" stroke="url(#tfg)" stroke-width=".8">${c(6, 6, 1, 1)}${c(114, 6, -1, 1)}${c(6, 194, 1, -1)}${c(114, 194, -1, -1)}</g>
+    <rect x=".5" y=".5" width="119" height="205" rx="8" fill="url(#tfn)" stroke="#05070f"/>
+    <g fill="none" stroke="url(#tfg)"><rect x="3.5" y="3.5" width="113" height="199" rx="6" stroke-width="1.1"/><rect x="6" y="6" width="108" height="194" rx="4" stroke-width=".5" stroke-opacity=".7"/>
+      <path d="M26 8.6 H94 M26 197.4 H94" stroke-width=".9" stroke-dasharray=".1 2.6" stroke-linecap="round"/><path d="M8.6 30 V176 M111.4 30 V176" stroke-width=".9" stroke-dasharray=".1 2.6" stroke-linecap="round"/></g>
+    <g fill="url(#tfg)" stroke="url(#tfg)" stroke-width=".8">${c(6, 6, 1, 1, 1)}${c(114, 6, -1, 1, 1)}${c(6, 200, 1, -1)}${c(114, 200, -1, -1)}</g>
     ${inner}${bottom}</svg>`;
+}
+/* Настоящие карты Райдера—Уэйта (1909, общественное достояние), обрезанные по чёрной рамке:
+   файлы tarot/00.jpg … tarot/77.jpg. Пока файла нет — видна нарисованная карта. */
+const rwsLocal = i => "tarot/" + String(i).padStart(2, "0") + ".jpg";
+const RWS_OK = [];
+if (typeof Image !== "undefined") for (let i = 0; i < 78; i++) {
+  const a = new Image();
+  a.onload = () => { RWS_OK[i] = a.src; document.querySelectorAll(`image[data-rws="${i}"]`).forEach(el => el.setAttribute("href", a.src)); };
+  a.src = rwsLocal(i);
 }
 function tarotCardSVG(c, back) {
   if (back) {
     let rays = ""; for (let k = 0; k < 40; k++) { const a = k * Math.PI / 20, r1 = 23, r2 = k % 2 ? 33 : 40; rays += `M${(60 + Math.cos(a) * r1).toFixed(1)} ${(98 + Math.sin(a) * r1).toFixed(1)}L${(60 + Math.cos(a) * r2).toFixed(1)} ${(98 + Math.sin(a) * r2).toFixed(1)}`; }
     const dots = [[22, 30], [96, 34], [18, 64], [101, 70], [24, 136], [97, 128], [20, 166], [100, 160], [40, 22], [80, 178], [32, 150], [88, 50]].map(([x, y], i) => i % 3 ? `<circle cx="${x}" cy="${y}" r=".9"/>` : TF_STAR(x, y, 2.6)).join("");
-    return tarotFrame(`<g fill="url(#tfg)" stroke="none">${dots}${TF_STAR(60, 40, 6)}${TF_STAR(60, 158, 6)}</g>
+    return tarotFrame(`<g transform="scale(1 1.03)"><g fill="url(#tfg)" stroke="none">${dots}${TF_STAR(60, 40, 6)}${TF_STAR(60, 158, 6)}</g>
       <g fill="none" stroke="url(#tfg)" stroke-linecap="round"><path d="${rays}" stroke-width=".6"/><circle cx="60" cy="98" r="21" stroke-width=".9"/><circle cx="60" cy="98" r="43" stroke-width=".5" stroke-dasharray=".1 2.4"/>
         <path d="M38 98 Q60 80 82 98 Q60 116 38 98Z" stroke-width="1"/><path d="M42 98 Q60 85 78 98" stroke-width=".5"/></g>
       <circle cx="60" cy="98" r="8" fill="url(#tfg)"/><circle cx="63" cy="96" r="6.4" fill="#141a38"/><circle cx="60" cy="98" r="1.2" fill="url(#tfg)"/>
-      <g fill="url(#tfg)"><path d="M60 70 a5 5 0 1 0 0 -0.1Z" opacity="0"/><path d="M57 66 a4 4 0 1 0 6 0 a3.2 3.2 0 1 1 -6 0Z"/><path d="M57 130 a4 4 0 1 1 6 0 a3.2 3.2 0 1 0 -6 0Z"/></g>`,
-      `<g fill="url(#tfg)"><circle cx="44" cy="182" r="2"/><circle cx="52" cy="182" r="2.6"/><circle cx="60" cy="182" r="3.2"/><circle cx="68" cy="182" r="2.6"/><circle cx="76" cy="182" r="2"/></g><g fill="#141a38"><circle cx="45" cy="181.5" r="1.7"/><circle cx="53.4" cy="181.5" r="2"/><circle cx="66.6" cy="181.5" r="2"/><circle cx="75" cy="181.5" r="1.7"/></g>`);
+      <g fill="url(#tfg)"><path d="M57 66 a4 4 0 1 0 6 0 a3.2 3.2 0 1 1 -6 0Z"/><path d="M57 130 a4 4 0 1 1 6 0 a3.2 3.2 0 1 0 -6 0Z"/></g></g>`,
+      `<g transform="translate(0 4)"><g fill="url(#tfg)"><circle cx="44" cy="182" r="2"/><circle cx="52" cy="182" r="2.6"/><circle cx="60" cy="182" r="3.2"/><circle cx="68" cy="182" r="2.6"/><circle cx="76" cy="182" r="2"/></g><g fill="#141a38"><circle cx="45" cy="181.5" r="1.7"/><circle cx="53.4" cy="181.5" r="2"/><circle cx="66.6" cy="181.5" r="2"/><circle cx="75" cy="181.5" r="1.7"/></g></g>`);
   }
   const i = TAROT.indexOf(c), long = c[1].length > 11;
-  return tarotFrame(`<defs><clipPath id="ta${i}"><rect x="0" y="0" width="108" height="162" rx="2"/></clipPath></defs>
-    <g transform="translate(13.5 17) scale(.86)"><g clip-path="url(#ta${i})">${TA[i] || ""}</g></g>
-    <rect x="13.5" y="17" width="92.9" height="139.3" rx="1.7" fill="none" stroke="url(#tfg)" stroke-width="1.2"/><rect x="11.4" y="14.9" width="97.1" height="143.5" rx="2.6" fill="none" stroke="url(#tfg)" stroke-width=".45" stroke-opacity=".8"/>
+  return tarotFrame(`<defs><clipPath id="ta${i}"><rect x="13" y="17" width="94" height="155" rx="1.6"/></clipPath></defs>
+    <g clip-path="url(#ta${i})"><rect x="13" y="17" width="94" height="155" fill="#e9dcb8"/><g transform="translate(9.4 17) scale(.9568)">${TA[i] || ""}</g></g>
+    <image data-rws="${i}"${RWS_OK[i] ? ` href="${RWS_OK[i]}"` : ""} x="13" y="17" width="94" height="155" preserveAspectRatio="xMidYMid slice"/>
+    <rect x="13" y="17" width="94" height="155" rx="1.6" fill="none" stroke="url(#tfg)" stroke-width="1.2"/><rect x="10.9" y="14.9" width="98.2" height="159.2" rx="2.6" fill="none" stroke="url(#tfg)" stroke-width=".45" stroke-opacity=".8"/>
     <rect x="46" y="11" width="28" height="10" rx="5" fill="#10152e" stroke="url(#tfg)" stroke-width=".8"/><text x="60" y="18.6" font-family="Cormorant SC, Georgia, serif" font-weight="700" font-size="7.4" fill="#f0d696" text-anchor="middle" letter-spacing=".08em">${c[0]}</text>`,
-    `<g fill="url(#tfg)"><path d="M60 163.6 l1.6 1.6 -1.6 1.6 -1.6 -1.6Z"/><path d="M60 188 l1.6 1.6 -1.6 1.6 -1.6 -1.6Z"/></g>
-     <path d="M30 165.2 H56 M64 165.2 H90 M38 189.6 H56 M64 189.6 H82" stroke="url(#tfg)" stroke-width=".5" stroke-opacity=".7"/>
-     <text x="60" y="${long ? 184 : 184.5}" font-family="Cormorant SC, Georgia, serif" font-weight="700" font-size="${long ? 9.6 : 11.4}" fill="#f0d696" text-anchor="middle" letter-spacing="${long ? ".02em" : ".06em"}">${c[1]}</text>`);
+    `<text x="60" y="${long ? 189.4 : 190}" font-family="Cormorant SC, Georgia, serif" font-weight="700" font-size="${long ? 9.6 : 11.4}" fill="#f0d696" text-anchor="middle" letter-spacing="${long ? ".02em" : ".06em"}">${c[1]}</text>`);
 }
 
 /* =====================================================================
