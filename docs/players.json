@@ -218,7 +218,8 @@
    "chars": [
     {
      "id": "cmvig5rsorpx",
-     "name": "Фрея Редгрейв"
+     "name": "Фрея Редгрейв",
+     "fac": "order"
     }
    ]
   },
