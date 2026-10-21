@@ -284,7 +284,8 @@
    "chars": [
     {
      "id": "cmvig1cdriyn",
-     "name": "Генри Кайерс"
+     "name": "Генри Кайерс",
+     "fac": "shadows"
     }
    ]
   },
