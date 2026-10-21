@@ -460,12 +460,17 @@
   {
    "id": 807121254,
    "play": true,
-   "char": "",
+   "char": "Новый персонаж",
    "name": "B N S H",
    "photo": "https://sun1-20.vkuserphoto.ru/s/v1/ig2/5xuDD8Lb4-zFtGxl6PwiJBTqTSDKCOFUjsWGaedPKlthk23qls0fl_68g5LjaGjdKnCsjVf5bgtOiQup7qGq3cwr.jpg?quality=95&crop=0,853,1707,1707&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1080x1080,1280x1280,1440x1440&ava=1&cs=100x100",
    "role": "member",
    "left": false,
-   "chars": []
+   "chars": [
+    {
+     "id": "cmvifrbhz02b",
+     "name": "Новый персонаж"
+    }
+   ]
   },
   {
    "id": 813187189,
