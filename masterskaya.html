@@ -427,6 +427,16 @@ html.rail-narrow .bar small { display: none; }
 .pl-role.away { background: #5b6b7d; color: #eef2f6; }
 .pl-row.away .pl-chars { opacity: .6; }
 @media (max-width: 640px) { .pl-row { grid-template-columns: 40px 1fr 30px; } .pl-chars { grid-column: 1 / -1; } .pl-more { grid-row: 1; grid-column: 3; } }
+.qa-sec { margin: 18px 0 10px !important; } .qa-sec span { padding: 1px 8px; border-radius: 999px; background: rgba(111,85,50,.15); font: 700 13px var(--font-body); letter-spacing: 0; color: var(--text-muted); }
+.qa-sec.s-busy::before { background: var(--blood); } .qa-sec.s-free::before { background: #3f5a2c; } .qa-sec.s-done::before { background: var(--leather); }
+.qa-card.fq { background: linear-gradient(90deg, color-mix(in srgb, var(--fc) 16%, #fbf4e2), color-mix(in srgb, var(--fc) 6%, #fbf4e2)); border-color: color-mix(in srgb, var(--fc) 40%, rgba(111,85,50,.4)); }
+.qa-card.fq .qg { background: color-mix(in srgb, var(--fc) 22%, transparent); color: color-mix(in srgb, var(--fc) 70%, #2a1a0c); }
+.qa-card.fq.st-free { border-left-color: #4f6a3a; } .qa-card.fq.st-busy { border-left-color: var(--blood); } .qa-card.fq.st-done { border-left-color: var(--leather); }
+.qp { display: inline-flex; align-items: center; gap: 6px; padding: 3px 5px 3px 3px; border: 1px solid rgba(111,85,50,.4); border-radius: 999px; background: rgba(255,252,240,.85); }
+.qp img, .qp > b { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; display: grid; place-items: center; background: var(--leather); color: var(--gold-hi); font: 700 13px var(--font-display); }
+.qp-n { font: 700 15px/1.1 var(--font-body); color: var(--text-ink); } .qp small { font: italic 600 12px var(--font-body); color: var(--text-muted); }
+.qp button { width: 18px; height: 18px; padding: 0; border: 0; border-radius: 50%; background: rgba(111,85,50,.2); font-size: 12px; line-height: 1; cursor: pointer; }
+.qa-who { align-items: center; }
 </style>
 </head>
 <body>
@@ -2392,6 +2402,9 @@ function closePickers(except) {
 document.addEventListener("pointerdown", e => { const p = e.target.closest && e.target.closest(".to-pick, .qa-pick, [data-qawadd]"); if (!p || p.hasAttribute("data-qawadd")) { if (!p) closePickers(null); return; } closePickers(p); });
 addEventListener("keydown", e => { if (e.key === "Escape") closePickers(null); });
 
+/* группа квеста → фракция (для цвета карточки) */
+const QG_FAC = { council: "council", health: "health", order: "order", court: "crown", tri: "tri", shadows: "shadows", guild: "guild", souls: "souls" };
+const pcIconsF = c => { const f = facsOf(c); return f.length ? `<span class="pc-ic">${f.map(id => id === "none" ? `<svg viewBox="0 0 24 24" class="fi" style="--c:${FAC_NONE.color}">${bkIconSvg("compass")}</svg>` : `<svg viewBox="0 0 24 24" class="fi" style="--c:${facColor(id)}">${EMBLEMS[id] || ""}</svg>`).join("")}</span>` : ""; };
 /* =====================================================================
    КВЕСТЫ В МАСТЕРСКОЙ: свободен / занят / завершён + итоги.
    Изменения сразу видны в главном меню («Квесты») и на карте — примерно через минуту.
@@ -2403,7 +2416,7 @@ const qaState = q => (QST[q.n] && QST[q.n].st) || (q.busy ? "busy" : "free");
 function questsAdminHTML() {
   const cnt = g => QA_BASE.filter(q => g === "all-groups" || q.g === g).length;
   return `<div class="qa wide">
-    <p class="lw-lead">Отмечайте, какие квесты свободны, а какие заняты. Когда квест закончен — нажмите «Итоги квеста», впишите, что произошло, и он уйдёт в «Архив» с этим итогом. Игроки увидят изменения в «Квестах» главного меню и на карте примерно через минуту.</p>
+    <p class="lw-lead">Отмечайте, какие квесты свободны, а какие в процессе. Когда квест закончен — нажмите «Итоги квеста», впишите, что произошло, и он уйдёт в «Архив» с этим итогом. Игроки увидят изменения в «Квестах» главного меню и на карте примерно через минуту.</p>
     <input type="search" id="qa-q" class="qa-q" placeholder="Поиск по названию квеста" value="${esc(qaQuery)}" autocomplete="off">
     <div class="filters">${[["all-groups", "Все"], ...QUEST_GROUPS].map(([g, n]) => `<button type="button" class="chip" data-qaf="${g}" aria-pressed="${g === qaFilter}">${esc(n)}<span>${cnt(g)}</span></button>`).join("")}</div>
     <div id="qa-list"><p class="lw-lead">Загружаю статусы…</p></div>
@@ -2412,11 +2425,12 @@ function questsAdminHTML() {
 }
 function qaCard(q) {
   const st = qaState(q), s = QST[q.n] || {}, open = qaOpen === q.n;
-  const seg = [["free", "Свободен"], ["busy", "Занят"], ["done", "Завершён"]].map(([k, t]) => `<button type="button" data-qast="${k}" data-qn="${esc(q.n)}" aria-pressed="${st === k}">${t}</button>`).join("");
-  return `<article class="qa-card st-${st}">
+  const seg = [["free", "Свободен"], ["busy", "В процессе"], ["done", "Завершён"]].map(([k, t]) => `<button type="button" data-qast="${k}" data-qn="${esc(q.n)}" aria-pressed="${st === k}">${t}</button>`).join("");
+  const fc = facColor(QG_FAC[q.g] || "");
+  return `<article class="qa-card st-${st}${fc ? " fq" : ""}" style="${fc ? `--fc:${fc}` : ""}">
     <header><div><b>${esc(q.n)}</b><span class="qg">${esc(groupName[q.g] || "")}</span></div><div class="lw-seg qa-seg">${seg}</div></header>
     <p>${esc(q.d)}</p>
-    <div class="qa-who"><span class="qa-who-l">Участники</span>${(s.who || []).map(w => { const I = whoInfo(w, QPL); return `<span class="ava-c" title="${esc(I.label)}"><span class="ava">${I.p && I.p.photo ? `<img src="${esc(I.p.photo)}" alt="">` : `<b>${esc(I.short.charAt(0))}</b>`}<button type="button" data-qawrm="${esc(String(w))}" data-qn="${esc(q.n)}" aria-label="Убрать">×</button></span><small>${esc(I.c ? I.c.name : I.p ? I.p.name : "?")}</small></span>`; }).join("")}<button type="button" class="ava-add" data-qawadd="${esc(q.n)}" aria-label="Добавить участника" title="Добавить участника">+</button></div>
+    <div class="qa-who"><span class="qa-who-l">Участники</span>${(s.who || []).map(w => { const I = whoInfo(w, QPL); return `<span class="qp" title="${esc(I.label)}" style="${I.c ? facBg(I.c) : ""}">${I.p && I.p.photo ? `<img src="${esc(I.p.photo)}" alt="">` : `<b>${esc(I.short.charAt(0))}</b>`}<span class="qp-n">${esc(I.c ? I.c.name : I.p ? I.p.name : "?")}</span>${I.c ? pcIconsF(I.c) : ""}<small>${I.p ? esc(initials(I.p.name)) : ""}</small><button type="button" data-qawrm="${esc(String(w))}" data-qn="${esc(q.n)}" aria-label="Убрать">×</button></span>`; }).join("")}<button type="button" class="ava-add" data-qawadd="${esc(q.n)}" aria-label="Добавить участника" title="Добавить участника">+</button></div>
     ${qaPick === q.n ? `<div class="qa-pick"><input type="search" data-qawq placeholder="${QPL.length ? "Найти персонажа или игрока…" : "Список игроков пуст — загрузите его в «Игроках»"}" autocomplete="off"><div class="qa-res"></div></div>` : ""}
     ${st === "done" && !open ? `<p class="qa-end"><b>Итог.</b> ${esc(s.end || "— не вписан —")}${s.date ? ` <small>${esc(s.date)}</small>` : ""}</p>` : ""}
     ${open ? `<div class="qa-form"><label>Итоги квеста — что произошло, кто участвовал, чем кончилось</label><textarea rows="4" data-qaend>${esc(s.end || "")}</textarea>
@@ -2429,8 +2443,8 @@ function qaDraw() {
   const qq = qaQuery.trim().toLowerCase();
   const list = QA_BASE.filter(q => (qaFilter === "all-groups" || q.g === qaFilter) && (!qq || q.n.toLowerCase().includes(qq)));
   if (!list.length) { box.innerHTML = `<p class="lw-lead">Ничего не нашлось${qq ? ` по «${esc(qaQuery.trim())}»` : ""}.</p>`; return; }
-  const order = { busy: 0, free: 1, done: 2 };
-  box.innerHTML = list.slice().sort((a, b) => order[qaState(a)] - order[qaState(b)]).map(qaCard).join("") +
+  const sec = [["busy", "В процессе"], ["free", "Свободные"], ["done", "Завершённые"]].map(([k, t]) => { const L = list.filter(q => qaState(q) === k); return L.length ? `<h3 class="qa-sec s-${k}">${t} <span>${L.length}</span></h3>${L.map(qaCard).join("")}` : ""; }).join("");
+  box.innerHTML = sec +
     (qaFilter === "all-groups" && !qq && QA_OLD.length ? `<h3>Старый архив</h3>${QA_OLD.map(a => `<article class="qa-card st-done old"><header><div><b>${esc(a.n)}</b>${a.g ? `<span class="qg">${esc(groupName[a.g])}</span>` : ""}</div><span class="dstat">завершён раньше</span></header><p class="qa-end"><b>Итог.</b> ${esc(a.end)}</p></article>`).join("")}` : "");
 }
 async function questsAdminInit() {
@@ -2452,7 +2466,7 @@ document.addEventListener("click", e => {
   if (b.dataset.qast) {
     const n = b.dataset.qn, k = b.dataset.qast;
     if (k === "done") { qaOpen = n; qaDraw(); const ta = document.querySelector("[data-qaend]"); if (ta) ta.focus(); return; }
-    qaSet(n, { st: k }, k === "busy" ? `«${n}» — занят.` : `«${n}» — свободен.`); return;
+    qaSet(n, { st: k }, k === "busy" ? `«${n}» — в процессе.` : `«${n}» — свободен.`); return;
   }
   if (b.dataset.qaopen) { qaOpen = b.dataset.qaopen; qaDraw(); const ta = document.querySelector("[data-qaend]"); if (ta) ta.focus(); return; }
   if (b.hasAttribute("data-qacancel")) { qaOpen = null; qaDraw(); return; }
