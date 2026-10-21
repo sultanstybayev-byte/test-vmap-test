@@ -247,12 +247,17 @@
   {
    "id": 525849682,
    "play": true,
-   "char": "",
+   "char": "Новый персонаж",
    "name": "Дмитрий Кожура",
    "photo": "https://sun1-94.vkuserphoto.ru/s/v1/ig2/ZUH_E8vW2VTIULX4nA6hc2qwLwTMNascZo89r4o9mWXioGbzIonxTtJ3iD9aVoabaOgIURamRz-S6qyyWkToLiyZ.jpg?quality=95&crop=1289,308,743,743&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720&ava=1&cs=100x100",
    "role": "member",
    "left": false,
-   "chars": []
+   "chars": [
+    {
+     "id": "cmvig1cdriyn",
+     "name": "Новый персонаж"
+    }
+   ]
   },
   {
    "id": 533471788,
