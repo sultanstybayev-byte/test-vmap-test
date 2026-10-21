@@ -411,6 +411,22 @@ html.rail-narrow .bar small { display: none; }
 .fa-free { margin-top: 12px; font-size: 15px; color: var(--text-muted); }
 .fa-card .qa-res { max-height: 320px; overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; }
 .fa-card .qa-pick { max-width: 520px; }
+.pl-row { grid-template-columns: 44px minmax(150px, .55fr) minmax(0, 2fr) 34px; }
+.pl-row img, .pl-ava { width: 44px; height: 44px; }
+.pc { gap: 6px; padding: 3px 6px 3px 4px; }
+.pc input { font-size: 16px; padding: 5px 8px; max-width: 26ch; }
+.pc-ic { display: inline-flex; gap: 3px; }
+.fi { width: 20px; height: 20px; padding: 2px; border-radius: 50%; background: color-mix(in srgb, var(--c) 18%, #fff8ea); stroke: var(--c); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; box-sizing: content-box; }
+.fi.q { --c: #8e2f1c; background: #f6dcd2; }
+.pc button { width: 20px; height: 20px; font-size: 13px; }
+.pc-add { padding: 6px 11px; font-size: 13.5px; }
+.pl-more { position: relative; justify-self: end; }
+.pl-dots { width: 30px; height: 30px; border: 1px solid transparent; border-radius: 50%; background: transparent; color: var(--text-muted); font-size: 20px; line-height: 1; cursor: pointer; opacity: .55; }
+.pl-row:hover .pl-dots, .pl-dots:focus { opacity: 1; border-color: rgba(111,85,50,.35); }
+.pl-menu { position: absolute; right: 0; top: 34px; z-index: 5; display: grid; gap: 6px; padding: 10px 12px; border: 1px solid var(--gold); border-radius: 5px; background: #fbf4e2; box-shadow: 0 8px 20px rgba(40,25,10,.25); white-space: nowrap; }
+.pl-role.away { background: #5b6b7d; color: #eef2f6; }
+.pl-row.away .pl-chars { opacity: .6; }
+@media (max-width: 640px) { .pl-row { grid-template-columns: 40px 1fr 30px; } .pl-chars { grid-column: 1 / -1; } .pl-more { grid-row: 1; grid-column: 3; } }
 </style>
 </head>
 <body>
@@ -959,7 +975,9 @@ const normName = s => String(s || "").toLowerCase().replace(/ё/g, "е").replace
 const initials = n => String(n || "").split(/\s+/).filter(Boolean).slice(0, 2).map(w => w.charAt(0).toUpperCase() + ".").join(" ");
 
 /* у персонажа может быть несколько фракций: facs = ["crown", "council"]; старое поле fac — одна фракция */
-const facsOf = c => !c ? [] : Array.isArray(c.facs) ? c.facs : c.fac ? [c.fac] : [];
+/* «Знатные дома и советы» в учёте фракций не используются */
+const FAC_HIDDEN = ["houses"];
+const facsOf = c => (!c ? [] : Array.isArray(c.facs) ? c.facs : c.fac ? [c.fac] : []).filter(f => !FAC_HIDDEN.includes(f));
 function setFacs(c, arr) { arr = [...new Set(arr.filter(Boolean))]; if (arr.length > 1) arr = arr.filter(x => x !== "none"); if (arr.length) { c.facs = arr; c.fac = arr[0]; } else { delete c.facs; delete c.fac; } }
 /* фон плашки: одна фракция — лёгкий оттенок, две — градиент: слева светлее первая, справа темнее вторая */
 function facBg(c) {
@@ -2478,14 +2496,14 @@ const plTimers = {};
 function playersHTML() {
   const inVK = window.parent !== window && VK_P.has("vk_app_id");
   return `<div class="pl wide">
-    <p class="lw-lead">Участники группы ВК. Отметьте, кто играет, и подпишите персонажа — тогда при выдаче документа их легко найти. Роли в группе показаны только для учёта, менять их здесь нельзя.</p>
+    <p class="lw-lead">Участники группы ВК и их персонажи. «⋯» справа — отметки «Играет» и «Отпуск». Роли в группе показаны только для учёта.</p>
     <div class="pl-top">
       <button type="button" class="btn" data-plload${inVK ? "" : " disabled"}>Загрузить участников группы</button>
       <small id="pl-upd">${inVK ? "Нажимать может админ группы — ВК один раз спросит разрешение." : "Кнопка работает только внутри приложения ВК: главное меню → «Документы» → «Мастерская»."}</small>
     </div>
     <div class="pl-bar">
       <input type="search" id="pl-q" placeholder="Поиск по имени или персонажу" value="${esc(plQuery)}">
-      <div class="filters">${[["all", "Все"], ["play", "Играют"], ["staff", "Руководство"], ["left", "Вышли"]].map(([k, t]) => `<button type="button" class="chip" data-plf="${k}" aria-pressed="${plFilter === k}">${t}<span data-plc="${k}"></span></button>`).join("")}</div>
+      <div class="filters">${[["all", "Все"], ["play", "Играют"], ["away", "В отпуске"], ["staff", "Руководство"], ["left", "Вышли"]].map(([k, t]) => `<button type="button" class="chip" data-plf="${k}" aria-pressed="${plFilter === k}">${t}<span data-plc="${k}"></span></button>`).join("")}</div>
     </div>
     <div class="pl-add"><input type="text" id="pl-addurl" placeholder="Добавить игрока не из группы: ссылка vk.ru/id… или короткое имя"><button type="button" class="btn ghost" data-pladd>Добавить</button></div>
     <div id="pl-list"><p class="lw-lead">Загружаю список…</p></div>
@@ -2496,7 +2514,7 @@ const isStaff = p => p.role && p.role !== "member";
 function plDraw() {
   const box = $("#pl-list"); if (!box) return;
   const L = PL.list || [], q = plQuery.trim().toLowerCase();
-  const f = { all: p => !p.left, play: p => p.play && !p.left, staff: p => isStaff(p) && !p.left, left: p => p.left };
+  const f = { all: p => !p.left, play: p => p.play && !p.left && !p.away, away: p => p.away && !p.left, staff: p => isStaff(p) && !p.left, left: p => p.left };
   document.querySelectorAll("[data-plc]").forEach(s => s.textContent = L.filter(f[s.dataset.plc]).length);
   const rank = { creator: 0, administrator: 1, editor: 2, moderator: 3 };
   const list = L.filter(f[plFilter]).filter(p => !q || (p.name + " " + charsOf(p).map(c => c.name).join(" ")).toLowerCase().includes(q))
@@ -2504,11 +2522,11 @@ function plDraw() {
     .sort((a, b) => (rank[a.role] ?? 9) - (rank[b.role] ?? 9) || (b.play ? 1 : 0) - (a.play ? 1 : 0) || a.name.localeCompare(b.name, "ru"));
   const up = $("#pl-upd"); if (up && PL.updated) up.textContent = `Последняя загрузка: ${PL.updated}. В группе ${L.filter(p => !p.left).length} чел.`;
   if (!L.length) { box.innerHTML = `<p class="lw-lead">Список пуст. Откройте Мастерскую из приложения ВК и нажмите «Загрузить участников группы».</p>`; return; }
-  box.innerHTML = list.length ? list.map(p => `<div class="pl-row${p.left ? " left" : ""}" data-pid="${p.id}">
+  box.innerHTML = list.length ? list.map(p => `<div class="pl-row${p.left ? " left" : ""}${p.away ? " away" : ""}" data-pid="${p.id}">
       ${p.photo ? `<img src="${esc(p.photo)}" alt="" loading="lazy">` : `<span class="pl-ava"></span>`}
-      <div class="pl-who">${p.manual ? `<input type="text" class="pl-mname" value="${esc(p.name)}" data-plname="${p.id}" aria-label="Имя игрока"><a href="https://vk.com/id${p.id}" target="_blank" rel="noopener" title="Страница ВК">↗</a><span class="pl-role">не в группе</span>` : `<a href="https://vk.com/id${p.id}" target="_blank" rel="noopener">${esc(p.name)}</a>`}${isStaff(p) ? `<span class="pl-role r-${p.role}">${ROLE_NAMES[p.role]}</span>` : ""}${p.left ? `<span class="pl-role">вышел из группы</span>` : ""}</div>
-      <label class="lw-chk pl-play"><input type="checkbox" data-plplay="${p.id}"${p.play ? " checked" : ""}> играет</label>
-      <div class="pl-chars">${charsOf(p).map(c => { const q = charQuest(p.id, c.id); return `<span class="pc${q ? " busy" : ""}${facsOf(c).length ? " hasfac" : ""}" style="${facBg(c)}" title="${esc(facNames(c) ? facNames(c) + " · " : "")}${q ? "В квесте «" + esc(q) + "»" : "Свободен от квестов"}"><input type="text" value="${esc(c.name)}" data-pcn="${p.id}" data-cid="${c.id}" size="${Math.max(4, c.name.length)}" aria-label="Имя персонажа"><i>${q ? "в квесте" : "свободен"}</i><button type="button" data-pcdel="${p.id}" data-cid="${c.id}" aria-label="Удалить персонажа">×</button></span>`; }).join("")}<button type="button" class="pc-add" data-pcadd="${p.id}">+ персонаж</button></div>
+      <div class="pl-who">${p.manual ? `<input type="text" class="pl-mname" value="${esc(p.name)}" data-plname="${p.id}" aria-label="Имя игрока"><a href="https://vk.com/id${p.id}" target="_blank" rel="noopener" title="Страница ВК">↗</a><span class="pl-role">не в группе</span>` : `<a href="https://vk.com/id${p.id}" target="_blank" rel="noopener">${esc(p.name)}</a>`}${isStaff(p) ? `<span class="pl-role r-${p.role}">${ROLE_NAMES[p.role]}</span>` : ""}${p.left ? `<span class="pl-role">вышел из группы</span>` : ""}${p.away ? `<span class="pl-role away">в отпуске</span>` : ""}</div>
+      <div class="pl-chars">${charsOf(p).map(c => { const q = charQuest(p.id, c.id); return `<span class="pc${q ? " busy" : ""}${facsOf(c).length ? " hasfac" : ""}" style="${facBg(c)}" title="${esc(facNames(c) ? facNames(c) + " · " : "")}${q ? "В квесте «" + esc(q) + "»" : "Свободен от квестов"}"><input type="text" value="${esc(c.name)}" data-pcn="${p.id}" data-cid="${c.id}" size="${Math.max(4, c.name.length)}" aria-label="Имя персонажа">${pcIcons(c, q)}<button type="button" data-pcdel="${p.id}" data-cid="${c.id}" aria-label="Удалить персонажа">×</button></span>`; }).join("")}<button type="button" class="pc-add" data-pcadd="${p.id}">+ персонаж</button></div>
+      <div class="pl-more"><button type="button" class="pl-dots" data-plmore="${p.id}" aria-label="Ещё" title="Играет / отпуск">⋯</button>${plOpen === p.id ? `<div class="pl-menu"><label class="lw-chk"><input type="checkbox" data-plplay="${p.id}"${p.play ? " checked" : ""}> Играет</label><label class="lw-chk"><input type="checkbox" data-plaway="${p.id}"${p.away ? " checked" : ""}> Отпуск</label></div>` : ""}</div>
     </div>`).join("") : `<p class="lw-lead">Никого не нашлось.</p>`;
 }
 /* в каком незавершённом квесте сейчас персонаж */
@@ -2559,7 +2577,17 @@ document.addEventListener("input", e => {
   if (t.id === "pl-q") { plQuery = t.value; plDraw(); const i = $("#pl-q"); if (i !== t) i.focus(); return; }
   if (t.dataset && t.dataset.pcn) { t.size = Math.max(4, t.value.length); const id = +t.dataset.pcn, cid = t.dataset.cid; clearTimeout(plTimers[cid]); plTimers[cid] = setTimeout(() => plChars(id, L => { const c = L.find(x => x.id === cid); if (c) c.name = t.value.replace(/\s+/g, " ").trim(); return L; }), 900); }
 });
-document.addEventListener("change", e => { const t = e.target; if (t.dataset && t.dataset.plplay) plSaveOne(+t.dataset.plplay, { play: t.checked }); });
+document.addEventListener("change", e => { const t = e.target; if (!t.dataset) return;
+  if (t.dataset.plplay) plSaveOne(+t.dataset.plplay, { play: t.checked });
+  if (t.dataset.plaway) { plSaveOne(+t.dataset.plaway, { away: t.checked }); plDraw(); } });
+let plOpen = null;
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest("[data-plmore]"); if (b) { plOpen = plOpen === +b.dataset.plmore ? null : +b.dataset.plmore; plDraw(); return; }
+  if (plOpen && !(e.target.closest && e.target.closest(".pl-menu"))) { plOpen = null; plDraw(); } });
+/* значки фракций персонажа вместо «свободен»; в квесте — красный свиток */
+function pcIcons(c, q) {
+  const f = facsOf(c).map(id => id === "none" ? `<svg viewBox="0 0 24 24" class="fi" style="--c:${FAC_NONE.color}"><title>Странник</title>${bkIconSvg("compass")}</svg>` : `<svg viewBox="0 0 24 24" class="fi" style="--c:${facColor(id)}"><title>${esc((facById(id) || {}).name || "")}</title>${EMBLEMS[id] || ""}</svg>`).join("");
+  return `<span class="pc-ic">${f}${q ? `<svg viewBox="0 0 24 24" class="fi q"><title>В квесте «${esc(q)}»</title><path d="M7 3h10a2 2 0 0 1 2 2v1h-4M7 3a2 2 0 0 0-2 2v13a3 3 0 0 0 3 3h9a2 2 0 0 0 2-2v-1H10"/><path d="M15 6v12M9 8h3M9 12h3"/></svg>` : ""}</span>`;
+}
 
 /* =====================================================================
    ПОИСК ПЕРСОНАЖЕЙ В АНКЕТАХ НА СТЕНЕ ГРУППЫ
@@ -2687,7 +2715,7 @@ document.addEventListener("input", e => { const t = e.target; if (t.dataset && t
    Хранится у персонажей в docs/players.json: chars[].fac, а NPC мастера — в npcs[].
    ===================================================================== */
 let FPL = { list: [], npcs: [] }, fPick = null;
-const facAll = () => FACTIONS.concat([FAC_NONE]);
+const facAll = () => FACTIONS.filter(f => !FAC_HIDDEN.includes(f.id)).concat([FAC_NONE]);
 function facMembers(fid) {
   const out = [];
   (FPL.list || []).filter(p => !p.left).forEach(p => charsOf(p).forEach(c => { if (facsOf(c).includes(fid)) out.push({ key: p.id + ":" + c.id, c, p }); }));
@@ -2710,8 +2738,8 @@ function faDraw() {
   const free = []; (FPL.list || []).filter(p => !p.left && p.play).forEach(p => charsOf(p).forEach(c => { if (!facsOf(c).length) free.push(c.name); }));
   /* Императорская власть и Знатные дома всегда первые, остальные — по числу персонажей (больше — выше), Странники последние */
   const cnt = id => facMembers(id).length;
-  const TOP = ["crown", "houses"]; /* Императорская власть, затем Знатные дома — всегда сверху */
-  const order = FACTIONS.filter(f => !TOP.includes(f.id)).sort((a, b) => cnt(b.id) - cnt(a.id) || FACTIONS.indexOf(a) - FACTIONS.indexOf(b));
+  const TOP = ["crown"]; /* Императорская власть — всегда сверху */
+  const order = FACTIONS.filter(f => !TOP.includes(f.id) && !FAC_HIDDEN.includes(f.id)).sort((a, b) => cnt(b.id) - cnt(a.id) || FACTIONS.indexOf(a) - FACTIONS.indexOf(b));
   const all = TOP.map(id => FACTIONS.find(f => f.id === id)).filter(Boolean).concat(order, [FAC_NONE]);
   box.innerHTML = all.map(f => { const M = facMembers(f.id);
     return `<section class="fa-card" data-fid="${f.id}" style="--fc:${f.color}"><header><i></i><b>${esc(f.name)}</b><span>${M.length}</span></header>
