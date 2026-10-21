@@ -1599,7 +1599,7 @@ const GROUPS = [
   ["Главное", [["atlas", "Атлас земель", "Интерактивная карта Велариса", mapHref(""), "big map"], ["vestnik", "Вестник Велариса", "Свежие новости империи", "#vestnik", "big news"]]],
   ["Мир", [["rules", "Правила", "Беседы, анкета, бой, NPC", "#pravila"], ["world", "О мире", "Империя, магия, скверна, NPC", "#mir"], ["power", "Фракции", "Кто правит и кто в тени", "#vlast"]], "three"],
   ["Знания", [["quests", "Квесты", "Доска заданий", "#kvesty"], ["scripts", "Писания", "Догмат, кодексы, Слово", "#pisaniya"], ["docs", "Документы", "Письма, книги и бумаги", "#dokumenty"]], "three"],
-  ["Шатёр", [["tarot", "Гадалка", "Шатёр старой Мирры: сядь за её стол, и она разложит карты", "gadalka.html", "big tarot"]]]
+  ["Лавка гадалки", [["tarot", "Гадалка", "Тёмная лавка Мирры: сядь за её стол — и она разложит карты", "gadalka.html", "big tarot"]]]
 ];
 /* Гостям (кто не состоит в группе) открыты только карта, правила и мир */
 const GUEST_TILES = new Set(["atlas", "rules", "world"]), GUEST_SECTIONS = new Set(["pravila", "mir"]), GUEST_HIDDEN_TABS = new Set(["anketa-req"].concat(SECTIONS.magiya.tabs.map(x => x[0]), SECTIONS.skverna.tabs.map(x => x[0])));
@@ -1624,7 +1624,7 @@ function homeHTML() {
       <h1>Империя Веларис</h1><p>Ролевая игра. Империя умирает, а ночь принадлежит обескровленным.</p><div class="rule-g"></div>
       ${ADMIN ? `<button type="button" class="btn dark crest-btn" data-workshop="docs">${svg("quill")} Мастерская</button>` : ""}
       ${MEMBER ? "" : `<p class="guest">Вы смотрите как гость: открыты карта, правила и мир. Остальное — для участников группы.</p>`}</header>
-    <div class="groups">${GROUPS.map(([g, tiles, cls]) => `<section class="group"${g === "Шатёр" ? ` id="g-tarot"${ADMIN ? "" : " hidden"}` : ""}><h2>${esc(g)}</h2><div class="tiles${cls ? " " + cls : ""}">${tiles.map(([ic, t, s, href, cls]) =>
+    <div class="groups">${GROUPS.map(([g, tiles, cls]) => `<section class="group"${g === "Лавка гадалки" ? ` id="g-tarot"${ADMIN ? "" : " hidden"}` : ""}><h2>${esc(g)}</h2><div class="tiles${cls ? " " + cls : ""}">${tiles.map(([ic, t, s, href, cls]) =>
       !MEMBER && !GUEST_TILES.has(ic) ? `<a class="tile locked${cls ? " " + cls : ""}" style="--i:${i++}" href="#" data-locked>${svg(ic)}<b>${esc(t)}</b><span>Для участников группы</span>${svg("lock", "arrow")}</a>` :
       `<a class="tile${cls ? " " + cls : ""}" style="--i:${i++}" href="${href}"${ic === "tarot" ? " data-tarot" : ""}${ic === "vestnik" ? ` data-fresh="Выпуск от ${esc(D.vestnik[D.vestnik.length - 1].d)}"` : ""}>${svg(ic)}<b>${esc(t)}</b><span>${esc(s)}</span>${svg("arrow", "arrow")}</a>`).join("")}</div></section>`).join("")}</div>
     <p class="foot">Вопросы и анкеты — <a href="${D.master}" target="_blank" rel="noopener">мастеру игры</a>.</p>`;
@@ -2091,9 +2091,9 @@ document.addEventListener("click", e => {
   const tb = t.closest("[data-tab]"); if (tb) return setTab(tb.dataset.tab);
   const tv = t.closest("[data-tarotvis]"); if (tv) {
     e.preventDefault(); e.stopPropagation();
-    if (!ghCfg().token) { toast("Чтобы скрывать шатёр, подключите ключ GitHub в Мастерской."); return; }
+    if (!ghCfg().token) { toast("Чтобы скрывать гадалку, подключите ключ GitHub в Мастерской."); return; }
     const want = !TAROT_HIDDEN; tv.disabled = true; tv.textContent = "Сохраняю…";
-    stUpdate(S => { S.tarotHidden = want; }, want ? "Шатёр гадалки скрыт" : "Шатёр гадалки открыт").then(S => { TAROT_HIDDEN = !!S.tarotHidden; tv.disabled = false; tarotGate(); toast(TAROT_HIDDEN ? "Гадалка скрыта от игроков. Админы её видят." : "Гадалка снова видна всем игрокам."); })
+    stUpdate(S => { S.tarotHidden = want; }, want ? "Гадалка скрыта" : "Гадалка открыта").then(S => { TAROT_HIDDEN = !!S.tarotHidden; tv.disabled = false; tarotGate(); toast(TAROT_HIDDEN ? "Гадалка скрыта от игроков. Админы её видят." : "Гадалка снова видна всем игрокам."); })
       .catch(err => { tv.disabled = false; tarotGate(); toast("Не получилось: " + err.message); });
     return;
   }
