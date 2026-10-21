@@ -778,7 +778,11 @@
     {
      "id": "cmvig3rkobld",
      "name": "Роман Ллойд",
-     "post": 72
+     "post": 72,
+     "facs": [
+      "none"
+     ],
+     "fac": "none"
     },
     {
      "id": "cmvig5jixf59",
