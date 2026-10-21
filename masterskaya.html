@@ -200,6 +200,8 @@ html.shared #app, html.shared .bg { display: none; }
 .pub-h { margin: 0 0 8px; font: 700 14px/1 var(--font-display); letter-spacing: .14em; text-transform: uppercase; color: var(--blood); }
 .pub .btn { padding: 9px 13px; font-size: 15px; }
 .pub-out { margin-top: 10px; }
+.pub-new { display: block; margin-top: 10px; padding: 0; border: 0; background: none; color: var(--blood); font: 700 15.5px/1.3 var(--font-display); letter-spacing: .03em; cursor: pointer; }
+.pub-new:hover { text-decoration: underline; text-underline-offset: 3px; }
 .pub-row { display: flex; gap: 6px; } .pub-row input { flex: 1; min-width: 0; font-size: 15px; }
 .pub-msg { display: block; margin-top: 5px; font: italic 500 15px/1.4 var(--font-body); color: var(--text-ink); }
 .pub-set { margin-top: 12px; padding: 8px 12px; border: 1px solid rgba(111,85,50,.35); border-radius: 4px; background: rgba(255,252,240,.35); }
@@ -1232,6 +1234,7 @@ function pubHTML(tool) {
     <div class="actions">${no
       ? `<button type="button" class="btn" data-pubgo="update">Обновить документ №${no}</button><button type="button" class="btn ghost" data-pubgo="new">Сохранить как новый</button><button type="button" class="btn ghost" data-pubshow="${no}">Ссылка №${no}</button>`
       : `<button type="button" class="btn" data-pubgo="new">Опубликовать — короткая ссылка</button>`}</div>
+    <button type="button" class="pub-new" data-pubreset>${{ pisma: "+ Начать новое письмо", kniga: "+ Начать новую книгу", stopka: "+ Начать новую стопку" }[tool]}</button>
     <div class="pub-out" hidden><div class="pub-row"><input type="text" readonly aria-label="Ссылка для игроков"><button type="button" class="btn ghost" data-pubcopy>Копировать</button></div><small class="pub-msg"></small></div>
     <details class="pub-set"${c.token ? "" : ""}><summary>${c.token ? "Публикация настроена ✓ — изменить" : "Настроить публикацию (один раз)"}</summary>
       <ol class="pub-steps">
@@ -1261,7 +1264,7 @@ async function ghApi(c, path, opt = {}) {
   return r;
 }
 async function ghNextNo(c) {
-  const r = await ghApi(c, "docs?ref=" + Date.now(), { cache: "no-store" });
+  const r = await ghApi(c, "docs", { cache: "no-store" });
   if (r.status === 404) return 1;
   if (!r.ok) throw new Error(r.status === 401 ? "Ключ GitHub не подходит или истёк." : "GitHub ответил ошибкой " + r.status + ".");
   const list = await r.json(); let max = 0;
@@ -1283,7 +1286,7 @@ async function publish(tool, mode, btn) {
       pubSay(box, shortUrl(no), `Скачан файл ${no}.json. Загрузите его на GitHub в папку docs (Add file → Upload files, перетащите файл, а в начале имени допишите «docs/»). Через минуту ссылка заработает.`);
     } else {
       let sha;
-      const g = await ghApi(c, `docs/${no}.json?ref=${Date.now()}`, { cache: "no-store" });
+      const g = await ghApi(c, `docs/${no}.json`, { cache: "no-store" });
       if (g.ok) sha = (await g.json()).sha; else if (g.status === 401) throw new Error("Ключ GitHub не подходит или истёк.");
       const r = await ghApi(c, `docs/${no}.json`, { method: "PUT", body: JSON.stringify({ message: `Документ №${no}: ${d.title}`, content: utf8b64(json), sha }) });
       if (!r.ok) throw new Error(r.status === 401 ? "Ключ GitHub не подходит или истёк." : r.status === 403 || r.status === 404 ? "У ключа нет права записи: в Permissions → Contents нужно «Read and write», и в доступе должен быть этот репозиторий." : "GitHub ответил ошибкой " + r.status + ".");
@@ -1303,10 +1306,19 @@ async function publish(tool, mode, btn) {
 }
 function pubSave(tool) { if (tool === "kniga") bkSave(); else if (tool === "stopka") stSave(); else lwSave(); }
 document.addEventListener("click", e => {
-  const b = e.target.closest && e.target.closest("[data-pubgo],[data-pubcopy],[data-publong],[data-ghsave],[data-ghforget],[data-pubshow]");
+  const b = e.target.closest && e.target.closest("[data-pubgo],[data-pubreset],[data-pubcopy],[data-publong],[data-ghsave],[data-ghforget],[data-pubshow]");
   if (!b) return;
   const box = pubBox(b), tool = box && box.dataset.pub;
   if (b.dataset.pubgo) return publish(tool, b.dataset.pubgo, b);
+  if (b.hasAttribute("data-pubreset")) {
+    const what = { pisma: "письмо", kniga: "книгу", stopka: "стопку" }[tool];
+    if (!window.confirm(`Начать новую ${what}? Текущая останется в опубликованном виде (если вы её публиковали), а здесь поля очистятся.`.replace("новую письмо", "новое письмо"))) return;
+    const blankLetter = () => Object.assign({}, LW_BASE, LW_PRESETS.guild.s, { place: "", greet: "", body: "", close: "", sign: "", ps: "", seal: "none", seed: Math.floor(Math.random() * 9000) + 1 });
+    if (tool === "pisma") { LW = blankLetter(); lwSave(); lwRefreshForm(); }
+    if (tool === "kniga") { BK = JSON.parse(JSON.stringify(BK_EMPTY)); bkFocus = 0; bkSave(); bookRefresh(); }
+    if (tool === "stopka") { STK = { title: "", cur: 0, sheets: [blankLetter()] }; stSave(); stackInit(); }
+    scrollTo({ top: 0, behavior: "smooth" }); toast("Новый документ. Когда закончите — «Опубликовать»."); return;
+  }
   if (b.dataset.pubshow) { pubSay(box, shortUrl(b.dataset.pubshow), "Ссылка на уже опубликованную версию. Если вы что-то поменяли — нажмите «Обновить»."); return; }
   if (b.hasAttribute("data-pubcopy")) { const i = box.querySelector(".pub-out input"); navigator.clipboard.writeText(i.value).then(() => toast("Скопировано."), () => { i.focus(); i.select(); toast("Нажмите Ctrl+C."); }); return; }
   if (b.hasAttribute("data-publong")) {
