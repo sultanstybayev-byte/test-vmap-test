@@ -634,7 +634,11 @@
     },
     {
      "id": "cmvifyixoeaz",
-     "name": "Варфоломей [Люциус Брант]"
+     "name": "Варфоломей [Люциус Брант]",
+     "facs": [
+      "none"
+     ],
+     "fac": "none"
     },
     {
      "id": "cmvifzox1b6r",
