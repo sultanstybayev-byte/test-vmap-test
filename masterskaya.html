@@ -14,6 +14,14 @@
 @font-face { font-family: "Roscherk SHA"; src: url("fonts/roscherk.otf") format("opentype"); font-display: swap; }
 @font-face { font-family: "Denistina"; src: url("fonts/denistina.ttf") format("truetype"); font-display: swap; }
 @font-face { font-family: "Aquiline"; src: url("fonts/aquiline.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Bimbo Finetip"; src: url("fonts/bimbofine.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Bimbo"; src: url("fonts/bimbo.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Kalissa"; src: url("fonts/kalissa.otf") format("opentype"); font-display: swap; }
+@font-face { font-family: "Vivaldi Script"; src: url("fonts/vivaldi.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Unquiet Spirits"; src: url("fonts/unquiet.otf") format("opentype"); font-display: swap; }
+@font-face { font-family: "Passions Conflict RUS"; src: url("fonts/passions.otf") format("opentype"); font-display: swap; }
+@font-face { font-family: "Ankona Kursive"; src: url("fonts/ankona.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Asia AS"; src: url("fonts/asia.ttf") format("truetype"); font-display: swap; }
 /* Мастерская: отдельная страница с инструментами мастера (письма и всё, что добавится потом). Тот же вид, что у главного меню. */
 :root {
   --ink: #17110b; --leather: #2a1d12; --leather-hi: #3a2817;
@@ -484,7 +492,15 @@ const LW_HANDS = {
   kosmos:    { name: "Космос",    f: "Kosmos129",    k: 0.9, lh: 1.42 },
   roscherk:  { name: "Росчерк",   f: "Roscherk SHA", k: 1.28,  lh: 1.5 },
   denistina: { name: "Денистина", f: "Denistina",    k: 1.35, lh: 1.5 },
-  aquiline:  { name: "Аквилин",   f: "Aquiline",     k: 1.12, lh: 1.95 }
+  aquiline:  { name: "Аквилин",   f: "Aquiline",     k: 1.12, lh: 1.95 },
+  bimbofine: { name: "Бимбо тонкий", f: "Bimbo Finetip", k: 1.3, lh: 1.5 },
+  bimbo: { name: "Бимбо", f: "Bimbo", k: 1.25, lh: 1.5 },
+  kalissa: { name: "Калисса", f: "Kalissa", k: 1.38, lh: 1.6 },
+  vivaldi: { name: "Вивальди", f: "Vivaldi Script", k: 1.48, lh: 1.6 },
+  unquiet: { name: "Беспокойные духи", f: "Unquiet Spirits", k: 1.2, lh: 1.4 },
+  passions: { name: "Страсти", f: "Passions Conflict RUS", k: 2.1, lh: 1.5 },
+  ankona: { name: "Анкона", f: "Ankona Kursive", k: 1.45, lh: 1.5 },
+  asia: { name: "Азия", f: "Asia AS", k: 1.55, lh: 1.5 }
 };
 /* Свои шрифты: загружаются кнопкой «Свой шрифт» и запоминаются в этом браузере */
 const LW_UFONTS = "velaris-fonts-v1";
