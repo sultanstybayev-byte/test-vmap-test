@@ -161,7 +161,22 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--gold); outl
 .face.cover h2 { margin: 0; font: 400 40px/1.15 "Ruslan Display", "Cormorant SC", Georgia, serif; color: #ebc978; text-shadow: 0 1px 0 rgba(0,0,0,.7), 0 0 14px rgba(240,200,110,.22); text-wrap: balance; }
 .face.cover p { margin: 0; font: italic 500 21px/1.3 var(--font-body); color: #d9b56a; }
 .face.backc .cv-em { width: 54px; height: 54px; opacity: .7; }
-.face.endp { background-color: var(--lea); background-image: radial-gradient(ellipse at 30% 20%, rgba(255,240,210,.14), transparent 45%), repeating-radial-gradient(circle at 18% 28%, rgba(240,214,150,.10) 0 5px, transparent 5px 13px), repeating-radial-gradient(circle at 74% 76%, rgba(0,0,0,.18) 0 7px, transparent 7px 17px), repeating-radial-gradient(circle at 60% 15%, rgba(240,214,150,.06) 0 3px, transparent 3px 9px); }
+.face.endp { background-color: var(--lea); background-image: var(--grain), radial-gradient(ellipse at 40% 30%, rgba(255,235,200,.1), transparent 60%); }
+.endp-paper { position: absolute; top: 16px; bottom: 16px; left: 16px; right: 0; overflow: hidden; background: var(--grain), radial-gradient(ellipse at 50% 45%, transparent 50%, rgba(110,75,35,.28)), linear-gradient(180deg, color-mix(in srgb, var(--pt) 88%, #8a6a3e), color-mix(in srgb, var(--pb) 85%, #7a5a30)); box-shadow: 0 0 0 1px rgba(0,0,0,.25), 2px 2px 6px rgba(0,0,0,.35); }
+.face.endp.front .endp-paper { left: 0; right: 16px; }
+.face.endp.backf .endp-paper::after, .face.endp.front .endp-paper::after { content: ""; position: absolute; top: 0; bottom: 0; width: 26px; background: linear-gradient(90deg, rgba(0,0,0,.28), transparent); }
+.face.endp.backf .endp-paper::after { right: 0; transform: scaleX(-1); } .face.endp.front .endp-paper::after { left: 0; }
+.cv-gold { position: absolute; inset: 0; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; }
+.wear { position: absolute; inset: 0; pointer-events: none; background: no-repeat center / 100% 100%; z-index: 1; }
+.cv-wear.l1 { box-shadow: inset 0 0 0 1.5px rgba(225,195,150,.14), inset 0 0 12px rgba(225,195,150,.07); }
+.cv-wear.l2 { box-shadow: inset 0 0 0 2px rgba(225,195,150,.18), inset 0 0 16px rgba(225,195,150,.09); }
+.cv-wear.l3 { box-shadow: inset 0 0 0 3px rgba(225,195,150,.22), inset 0 0 22px rgba(225,195,150,.12); }
+.cv-wear::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 0 0, rgba(230,200,155,var(--ca)), transparent var(--cr)), radial-gradient(circle at 100% 0, rgba(230,200,155,var(--ca)), transparent var(--cr)), radial-gradient(circle at 0 100%, rgba(230,200,155,var(--ca)), transparent var(--cr)), radial-gradient(circle at 100% 100%, rgba(230,200,155,var(--ca)), transparent var(--cr)); }
+.cv-wear.l1 { --ca: .16; --cr: 26px; } .cv-wear.l2 { --ca: .22; --cr: 40px; } .cv-wear.l3 { --ca: .3; --cr: 58px; }
+.face.pg.w1 { box-shadow: inset 0 0 34px rgba(120,80,30,.22), 0 12px 30px rgba(0,0,0,.45); }
+.face.pg.w2 { box-shadow: inset 0 0 50px rgba(110,70,25,.36), 0 12px 30px rgba(0,0,0,.45); }
+.face.pg.w3 { box-shadow: inset 0 0 70px rgba(95,60,20,.5), 0 12px 30px rgba(0,0,0,.45); }
+.face.pg .pg-text, .face.pg .pg-no { z-index: 2; }
 .face.pg { color: var(--ink); background: var(--grain), radial-gradient(ellipse at center, transparent 55%, var(--pv)), linear-gradient(180deg, var(--pt), var(--pb)); }
 .face.pg.burnt { box-shadow: inset 0 0 46px rgba(60,28,8,.6), 0 12px 30px rgba(0,0,0,.45); }
 .pg-text { position: absolute; inset: 46px 44px 60px; overflow: hidden; }
@@ -1228,6 +1243,52 @@ function bkFaces(B) {
   f.push(["endp"], ["back"]);
   return f;
 }
+/* ---------- износ книги: 0 — новая, 1 — потрёпанная, 2 — старая, 3 — испорченная ---------- */
+const BK_WEAR = [["Новая", "без следов"], ["Потрёпанная", "потёртые углы и царапины"], ["Старая", "стёртое золото, пятна, рыжие точки"], ["Испорченная", "плесень, вода, оторванные углы, выцветшие чернила"]];
+const wR = (seed, i, d) => cvR(seed * 7.13 + i * 1.7, d);
+const blurDefs = `<defs><filter id="b1"><feGaussianBlur stdDeviation="1.2"/></filter><filter id="b4"><feGaussianBlur stdDeviation="4"/></filter><filter id="b10"><feGaussianBlur stdDeviation="10"/></filter></defs>`;
+const wSvg = inner => svgUrl(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 620" preserveAspectRatio="none">${blurDefs}${inner}</svg>`);
+/* маска «стёртости»: шум, через который проступает кожа */
+const wMask = (L, seed, freq = .03) => svgUrl(`<svg xmlns="http://www.w3.org/2000/svg" width="440" height="620"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="${freq}" numOctaves="3" seed="${seed}"/><feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 -3.2 0 0 0 ${[3, 2.65, 2.25, 1.95][L]}"/></filter><rect width="100%" height="100%" filter="url(#n)"/></svg>`);
+function coverWear(L, seed) {
+  if (!L) return "";
+  let g = "";
+  for (let i = 0; i < [0, 10, 22, 36][L]; i++) {
+    const x = wR(seed, i, 1) * 440, y = wR(seed, i, 2) * 620, l = 10 + wR(seed, i, 3) * 60, a = wR(seed, i, 4) * Math.PI;
+    g += `<path d="M${x.toFixed(1)} ${y.toFixed(1)}q${(Math.cos(a) * l / 2 + 3).toFixed(1)} ${(Math.sin(a) * l / 2).toFixed(1)} ${(Math.cos(a) * l).toFixed(1)} ${(Math.sin(a) * l).toFixed(1)}" stroke="rgba(235,215,175,${(.12 + wR(seed, i, 5) * .22).toFixed(2)})" stroke-width="${(.5 + wR(seed, i, 6)).toFixed(1)}" fill="none"/>`;
+  }
+  for (let i = 0; i < [0, 3, 7, 11][L]; i++) g += `<ellipse cx="${(wR(seed, i, 7) * 440).toFixed(0)}" cy="${(wR(seed, i, 8) * 620).toFixed(0)}" rx="${(15 + wR(seed, i, 9) * 50).toFixed(0)}" ry="${(10 + wR(seed, i, 10) * 35).toFixed(0)}" fill="rgba(225,200,155,${(.05 + L * .025).toFixed(3)})" filter="url(#b10)"/>`;
+  for (let i = 0; i < [0, 0, 2, 4][L]; i++) { const x = (wR(seed, i, 11) * 440).toFixed(0), y = (wR(seed, i, 12) * 620).toFixed(0), r = (25 + wR(seed, i, 13) * 55).toFixed(0);
+    g += `<circle cx="${x}" cy="${y}" r="${r}" fill="rgba(0,0,0,.16)" filter="url(#b10)"/><circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="rgba(0,0,0,.13)" stroke-width="2.5" filter="url(#b4)"/>`; }
+  if (L === 3) for (let i = 0; i < 5; i++) g += `<ellipse cx="${(wR(seed, i, 14) * 440).toFixed(0)}" cy="${(wR(seed, i, 15) * 620).toFixed(0)}" rx="${(20 + wR(seed, i, 16) * 40).toFixed(0)}" ry="${(14 + wR(seed, i, 17) * 30).toFixed(0)}" fill="rgba(140,150,110,.16)" filter="url(#b4)"/>`;
+  return `<i class="wear cv-wear l${L}" style="background-image:${wSvg(g)}"></i>`;
+}
+function pageWear(L, seed) {
+  if (!L) return "";
+  let g = "";
+  for (let i = 0; i < [0, 5, 16, 30][L]; i++) g += `<circle cx="${(20 + wR(seed, i, 21) * 400).toFixed(0)}" cy="${(20 + wR(seed, i, 22) * 580).toFixed(0)}" r="${(.8 + wR(seed, i, 23) * (L > 1 ? 3.5 : 2)).toFixed(1)}" fill="rgba(135,85,35,${(.18 + wR(seed, i, 24) * .35).toFixed(2)})" filter="url(#b1)"/>`;
+  if (L >= 2 && wR(seed, 0, 25) < (L === 3 ? .85 : .45)) { const x = (wR(seed, 1, 26) * 440).toFixed(0), y = (wR(seed, 1, 27) * 620).toFixed(0), r = (60 + wR(seed, 1, 28) * 110).toFixed(0);
+    g += `<circle cx="${x}" cy="${y}" r="${r}" fill="rgba(140,95,40,.07)" filter="url(#b10)"/><circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="rgba(120,78,30,.28)" stroke-width="3.5" filter="url(#b1)"/>`; }
+  if (L === 3) {
+    for (let i = 0; i < 4; i++) { const x = wR(seed, i, 29) * 440, y = wR(seed, i, 30) * 620;
+      for (let k = 0; k < 7; k++) g += `<circle cx="${(x + (wR(seed, i * 9 + k, 31) - .5) * 50).toFixed(0)}" cy="${(y + (wR(seed, i * 9 + k, 32) - .5) * 40).toFixed(0)}" r="${(4 + wR(seed, i * 9 + k, 33) * 12).toFixed(0)}" fill="rgba(95,105,70,.2)" filter="url(#b4)"/>`; }
+    if (wR(seed, 2, 34) < .5) g += `<path d="M${(wR(seed, 3, 35) * 300 + 60).toFixed(0)} ${(wR(seed, 3, 36) * 400 + 100).toFixed(0)}c30 -10 60 15 90 0s40 25 10 40-70 0-100-15z" fill="rgba(60,30,15,.22)" filter="url(#b4)"/>`;
+  }
+  return `<i class="wear pg-wear l${L}" style="background-image:${wSvg(g)}"></i>`;
+}
+/* оторванный уголок (только у испорченной книги) */
+function tornClip(L, seed) {
+  if (L < 3 || wR(seed, 4, 37) > .4) return "";
+  const c = Math.floor(wR(seed, 5, 38) * 4), s1 = 50 + wR(seed, 6, 39) * 70, s2 = 40 + wR(seed, 7, 40) * 80;
+  const jag = (x1, y1, x2, y2) => { let p = []; for (let k = 1; k < 6; k++) { const t = k / 6; p.push(`${(x1 + (x2 - x1) * t + (wR(seed, k, 41) - .5) * 8).toFixed(0)}px ${(y1 + (y2 - y1) * t + (wR(seed, k, 42) - .5) * 8).toFixed(0)}px`); } return p.join(","); };
+  const W = 440, H = 620;
+  const poly = [
+    `${s1}px 0,${W}px 0,${W}px ${H}px,0 ${H}px,0 ${s2}px,${jag(0, s2, s1, 0)}`,
+    `0 0,${W - s1}px 0,${jag(W - s1, 0, W, s2)},${W}px ${s2}px,${W}px ${H}px,0 ${H}px`,
+    `0 0,${W}px 0,${W}px ${H}px,${s1}px ${H}px,${jag(s1, H, 0, H - s2)},0 ${H - s2}px`,
+    `0 0,${W}px 0,${W}px ${H - s2}px,${jag(W, H - s2, W - s1, H)},${W - s1}px ${H}px,0 ${H}px`][c];
+  return `clip-path:polygon(${poly});`;
+}
 function bkFaceHTML(face, B, side) {
   const P = LW_PAPERS[B.paper] || LW_PAPERS.parch, H = LW_HANDS[B.hand] || LW_HANDS.marck;
   let ink = (LW_INKS[B.ink] || LW_INKS.black)[1]; if (P.dark && ["black", "sepia", "blue", "red"].includes(B.ink)) ink = LW_INKS.silver[1];
@@ -1236,10 +1297,12 @@ function bkFaceHTML(face, B, side) {
   const em = B.coverImg ? `<img class="cv-img ${B.imgShape === "rect" ? "rect" : ""}" src="${esc(B.coverImg)}" alt="">` : bkIconSvg(B.emblem) ? `<svg class="cv-em" viewBox="0 0 24 24" aria-hidden="true">${bkIconSvg(B.emblem)}</svg>` : "";
   const emBack = bkIconSvg(B.emblem) ? `<svg class="cv-em" viewBox="0 0 24 24" aria-hidden="true">${bkIconSvg(B.emblem)}</svg>` : "";
   const paper = `--pt:${P.top};--pb:${P.bot};--pv:${P.vign};--ink:${ink}`;
-  if (face[0] === "cover") return `<div class="face cover ${side}${st[4] ? " blind" : ""}" style="--lea:${lea}">${coverArt(B.coverStyle)}<div class="cv-frame" style="padding-top:${st[2]}px;padding-bottom:${st[3]}px;${["Медальон", "Тайный круг", "Картуш"].includes(st[0]) ? "padding-left:104px;padding-right:104px" : ""}">${em}<h2>${esc(B.title || "")}</h2>${B.sub ? `<p>${esc(B.sub)}</p>` : ""}</div></div>`;
-  if (face[0] === "back") return `<div class="face cover backc ${side}" style="--lea:${lea}">${coverArt(B.coverStyle)}<div class="cv-frame">${emBack}</div></div>`;
-  if (face[0] === "endp") return `<div class="face endp ${side}" style="--lea:${lea}"></div>`;
-  if (face[0] === "blank") return `<div class="face pg ${side}${P.burnt ? " burnt" : ""}" style="${paper}"></div>`;
+  const L = +B.wear || 0, seedBase = String(B.title || "").length * 13 + 7, fseed = face[0] === "page" ? face[1] + 3 : face[0] === "back" ? 1 : face[0] === "endp" ? (side === "front" ? 91 : 92) : 2;
+  const wcls = L ? ` w${L}` : "", mask = L >= 2 ? `-webkit-mask-image:${wMask(L, seedBase + fseed)};mask-image:${wMask(L, seedBase + fseed)};` : "";
+  if (face[0] === "cover") return `<div class="face cover ${side}${st[4] ? " blind" : ""}${wcls}" style="--lea:${lea}"><div class="cv-gold" style="${mask}">${coverArt(B.coverStyle)}<div class="cv-frame" style="padding-top:${st[2]}px;padding-bottom:${st[3]}px;${["Медальон", "Тайный круг", "Картуш"].includes(st[0]) ? "padding-left:104px;padding-right:104px" : ""}">${em}<h2>${esc(B.title || "")}</h2>${B.sub ? `<p>${esc(B.sub)}</p>` : ""}</div></div>${coverWear(L, seedBase + 1)}</div>`;
+  if (face[0] === "back") return `<div class="face cover backc ${side}${wcls}" style="--lea:${lea}"><div class="cv-gold" style="${mask}">${coverArt(B.coverStyle)}<div class="cv-frame">${emBack}</div></div>${coverWear(L, seedBase + 2)}</div>`;
+  if (face[0] === "endp") return `<div class="face endp ${side}${wcls}" style="--lea:${lea};${paper}"><div class="endp-paper">${pageWear(Math.max(0, L - 1), seedBase + fseed)}</div>${coverWear(Math.min(L, 1), seedBase + fseed)}</div>`;
+  if (face[0] === "blank") return `<div class="face pg ${side}${P.burnt ? " burnt" : ""}${wcls}" style="${paper};${tornClip(L, seedBase + 50)}">${pageWear(L, seedBase + 50)}</div>`;
   const i = face[1], p = B.pages[i] || { h: "", t: "" };
   const fs = 19 * H.k * [.86, 1, 1.16][B.size || 1];
   const paras = String(p.t || "").split("\n").map(x => x.trim()).filter(Boolean);
@@ -1250,7 +1313,7 @@ function bkFaceHTML(face, B, side) {
     }
     return `<p>${esc(t)}</p>`;
   }).join("");
-  return `<div class="face pg ${side}${P.burnt ? " burnt" : ""}" style="${paper}"><div class="pg-text" style="font-family:'${H.f}','Marck Script',cursive;${H.ital ? "font-style:italic;" : ""}font-size:${fs.toFixed(1)}px;line-height:${H.lh}" data-fs="${fs.toFixed(1)}">${p.h ? `<div class="pg-h">${esc(p.h)}</div><i class="pg-vine" style="background-image:${svgUrl(LW_SVG.vine(ink))}"></i>` : ""}${body}</div>${B.nums ? `<div class="pg-no">— ${i + 1} —</div>` : ""}</div>`;
+  return `<div class="face pg ${side}${P.burnt ? " burnt" : ""}${wcls}" style="${paper};${tornClip(L, seedBase + fseed)}">${pageWear(L, seedBase + fseed)}<div class="pg-text" style="font-family:'${H.f}','Marck Script',cursive;${H.ital ? "font-style:italic;" : ""}font-size:${fs.toFixed(1)}px;line-height:${H.lh};${L === 3 ? `-webkit-mask-image:${wMask(1, seedBase + fseed + 40, .02)};mask-image:${wMask(1, seedBase + fseed + 40, .02)};` : ""}" data-fs="${fs.toFixed(1)}">${p.h ? `<div class="pg-h">${esc(p.h)}</div><i class="pg-vine" style="background-image:${svgUrl(LW_SVG.vine(ink))}"></i>` : ""}${body}</div>${B.nums ? `<div class="pg-no">— ${i + 1} —</div>` : ""}</div>`;
 }
 /* Книга-листалка внутри элемента host */
 function bookView(host, B, opt = {}) {
@@ -1373,6 +1436,7 @@ function bookHTML() {
       <div class="fld"><label>Размер букв</label><div class="lw-seg">${[[0, "Мелко"], [1, "Средне"], [2, "Крупно"]].map(([k, t]) => `<button type="button" data-bks="${k}" aria-pressed="${k === (BK.size ?? 1)}">${t}</button>`).join("")}</div></div>
     </div>
     <div class="lw-chks">${chk("dropcap", "Буквица в главах")}${chk("nums", "Номера страниц")}</div>
+    <div class="fld"><label>Состояние книги</label><div class="lw-seg">${BK_WEAR.map(([t], k) => `<button type="button" data-bkw="${k}" aria-pressed="${(+BK.wear || 0) === k}">${t}</button>`).join("")}</div><small>${esc(BK_WEAR[+BK.wear || 0][1])}</small></div>
     <div class="bk-pages">${BK.pages.map((p, i) => `<section class="bk-page" data-i="${i}">
       <header><b>Страница ${i + 1}</b><span class="bk-warn" data-warn="${i}" hidden>не помещается — сократите</span><span class="bk-ops"><button type="button" data-bkop="up" data-i="${i}" aria-label="Выше"${i ? "" : " disabled"}>↑</button><button type="button" data-bkop="down" data-i="${i}" aria-label="Ниже"${i < BK.pages.length - 1 ? "" : " disabled"}>↓</button><button type="button" data-bkop="del" data-i="${i}" aria-label="Удалить"${BK.pages.length > 1 ? "" : " disabled"}>×</button></span></header>
       <input type="text" data-bkp="${i}" data-bkf="h" value="${esc(p.h)}" placeholder="Заголовок главы (необязательно)" aria-label="Заголовок страницы ${i + 1}">
@@ -1420,8 +1484,9 @@ document.addEventListener("change", e => {
   }
 });
 document.addEventListener("click", e => {
-  const b = e.target.closest && e.target.closest("[data-bkc],[data-bkst],[data-bkic],[data-bkshape],[data-bkimgdel],[data-bks],[data-bkop],#bk-add,#bk-full");
+  const b = e.target.closest && e.target.closest("[data-bkw],[data-bkc],[data-bkst],[data-bkic],[data-bkshape],[data-bkimgdel],[data-bks],[data-bkop],#bk-add,#bk-full");
   if (!b) return;
+  if (b.dataset.bkw) { BK.wear = +b.dataset.bkw; bkSave(); bookRefresh(); return; }
   if (b.dataset.bkc) { BK.cover = b.dataset.bkc; bkSave(); bookRefresh(); bkFocus = -1; bkPrev && bkPrev.showPage(-1); return; }
   if (b.dataset.bkst) { BK.coverStyle = +b.dataset.bkst; bkSave(); bookRefresh(); bkFocus = -1; bkPrev && bkPrev.showPage(-1); return; }
   if (b.dataset.bkic) { BK.emblem = b.dataset.bkic; delete BK.coverImg; bkSave(); bookRefresh(); bkFocus = -1; bkPrev && bkPrev.showPage(-1); return; }
