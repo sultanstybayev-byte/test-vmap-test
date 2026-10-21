@@ -388,6 +388,23 @@ html.dragging-doc, html.dragging-doc * { cursor: grabbing !important; }
 .ic-pick button svg { width: 24px; height: 24px; stroke: #d9b56a; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 .ic-pick button[aria-pressed="true"] { background: linear-gradient(180deg, #f1d79a, #c99a4e); border-color: var(--gold-hi); } .ic-pick button[aria-pressed="true"] svg { stroke: #2a1a0c; }
 .vk-role { margin: 14px 0 0; font: italic 500 13.5px var(--font-body); color: var(--text-muted); opacity: .7; }
+.mydocs { margin: 0 0 16px; padding: 14px; border: 1px solid #2a1712; border-radius: 6px; background: linear-gradient(180deg, #2b1d14, #1d130d); color: var(--parchment); box-shadow: inset 0 0 0 1px rgba(201,162,90,.25); }
+.mydocs > header { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 10px; }
+.mydocs > header svg { width: 22px; height: 22px; stroke: #e0583f; fill: none; stroke-width: 1.8; stroke-linecap: round; }
+.mydocs > header b { font: 700 21px/1.1 var(--font-display); color: var(--gold-hi); letter-spacing: .03em; }
+.mydocs > header span { font: italic 500 15px var(--font-body); color: var(--parchment-deep); }
+.doc.mine { background: rgba(255,245,225,.08); border-color: rgba(201,162,90,.35); }
+.doc.mine .doc-open { color: var(--parchment); } .doc.mine .doc-open:hover { background: rgba(255,245,225,.12); }
+.doc.mine .doc-n { color: var(--parchment-deep); } .doc.mine .doc-k { color: #e7a08f; } .doc.mine .doc-open small { color: rgba(214,189,140,.7); }
+.doc.mine.secret { border-color: #8e2f1c; box-shadow: inset 3px 0 0 #b0392a; }
+.seal { display: inline-block; margin-right: 6px; padding: 1px 7px 2px; border-radius: 3px; background: #a3261a; color: #fbe9e2; font: 700 11.5px/1.3 var(--font-display); letter-spacing: .1em; text-transform: uppercase; font-style: normal; transform: rotate(-3deg); }
+.doc-k i.new { background: #b0392a; color: #fff; }
+.doc-k i.v-to { background: #5a1a14; color: #f3d9cf; } .doc-k i.v-all { background: #3f5a2c; color: #eef3df; }
+.doc.secret:not(.mine) { border-color: rgba(142,47,28,.55); }
+.doc-vis { width: auto; max-width: 180px; padding: 4px 6px; font-size: 13.5px; }
+.mybanner { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; padding: 9px 16px; border: 1px solid rgba(201,162,90,.6); border-radius: 999px; background: rgba(23,17,11,.75); color: var(--gold-hi); font: 700 16px/1 var(--font-display); text-decoration: none; letter-spacing: .03em; }
+.mybanner svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+.mybanner.fresh { border-color: #c4503c; box-shadow: 0 0 18px rgba(196,80,60,.35); }
 </style>
 </head>
 <body>
@@ -992,7 +1009,20 @@ async function dbAdopt() {
   for (const n of missing) { try { const { data } = await ghRead(c, `docs/${n}.json`); if (data) add.push({ no: n, kind: data.kind, title: data.title || "Документ", note: data.note || "", public: false, created: "", updated: "" }); } catch (_) {} }
   if (add.length) await dbUpdate(docs => { add.forEach(a => { if (!docs.some(d => d.no === a.no)) docs.push(a); }); docs.sort((a, b) => a.no - b.no); }, "Документы: добавлены в список");
 }
-async function dbSetPublic(no, pub) {
+/* Видимость документа: hidden — только админы, to — тайный, только получателям, all — всем игрокам */
+const VIS_NAMES = { hidden: "скрыт", to: "тайный", all: "открыт всем" };
+const visOf = d => d && (d.vis || (d.public ? "all" : "hidden"));
+const VK_ME = +(VK_P.get("vk_user_id") || 0);
+const mineDoc = d => !!VK_ME && (d.to || []).includes(VK_ME) && visOf(d) !== "hidden";
+const canSee = d => !!d && (visOf(d) === "all" || mineDoc(d));
+async function dbSetVis(no, vis) {
+  return dbUpdate(docs => { const d = docs.find(x => x.no === +no); if (d) { d.vis = vis; d.public = vis === "all"; } }, `Документ №${no}: ${VIS_NAMES[vis]}`);
+}
+async function dbSetTo(no, to) {
+  return dbUpdate(docs => { const d = docs.find(x => x.no === +no); if (d) d.to = to.slice(); }, `Документ №${no}: получатели`);
+}
+async function dbSetPublic(no, pub) { return dbSetVis(no, pub ? "all" : "hidden"); }
+async function dbSetPublicOld(no, pub) {
   return dbUpdate(docs => { const d = docs.find(x => x.no === +no); if (d) d.public = pub; }, `Документ №${no}: ${pub ? "открыт игрокам" : "скрыт"}`);
 }
 const dbToday = () => new Date().toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
@@ -1061,6 +1091,28 @@ function applyQuestStates(st) {
   }
   return changed;
 }
+
+/* ---------- ИГРОКИ: участники группы ВК (docs/players.json) ----------
+   list: [{ id, name, photo, role: creator|administrator|editor|moderator|member, play, char, left }] */
+const ROLE_NAMES = { creator: "Создатель", administrator: "Админ", editor: "Редактор", moderator: "Модератор", member: "Участник" };
+async function plLoad(fresh) {
+  const c = ghCfg();
+  if (fresh && c.token) { const { data } = await ghRead(c, "docs/players.json"); return data || { list: [] }; }
+  try { const r = await fetch("docs/players.json?t=" + Date.now(), { cache: "no-store" }); if (r.ok) return await r.json(); } catch (_) {}
+  return { list: [] };
+}
+async function plUpdate(mutate, message) {
+  const c = ghCfg();
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const { data, sha } = await ghRead(c, "docs/players.json");
+    const P = data || { list: [] }; if (!P.list) P.list = [];
+    mutate(P);
+    try { await ghWrite(c, "docs/players.json", P, sha, message); return P; }
+    catch (e) { if (e.status !== 409 && e.status !== 422) throw e; }
+  }
+  throw new Error("Список игроков менялся одновременно с вами. Попробуйте ещё раз.");
+}
+const plName = p => p ? (p.char ? `${p.char} (${p.name})` : p.name) : "";
 
 
 /* =====================================================================
@@ -1472,6 +1524,7 @@ function openMap(h) {
 function closeMap() { const ov = $("#mapov"); try { const fe = document.fullscreenElement || document.webkitFullscreenElement; if (fe) (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (_) {} if (ov) ov.hidden = true; if (document.documentElement.classList.contains("map-open")) { document.documentElement.classList.remove("map-open"); scrollTo(0, hubScroll); } }
 addEventListener("message", e => {
   if (e.data && e.data.velaris === "closeOverlay") { closeOverlay(); return; }
+  if (e.data && e.data.velaris === "vkMembers") { vkMembers().then(res => e.source.postMessage({ velaris: "vkMembersResult", ok: true, res }, "*")).catch(err => e.source.postMessage({ velaris: "vkMembersResult", ok: false, error: vkErr(err) }, "*")); return; }
   if (e.data && e.data.velaris === "openWorkshop") { openOverlay(workshopHref(e.data.h || "docs")); return; }
   if (e.data && e.data.velaris === "closeMap") { if (location.hash.startsWith("#karta")) history.back(); else closeMap(); }
 });
@@ -1487,7 +1540,7 @@ function render() {
   const h = full === "personazhi" ? "mir" : full.split("-")[0];
   let sec = SECTIONS[h];
   const app = $("#app");
-  if (!sec) { route = ""; app.innerHTML = homeHTML(); document.title = "Империя Веларис"; return; }
+  if (!sec) { route = ""; app.innerHTML = homeHTML(); document.title = "Империя Веларис"; myDocsBanner(); return; }
   route = h;
   if (!MEMBER && !GUEST_SECTIONS.has(h)) {
     app.innerHTML = `<div class="bar"><a class="back" href="#" data-home>${svg("back")}<b>Меню</b></a><h1>${esc(sec.title)}</h1></div><div class="layout" style="grid-template-columns:1fr"><article class="sheet" id="sheet">${lockedHTML()}</article></div>`;
@@ -1520,6 +1573,7 @@ function docsHubHTML() {
   return `${head("Архив", "Документы", "Письма, указы, книги и бумаги, попавшие в руки героев.")}
     ${ADMIN ? `<div class="doc-admin"><button type="button" class="btn" data-workshop="docs">+ Создать документ</button>${canEdit() ? `<button type="button" class="btn ghost" data-fnew>+ Папка</button>` : ""}<button type="button" class="btn ghost" data-workshop="docs">Мастерская</button>
       <small>${canEdit() ? "Документ можно перетащить в другую папку: на компьютере — мышью, на телефоне — зажмите и тяните." : "Вы администратор. Чтобы раскладывать документы по папкам, открывать и скрывать их, подключите ключ GitHub в Мастерской (один раз на этом устройстве)."}</small></div><div id="fedit"></div>` : ""}
+    ${MEMBER && VK_ME ? `<section class="mydocs wide" id="mydocs" hidden></section>` : ""}
     <div class="shelves wide" id="doclist"><p class="lead">Загружаю…</p></div>`;
 }
 async function docsLoad() {
@@ -1527,20 +1581,41 @@ async function docsLoad() {
   let ix; try { ix = await dbIndex(canEdit()); } catch (_) { ix = await dbIndex(false); }
   DOCLIST = ix.docs; FOLDERS = ix.folders; docsDraw();
 }
+/* ---------- Мои документы: выданные именно этому игроку ---------- */
+const SEEN_KEY = "velaris-seen-docs";
+const seenDocs = () => { try { return new Set(JSON.parse(localStorage.getItem(SEEN_KEY)) || []); } catch (_) { return new Set(); } };
+const markSeen = no => { const s = seenDocs(); s.add(+no); try { localStorage.setItem(SEEN_KEY, JSON.stringify([...s])); } catch (_) {} };
+function myDocsDraw() {
+  const box = $("#mydocs"); if (!box) return;
+  const mine = (DOCLIST || []).filter(mineDoc).sort((a, b) => b.no - a.no), seen = seenDocs();
+  box.hidden = !mine.length; if (!mine.length) return;
+  box.innerHTML = `<header><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><b>Мои документы</b><span>Выданы лично вам${mine.some(d => visOf(d) === "to") ? " — тайные не показывайте другим" : ""}</span></header>
+    <div class="docs">${mine.map(d => `<article class="doc mine${visOf(d) === "to" ? " secret" : ""}"><button type="button" class="doc-open" data-doc="${d.no}" data-mine="${d.no}"><span class="doc-k">${visOf(d) === "to" ? `<em class="seal">Тайно</em>` : ""}${esc(DOC_KINDS[d.kind] || "Документ")} · №${d.no}${seen.has(d.no) ? "" : ` <i class="new">новое</i>`}</span><b>${esc(d.title || "Без названия")}</b>${d.note ? `<span class="doc-n">${esc(d.note)}</span>` : ""}${d.updated || d.created ? `<small>${esc(d.updated || d.created)}</small>` : ""}</button></article>`).join("")}</div>`;
+}
+/* баннер на главной: «У вас N документов, из них новых M» */
+function myDocsBanner() {
+  if (!MEMBER || !VK_ME) return;
+  dbIndex(false).then(ix => {
+    const mine = ix.docs.filter(mineDoc); if (!mine.length || route) return;
+    const seen = seenDocs(), fresh = mine.filter(d => !seen.has(d.no)).length, crest = document.querySelector("#app .crest"); if (!crest || $("#mybanner")) return;
+    crest.insertAdjacentHTML("beforeend", `<a class="mybanner${fresh ? " fresh" : ""}" id="mybanner" href="#dokumenty"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>Мои документы: ${mine.length}${fresh ? ` · новых ${fresh}` : ""}</a>`);
+  }).catch(() => {});
+}
 function docCardHTML(d) {
-  return `<article class="doc${d.public ? "" : " hid"}" data-dno="${d.no}">
-      <button type="button" class="doc-open" data-doc="${d.no}"><span class="doc-k">${esc(DOC_KINDS[d.kind] || "Документ")} · №${d.no}${ADMIN ? ` <i class="${d.public ? "on" : ""}">${d.public ? "открыт игрокам" : "скрыт"}</i>` : ""}</span>
+  return `<article class="doc${visOf(d) === "all" ? "" : " hid"}${visOf(d) === "to" ? " secret" : ""}" data-dno="${d.no}">
+      <button type="button" class="doc-open" data-doc="${d.no}"><span class="doc-k">${esc(DOC_KINDS[d.kind] || "Документ")} · №${d.no}${ADMIN ? ` <i class="v-${visOf(d)}">${VIS_NAMES[visOf(d)]}${visOf(d) !== "hidden" && (d.to || []).length ? ` · ${d.to.length} получ.` : ""}</i>` : ""}</span>
         <b>${esc(d.title || "Без названия")}</b>${d.note ? `<span class="doc-n">${esc(d.note)}</span>` : ""}${d.updated || d.created ? `<small>${esc(d.updated || d.created)}</small>` : ""}</button>
-      ${ADMIN ? `<div class="doc-ops"><button type="button" data-doctoggle="${d.no}">${d.public ? "Скрыть" : "Открыть игрокам"}</button><button type="button" data-workshop="edit-${d.no}">Изменить</button>${canEdit() ? `<label class="doc-mv"><span>В папку</span><select data-docmove="${d.no}"><option value="">Разное</option>${FOLDERS.map(f => `<option value="${esc(f.id)}"${d.folder === f.id ? " selected" : ""}>${esc(f.name)}</option>`).join("")}</select></label>` : ""}<button type="button" class="danger" data-docdel="${d.no}">Удалить</button></div>` : ""}
+      ${ADMIN ? `<div class="doc-ops">${canEdit() ? `<select class="doc-vis" data-docvis="${d.no}" aria-label="Кто видит">${Object.entries({ hidden: "Только админы", to: "Тайно — получателям", all: "Все игроки" }).map(([k, t]) => `<option value="${k}"${visOf(d) === k ? " selected" : ""}>${t}</option>`).join("")}</select>` : ""}<button type="button" data-workshop="edit-${d.no}">Изменить</button>${canEdit() ? `<label class="doc-mv"><span>В папку</span><select data-docmove="${d.no}"><option value="">Разное</option>${FOLDERS.map(f => `<option value="${esc(f.id)}"${d.folder === f.id ? " selected" : ""}>${esc(f.name)}</option>`).join("")}</select></label>` : ""}<button type="button" class="danger" data-docdel="${d.no}">Удалить</button></div>` : ""}
     </article>`;
 }
 function docsDraw() {
   const box = $("#doclist"); if (!box) return;
-  const list = (DOCLIST || []).filter(d => ADMIN || d.public).sort((a, b) => b.no - a.no);
+  const list = (DOCLIST || []).filter(d => ADMIN || visOf(d) === "all").sort((a, b) => b.no - a.no);
+  myDocsDraw();
   const ids = new Set(FOLDERS.map(f => f.id));
   const shelves = FOLDERS.map(f => [f, list.filter(d => d.folder === f.id)]).concat([[{ id: "", name: "Разное", icon: "scroll" }, list.filter(d => !d.folder || !ids.has(d.folder))]]);
   const shown = shelves.filter(([f, docs]) => docs.length || canEdit());
-  if (!shown.some(([, docs]) => docs.length) && !canEdit()) { box.innerHTML = `<p class="lead">${ADMIN ? "Документов пока нет. Создайте первый в Мастерской." : "Пока мастер не открыл ни одного документа."}</p>`; return; }
+  if (!shown.some(([, docs]) => docs.length) && !canEdit()) { box.innerHTML = `<p class="lead">${ADMIN ? "Документов пока нет. Создайте первый в Мастерской." : (DOCLIST || []).some(mineDoc) ? "Общих документов пока нет." : "Пока мастер не открыл ни одного документа."}</p>`; return; }
   box.innerHTML = shown.map(([f, docs], k) => {
     const closed = shut.has(f.id || "_misc"), real = !!f.id;
     return `<section class="shelf${closed ? " shut" : ""}" data-folder="${esc(f.id)}">
@@ -1605,7 +1680,15 @@ async function moveDoc(no, folder) {
   document.addEventListener("contextmenu", e => { if (canEdit() && e.target.closest && e.target.closest(".shelf .doc")) e.preventDefault(); });
   document.addEventListener("click", e => { if (window._dragDone && Date.now() - window._dragDone < 400 && e.target.closest(".doc")) { e.preventDefault(); e.stopImmediatePropagation(); } }, true);
 })();
-document.addEventListener("change", e => { const t = e.target; if (t.dataset && t.dataset.docmove) moveDoc(t.dataset.docmove, t.value); });
+document.addEventListener("change", e => {
+  const t = e.target; if (!t.dataset) return;
+  if (t.dataset.docmove) moveDoc(t.dataset.docmove, t.value);
+  if (t.dataset.docvis) {
+    const no = +t.dataset.docvis, d = DOCLIST.find(x => x.no === no), was = visOf(d); t.disabled = true;
+    dbSetVis(no, t.value).then(() => { d.vis = t.value; d.public = t.value === "all"; docsDraw(); toast({ hidden: "Скрыт от игроков.", to: "Тайный — только получателям.", all: "Открыт всем игрокам." }[t.value] + " У игроков — примерно через минуту."); })
+      .catch(err => { t.value = was; t.disabled = false; toast("Не получилось: " + err.message); });
+  }
+});
 document.addEventListener("click", e => {
   const t = e.target, b = t.closest && t.closest("[data-shelf],[data-fnew],[data-fedit],[data-fdel],[data-fup],[data-fdown],[data-fic],[data-fsave],[data-fcancel]");
   if (!b) return;
@@ -1635,6 +1718,24 @@ document.addEventListener("click", e => {
     dbFolderMove(id, dir).catch(err => { toast("Не получилось: " + err.message); docsLoad(); });
   }
 });
+/* ---------- VK Bridge: список участников группы (по просьбе Мастерской) ---------- */
+function loadBridge() {
+  if (window.vkBridge) return Promise.resolve(window.vkBridge);
+  const urls = ["https://unpkg.com/@vkontakte/vk-bridge@2.14.1/dist/browser.min.js", "https://cdn.jsdelivr.net/npm/@vkontakte/vk-bridge@2/dist/browser.min.js"];
+  return new Promise((res, rej) => { let i = 0; const next = () => { if (i >= urls.length) return rej(new Error("не загрузилась библиотека ВК")); const sc = document.createElement("script"); sc.src = urls[i++]; sc.onload = () => window.vkBridge ? res(window.vkBridge) : next(); sc.onerror = next; document.head.appendChild(sc); }; next(); });
+}
+const vkErr = err => { if (!err) return "ошибка ВК"; const d = err.error_data || err; const m = d.error_reason && (d.error_reason.error_msg || d.error_reason) || d.error_msg || d.message || err.message; if (/denied|cancel/i.test(JSON.stringify(d))) return "доступ не разрешён — нажмите «Разрешить» в окне ВК"; return typeof m === "string" ? m : JSON.stringify(d).slice(0, 160); };
+async function vkMembers() {
+  const app = +(VK_P.get("vk_app_id") || 0), gid = +(VK_P.get("vk_group_id") || 0);
+  if (!app || !gid) throw new Error("откройте приложение из группы ВК");
+  const b = await loadBridge(); try { await b.send("VKWebAppInit"); } catch (_) {}
+  const t = await b.send("VKWebAppGetAuthToken", { app_id: app, scope: "groups" });
+  const call = (method, params) => b.send("VKWebAppCallAPIMethod", { method, params: Object.assign({ v: "5.199", access_token: t.access_token }, params) }).then(r => r.response);
+  let items = [], off = 0, total = 1;
+  while (off < total) { const r = await call("groups.getMembers", { group_id: gid, offset: off, count: 1000, fields: "photo_100" }); total = r.count; items = items.concat(r.items || []); if (!(r.items || []).length) break; off += 1000; }
+  let managers = []; try { const r = await call("groups.getMembers", { group_id: gid, filter: "managers", count: 1000 }); managers = (r.items || []).map(m => ({ id: m.id, role: m.role })); } catch (_) {}
+  return { members: items.map(u => ({ id: u.id, name: ((u.first_name || "") + " " + (u.last_name || "")).trim() || "id" + u.id, photo: u.photo_100 || "" })), managers };
+}
 /* документ и Мастерская открываются поверх меню, не уходя из приложения */
 function openOverlay(src) { const ov = $("#docov"); ov.innerHTML = `<iframe title="Документ" src="${src}" allow="fullscreen; clipboard-write"></iframe>`; if (!document.documentElement.classList.contains("map-open")) hubScroll = scrollY; ov.hidden = false; document.documentElement.classList.add("map-open"); }
 function closeOverlay() { const ov = $("#docov"); ov.hidden = true; ov.innerHTML = ""; document.documentElement.classList.remove("map-open"); scrollTo(0, hubScroll); if (route === "dokumenty") docsLoad(); if (route === "kvesty" && ADMIN) location.reload(); }
@@ -1652,7 +1753,7 @@ document.addEventListener("click", e => {
   const t = e.target;
   if (t.closest("[data-locked]")) { e.preventDefault(); toast("Этот раздел открыт участникам группы. Вступите в группу и откройте приложение снова."); return; }
   const ws = t.closest("[data-workshop]"); if (ws) { openOverlay(workshopHref(ws.dataset.workshop)); return; }
-  const dc = t.closest("[data-doc]"); if (dc) { openOverlay(workshopHref(dc.dataset.doc)); return; }
+  const dc = t.closest("[data-doc]"); if (dc) { markSeen(dc.dataset.doc); openOverlay(workshopHref(dc.dataset.doc)); setTimeout(myDocsDraw, 500); return; }
   const dd = t.closest("[data-docdel]"); if (dd) {
     if (!ADMIN) return;
     if (!ghCfg().token) { toast("Сначала подключите ключ GitHub в Мастерской."); openOverlay(workshopHref("docs")); return; }
@@ -1660,12 +1761,6 @@ document.addEventListener("click", e => {
     askYes(`Удалить документ №${no} «${d ? d.title : ""}»? Он пропадёт у игроков, ссылка перестанет работать. Это нельзя отменить.`, "Удалить", "Отмена", true).then(ok => { if (!ok) return;
       dd.disabled = true;
       dbDelete(no).then(() => { DOCLIST = DOCLIST.filter(x => x.no !== no); docsDraw(); toast(`Документ №${no} удалён.`); }).catch(err => { dd.disabled = false; toast("Не получилось удалить: " + err.message); }); });
-    return;
-  }
-  const dt = t.closest("[data-doctoggle]"); if (dt) {
-    if (!ghCfg().token) { toast("Сначала подключите ключ GitHub в Мастерской."); openOverlay(workshopHref("docs")); return; }
-    const no = +dt.dataset.doctoggle, d = DOCLIST.find(x => x.no === no); dt.disabled = true;
-    dbSetPublic(no, !d.public).then(() => { d.public = !d.public; docsDraw(); toast(d.public ? "Открыт игрокам. У них появится примерно через минуту." : "Скрыт от игроков."); }).catch(err => { dt.disabled = false; toast("Не получилось: " + err.message); });
     return;
   }
   const home = t.closest("[data-home]"); if (home) { e.preventDefault(); history.pushState(null, "", location.pathname + KEEP); render(); scrollTo(0, 0); return; }

@@ -82,7 +82,7 @@ body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-a
 .f2 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; }
 .fld label { display: block; margin-bottom: 4px; font: 700 13px/1.3 var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); }
 .fld small { display: block; margin-top: 3px; font: italic 500 14.5px/1.35 var(--font-body); color: var(--text-muted); }
-input[type=text], input[type=url], textarea, select { width: 100%; padding: 9px 11px; border: 1px solid rgba(111,85,50,.5); border-radius: 3px; background: rgba(255,252,240,.7); color: var(--text-ink); font: 500 17px/1.4 var(--font-body); }
+input[type=text], input[type=url], input[type=search], textarea, select { width: 100%; padding: 9px 11px; border: 1px solid rgba(111,85,50,.5); border-radius: 3px; background: rgba(255,252,240,.7); color: var(--text-ink); font: 500 17px/1.4 var(--font-body); }
 textarea { resize: vertical; min-height: 86px; }
 input:focus, textarea:focus, select:focus { outline: 2px solid var(--gold); outline-offset: 0; border-color: var(--gold); }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
@@ -300,6 +300,34 @@ html.shared #app, html.shared .bg { display: none; }
 .qa-ops { margin-top: 8px; } .qa-ops .btn, .qa-form .btn { padding: 7px 12px; font-size: 14.5px; }
 .qa-form { margin-top: 10px; } .qa-form label { display: block; margin-bottom: 4px; font: 700 13px/1.3 var(--font-display); letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); } .qa-form .actions { margin-top: 8px; }
 .qa-card.old { opacity: .8; }
+.dstat.v-to { background: #5a1a14; color: #f3d9cf; } .dstat.v-all { background: #3f5a2c; color: #eef3df; }
+.vis-seg button { font-size: 14px; }
+.vis-seg button[data-pubvis="to"][aria-pressed="true"] { background: #5a1a14; border-color: #5a1a14; color: #f6dcd2; }
+.vis-seg button[data-pubvis="all"][aria-pressed="true"] { background: #3f5a2c; border-color: #3f5a2c; color: #eef3df; }
+.to-pick { position: relative; }
+.to-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 6px; }
+.to-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 4px 3px 4px; border: 1px solid rgba(111,85,50,.45); border-radius: 999px; background: rgba(255,252,240,.8); font: 600 14.5px/1.2 var(--font-body); }
+.to-chip img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
+.to-chip button { width: 20px; height: 20px; border: 0; border-radius: 50%; background: rgba(111,85,50,.18); color: var(--text-ink); cursor: pointer; line-height: 1; }
+.to-none { font: italic 500 15px var(--font-body); color: var(--text-muted); }
+.to-res { display: grid; gap: 2px; margin-top: 4px; }
+.to-res button { display: flex; align-items: center; gap: 8px; padding: 5px 8px; border: 1px solid transparent; border-radius: 4px; background: rgba(255,252,240,.6); color: var(--text-ink); text-align: left; cursor: pointer; font: 600 15px/1.2 var(--font-body); }
+.to-res button:hover { border-color: rgba(111,85,50,.4); background: #fffaf0; }
+.to-res img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; }
+.to-res i { margin-left: auto; font: italic 600 12.5px var(--font-body); color: #3f5a2c; }
+.to-res p { margin: 4px 0; font-style: italic; color: var(--text-muted); }
+.dvis select { width: auto; padding: 4px 6px; font-size: 13.5px; }
+.pl-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 14px; }
+.pl-top small { flex: 1 1 260px; font: italic 500 15px/1.35 var(--font-body); color: var(--text-muted); }
+.pl-bar { display: grid; gap: 8px; margin-bottom: 10px; } .pl-bar .filters { margin: 0; }
+.pl-row { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto minmax(120px, 200px); align-items: center; gap: 10px; padding: 7px 10px; border-bottom: 1px dotted rgba(111,85,50,.35); }
+.pl-row img, .pl-ava { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: rgba(111,85,50,.2); }
+.pl-who a { font: 700 17px/1.2 var(--font-display); color: var(--text-ink); text-decoration: none; } .pl-who a:hover { text-decoration: underline; }
+.pl-role { display: inline-block; margin-left: 6px; padding: 1px 7px 2px; border-radius: 999px; background: rgba(111,85,50,.18); font: 700 12.5px/1.3 var(--font-body); color: var(--text-muted); vertical-align: 2px; }
+.pl-role.r-creator, .pl-role.r-administrator { background: var(--blood); color: #f6e7c2; } .pl-role.r-editor { background: var(--leather); color: var(--gold-hi); }
+.pl-play { font-size: 15px; } .pl-char { padding: 6px 8px; font-size: 15px; }
+.pl-row.left { opacity: .55; }
+@media (max-width: 640px) { .pl-row { grid-template-columns: 36px 1fr auto; } .pl-char { grid-column: 2 / -1; } }
 </style>
 </head>
 <body>
@@ -706,7 +734,20 @@ async function dbAdopt() {
   for (const n of missing) { try { const { data } = await ghRead(c, `docs/${n}.json`); if (data) add.push({ no: n, kind: data.kind, title: data.title || "Документ", note: data.note || "", public: false, created: "", updated: "" }); } catch (_) {} }
   if (add.length) await dbUpdate(docs => { add.forEach(a => { if (!docs.some(d => d.no === a.no)) docs.push(a); }); docs.sort((a, b) => a.no - b.no); }, "Документы: добавлены в список");
 }
-async function dbSetPublic(no, pub) {
+/* Видимость документа: hidden — только админы, to — тайный, только получателям, all — всем игрокам */
+const VIS_NAMES = { hidden: "скрыт", to: "тайный", all: "открыт всем" };
+const visOf = d => d && (d.vis || (d.public ? "all" : "hidden"));
+const VK_ME = +(VK_P.get("vk_user_id") || 0);
+const mineDoc = d => !!VK_ME && (d.to || []).includes(VK_ME) && visOf(d) !== "hidden";
+const canSee = d => !!d && (visOf(d) === "all" || mineDoc(d));
+async function dbSetVis(no, vis) {
+  return dbUpdate(docs => { const d = docs.find(x => x.no === +no); if (d) { d.vis = vis; d.public = vis === "all"; } }, `Документ №${no}: ${VIS_NAMES[vis]}`);
+}
+async function dbSetTo(no, to) {
+  return dbUpdate(docs => { const d = docs.find(x => x.no === +no); if (d) d.to = to.slice(); }, `Документ №${no}: получатели`);
+}
+async function dbSetPublic(no, pub) { return dbSetVis(no, pub ? "all" : "hidden"); }
+async function dbSetPublicOld(no, pub) {
   return dbUpdate(docs => { const d = docs.find(x => x.no === +no); if (d) d.public = pub; }, `Документ №${no}: ${pub ? "открыт игрокам" : "скрыт"}`);
 }
 const dbToday = () => new Date().toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
@@ -775,6 +816,28 @@ function applyQuestStates(st) {
   }
   return changed;
 }
+
+/* ---------- ИГРОКИ: участники группы ВК (docs/players.json) ----------
+   list: [{ id, name, photo, role: creator|administrator|editor|moderator|member, play, char, left }] */
+const ROLE_NAMES = { creator: "Создатель", administrator: "Админ", editor: "Редактор", moderator: "Модератор", member: "Участник" };
+async function plLoad(fresh) {
+  const c = ghCfg();
+  if (fresh && c.token) { const { data } = await ghRead(c, "docs/players.json"); return data || { list: [] }; }
+  try { const r = await fetch("docs/players.json?t=" + Date.now(), { cache: "no-store" }); if (r.ok) return await r.json(); } catch (_) {}
+  return { list: [] };
+}
+async function plUpdate(mutate, message) {
+  const c = ghCfg();
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const { data, sha } = await ghRead(c, "docs/players.json");
+    const P = data || { list: [] }; if (!P.list) P.list = [];
+    mutate(P);
+    try { await ghWrite(c, "docs/players.json", P, sha, message); return P; }
+    catch (e) { if (e.status !== 409 && e.status !== 422) throw e; }
+  }
+  throw new Error("Список игроков менялся одновременно с вами. Попробуйте ещё раз.");
+}
+const plName = p => p ? (p.char ? `${p.char} (${p.name})` : p.name) : "";
 
 
 /* =====================================================================
@@ -1893,8 +1956,9 @@ let BKShared = null;
    ===================================================================== */
 const siteBase = () => location.href.split("#")[0].split("?")[0].replace(/[^/]*$/, "");
 const shortUrl = n => siteBase() + "#" + n;
-const META = ["pubNo", "docTitle", "note", "isPublic", "folder"];
-let WFOLDERS = [];
+const META = ["pubNo", "docTitle", "note", "isPublic", "folder", "vis", "to"];
+let WFOLDERS = [], WPLAYERS = [];
+const hVis = h => h.vis || (h.isPublic ? "all" : "hidden");
 const PUB = {
   pisma:  () => ({ kind: "pismo",  auto: LW.sign ? "Письмо: " + LW.sign : "Письмо", data: LW, holder: LW }),
   kniga:  () => ({ kind: "kniga",  auto: BK.title || "Книга", data: BK, holder: BK }),
@@ -1919,17 +1983,37 @@ function ghSetHTML() {
 function pubHTML(tool) {
   const d = PUB[tool](), h = d.holder, no = h.pubNo, tok = !!ghCfg().token;
   return `<div class="pub" data-pub="${tool}">
-    <h4 class="pub-h">${no ? `Документ №${no} <span class="dstat${h.isPublic ? " on" : ""}">${h.isPublic ? "открыт игрокам" : "скрыт от игроков"}</span>` : "Новый документ"}</h4>
+    <h4 class="pub-h">${no ? `Документ №${no} <span class="dstat v-${hVis(h)}">${VIS_NAMES[hVis(h)]}</span>` : "Новый документ"}</h4>
     <div class="fld"><label>Название в списке документов</label><input type="text" data-dmeta="docTitle" value="${esc(h.docTitle || "")}" placeholder="${esc(d.auto)}"></div>
     <div class="fld"><label>Сводка для игроков</label><textarea data-dmeta="note" rows="3" placeholder="При каких обстоятельствах и кем получено. Например: найдено у курьера на тракте к Кальдерону; досталось Эрику и Лире.">${esc(h.note || "")}</textarea><small>Видна в списке документов, но не внутри самого документа.</small></div>
+    <div class="fld"><label>Кто видит</label><div class="lw-seg vis-seg">${[["hidden", "Только админы"], ["to", "Тайно — получателям"], ["all", "Все игроки"]].map(([k, t]) => `<button type="button" data-pubvis="${k}" aria-pressed="${hVis(h) === k}">${t}</button>`).join("")}</div>
+      <small>${{ hidden: "Документ скрыт: его видят только админы и редакторы.", to: "Документ увидят только отмеченные ниже игроки — в «Моих документах», с пометкой «Тайно».", all: "Документ лежит в общих «Документах». Отмеченные ниже получатели увидят его ещё и в «Моих документах»." }[hVis(h)]}</small></div>
+    <div class="fld"><label>Кому выдан</label>${toPickHTML(h)}</div>
     <div class="fld"><label>Папка</label><select data-dmeta="folder"><option value="">Разное</option>${WFOLDERS.map(f => `<option value="${esc(f.id)}"${h.folder === f.id ? " selected" : ""}>${esc(f.name)}</option>`).join("")}</select></div>
     <div class="actions">${no
-      ? `<button type="button" class="btn" data-pubgo="update">Сохранить изменения</button><button type="button" class="btn ghost" data-pubtoggle>${h.isPublic ? "Скрыть от игроков" : "Открыть игрокам"}</button><button type="button" class="btn ghost" data-pubshow="${no}">Ссылка</button><button type="button" class="btn ghost danger" data-pubdel>Удалить</button>`
+      ? `<button type="button" class="btn" data-pubgo="update">Сохранить изменения</button><button type="button" class="btn ghost" data-pubshow="${no}">Ссылка</button><button type="button" class="btn ghost danger" data-pubdel>Удалить</button>`
       : `<button type="button" class="btn" data-pubgo="new"${tok ? "" : " disabled"}>Создать документ</button>`}</div>
-    ${no ? `<button type="button" class="pub-long" data-pubgo="new">Сохранить копией под новым номером</button>` : `<small class="pub-note">Документ получит номер и ссылку, но останется скрытым. Открыть его игрокам можно одной кнопкой — здесь или в главном меню, раздел «Документы».</small>`}
+    ${no ? `<button type="button" class="pub-long" data-pubgo="new">Сохранить копией под новым номером</button>` : `<small class="pub-note">Документ получит номер и ссылку. Кто его видит — выбирается выше и меняется в любой момент.</small>`}
     <div class="pub-out" hidden><div class="pub-row"><input type="text" readonly aria-label="Ссылка на документ"><button type="button" class="btn ghost" data-pubcopy>Копировать</button></div><small class="pub-msg"></small></div>
     ${tok ? "" : ghSetHTML()}
   </div>`;
+}
+/* выбор получателей из списка игроков (Мастерская → Игроки) */
+const plById = id => WPLAYERS.find(p => p.id === +id);
+function toPickHTML(h) {
+  const to = h.to || [];
+  return `<div class="to-pick"><div class="to-chips">${to.length ? to.map(id => { const p = plById(id); return `<span class="to-chip">${p && p.photo ? `<img src="${esc(p.photo)}" alt="">` : ""}${esc(p ? plName(p) : "id" + id)}<button type="button" data-torm="${id}" aria-label="Убрать">×</button></span>`; }).join("") : `<span class="to-none">никому</span>`}</div>
+    <input type="text" data-tosearch placeholder="${WPLAYERS.length ? "Найти игрока по имени или персонажу…" : "Сначала загрузите участников: Мастерская → Игроки"}"${WPLAYERS.length ? "" : " disabled"} autocomplete="off"><div class="to-res"></div></div>`;
+}
+function toResults(box, q) {
+  const h = PUB[box.dataset.pub]().holder, to = new Set(h.to || []); q = q.trim().toLowerCase();
+  const list = WPLAYERS.filter(p => !p.left && !to.has(p.id) && (!q || (p.name + " " + (p.char || "")).toLowerCase().includes(q)))
+    .sort((a, b) => (b.play ? 1 : 0) - (a.play ? 1 : 0) || a.name.localeCompare(b.name, "ru")).slice(0, 8);
+  box.querySelector(".to-res").innerHTML = list.map(p => `<button type="button" data-toadd="${p.id}">${p.photo ? `<img src="${esc(p.photo)}" alt="">` : ""}<span>${esc(plName(p))}</span>${p.play ? `<i>играет</i>` : ""}</button>`).join("") || (q ? `<p>Никого не нашлось</p>` : "");
+}
+async function toChange(tool, to) {
+  const h = PUB[tool]().holder; h.to = to; pubSave(tool); pubRedraw(tool);
+  if (h.pubNo && ghCfg().token) { try { await dbSetTo(h.pubNo, to); toast("Получатели сохранены."); } catch (err) { toast("Не получилось: " + err.message); } }
 }
 const pubBox = el => el.closest(".pub");
 function pubSay(box, url, msg) {
@@ -1951,9 +2035,10 @@ function pubSync(tool) {
   dbIndex(true).then(ix => {
     const fchg = JSON.stringify(ix.folders) !== JSON.stringify(WFOLDERS); WFOLDERS = ix.folders;
     const e = h.pubNo && ix.docs.find(x => x.no === h.pubNo);
-    if (e) { h.isPublic = !!e.public; h.folder = e.folder || ""; pubSave(tool); }
+    if (e) { h.vis = visOf(e); h.isPublic = h.vis === "all"; h.to = e.to || []; h.folder = e.folder || ""; pubSave(tool); }
     if (fchg || e) pubRedraw(tool);
   }).catch(() => {});
+  plLoad(true).then(P => { WPLAYERS = P.list || []; pubRedraw(tool); }).catch(() => {});
 }
 async function publish(tool, mode, btn) {
   const box = pubBox(btn), d = PUB[tool](), c = ghCfg(), h = d.holder;
@@ -1967,27 +2052,38 @@ async function publish(tool, mode, btn) {
       no = h.pubNo;
       const { sha } = await ghRead(c, `docs/${no}.json`);
       await ghWrite(c, `docs/${no}.json`, doc, sha, `Документ №${no}: ${title}`);
-      await dbUpdate(docs => { let e = docs.find(x => x.no === no); if (!e) { e = { no, public: false, created: dbToday() }; docs.push(e); } Object.assign(e, { kind: d.kind, title, note, updated: dbToday() }); if (h.folder) e.folder = h.folder; else delete e.folder; h.isPublic = !!e.public; }, `Документ №${no}: ${title}`);
+      await dbUpdate(docs => { let e = docs.find(x => x.no === no); if (!e) { e = { no, public: false, created: dbToday() }; docs.push(e); } Object.assign(e, { kind: d.kind, title, note, updated: dbToday(), to: (h.to || []).slice() }); if (h.folder) e.folder = h.folder; else delete e.folder; h.vis = visOf(e); h.isPublic = h.vis === "all"; }, `Документ №${no}: ${title}`);
     } else {
       no = await dbUpdate(async docs => {
         let max = docs.reduce((m, x) => Math.max(m, x.no), 0);
         const r = await ghApi(c, "docs"); if (r.ok) (await r.json()).forEach(f => { const m = /^(\d+)\.json$/.exec(f.name); if (m) max = Math.max(max, +m[1]); });
-        const n = max + 1; docs.push(Object.assign({ no: n, kind: d.kind, title, note, public: false, created: dbToday(), updated: dbToday() }, h.folder ? { folder: h.folder } : {})); docs.sort((a, b) => a.no - b.no); return n;
+        const n = max + 1; docs.push(Object.assign({ no: n, kind: d.kind, title, note, vis: hVis(h), public: hVis(h) === "all", to: (h.to || []).slice(), created: dbToday(), updated: dbToday() }, h.folder ? { folder: h.folder } : {})); docs.sort((a, b) => a.no - b.no); return n;
       }, `Новый документ: ${title}`);
       await ghWrite(c, `docs/${no}.json`, doc, null, `Документ №${no}: ${title}`);
-      h.isPublic = false;
     }
     h.pubNo = no; pubSave(tool); pubRedraw(tool, false);
     const nb = document.querySelector(`.pub[data-pub="${tool}"]`);
-    pubSay(nb, shortUrl(no), mode === "update" ? `Изменения сохранены. Игроки увидят их примерно через минуту.` : `Создан документ №${no}. Пока он скрыт — нажмите «Открыть игрокам», когда придёт время.`);
+    pubSay(nb, shortUrl(no), mode === "update" ? `Изменения сохранены. Игроки увидят их примерно через минуту.` : `Создан документ №${no} — ${{ hidden: "пока скрыт от игроков", to: "тайный, его увидят только получатели", all: "открыт всем игрокам" }[hVis(h)]}.`);
   } catch (err) { btn.disabled = false; btn.textContent = label; pubSay(box, null, "Не получилось: " + (err.message || "нет связи с GitHub")); }
 }
-async function pubToggle(tool, btn) {
-  const box = pubBox(btn), h = PUB[tool]().holder; btn.disabled = true;
-  try { await dbSetPublic(h.pubNo, !h.isPublic); h.isPublic = !h.isPublic; pubSave(tool); pubRedraw(tool, false);
-    pubSay(document.querySelector(`.pub[data-pub="${tool}"]`), shortUrl(h.pubNo), h.isPublic ? "Открыт игрокам. В разделе «Документы» появится примерно через минуту." : "Скрыт. Игроки перестанут его видеть примерно через минуту.");
-  } catch (err) { btn.disabled = false; pubSay(box, null, "Не получилось: " + err.message); }
+async function pubVis(tool, vis, btn) {
+  const box = pubBox(btn), h = PUB[tool]().holder, was = hVis(h);
+  if (vis === was) return;
+  if (vis === "to" && !(h.to || []).length) toast("Не забудьте отметить, кому выдан документ.");
+  h.vis = vis; h.isPublic = vis === "all"; pubSave(tool); pubRedraw(tool, false);
+  if (!h.pubNo) return;
+  try { await dbSetVis(h.pubNo, vis);
+    pubSay(document.querySelector(`.pub[data-pub="${tool}"]`), shortUrl(h.pubNo), { hidden: "Скрыт. Игроки перестанут его видеть примерно через минуту.", to: "Тайный: виден только получателям в «Моих документах» — примерно через минуту.", all: "Открыт всем игрокам — в «Документах» примерно через минуту." }[vis]);
+  } catch (err) { h.vis = was; h.isPublic = was === "all"; pubSave(tool); pubRedraw(tool, false); toast("Не получилось: " + err.message); }
 }
+document.addEventListener("input", e => { const t = e.target; if (t.hasAttribute && t.hasAttribute("data-tosearch")) toResults(pubBox(t), t.value); });
+document.addEventListener("focusin", e => { const t = e.target; if (t.hasAttribute && t.hasAttribute("data-tosearch")) toResults(pubBox(t), t.value); });
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-toadd],[data-torm]"); if (!b) return;
+  const box = pubBox(b), tool = box.dataset.pub, h = PUB[tool]().holder, to = (h.to || []).slice();
+  if (b.dataset.toadd) { const id = +b.dataset.toadd; if (!to.includes(id)) to.push(id); toChange(tool, to).then(() => { const i = document.querySelector(`.pub[data-pub="${tool}"] [data-tosearch]`); if (i) i.focus(); }); }
+  else toChange(tool, to.filter(x => x !== +b.dataset.torm));
+});
 document.addEventListener("input", e => {
   const t = e.target; if (!t.dataset || !t.dataset.dmeta) return;
   const box = pubBox(t), tool = box.dataset.pub; PUB[tool]().holder[t.dataset.dmeta] = t.value; pubSave(tool);
@@ -1996,20 +2092,20 @@ document.addEventListener("input", e => {
 });
 const copyText = (txt, ok) => navigator.clipboard.writeText(txt).then(() => toast(ok || "Скопировано."), () => toast(txt));
 document.addEventListener("click", e => {
-  const b = e.target.closest && e.target.closest("[data-pubgo],[data-pubtoggle],[data-pubdel],[data-pubcopy],[data-pubshow],[data-ghsave],[data-ghforget]");
+  const b = e.target.closest && e.target.closest("[data-pubgo],[data-pubvis],[data-pubdel],[data-pubcopy],[data-pubshow],[data-ghsave],[data-ghforget]");
   if (!b) return;
   const box = pubBox(b), tool = box && box.dataset.pub;
   if (b.dataset.pubgo) return publish(tool, b.dataset.pubgo, b);
-  if (b.hasAttribute("data-pubtoggle")) return pubToggle(tool, b);
+  if (b.dataset.pubvis) return pubVis(tool, b.dataset.pubvis, b);
   if (b.hasAttribute("data-pubdel")) {
     const h = PUB[tool]().holder, no = h.pubNo;
     askYes(`Удалить документ №${no} «${docTitleOf(PUB[tool]())}»? Он пропадёт у игроков, ссылка перестанет работать. Текст останется здесь как черновик.`, "Удалить", "Отмена", true).then(ok => { if (!ok) return;
     b.disabled = true;
-    dbDelete(no).then(() => { delete h.pubNo; h.isPublic = false; pubSave(tool); pubRedraw(tool, false); toast(`Документ №${no} удалён. Текст остался черновиком — его можно создать заново под новым номером.`); })
+    dbDelete(no).then(() => { delete h.pubNo; h.isPublic = false; h.vis = "hidden"; pubSave(tool); pubRedraw(tool, false); toast(`Документ №${no} удалён. Текст остался черновиком — его можно создать заново под новым номером.`); })
       .catch(err => { b.disabled = false; pubSay(box, null, "Не получилось удалить: " + err.message); }); });
     return;
   }
-  if (b.dataset.pubshow) { pubSay(box, shortUrl(b.dataset.pubshow), PUB[tool]().holder.isPublic ? "Ссылку можно отправлять игрокам." : "Документ скрыт: по ссылке его увидят только администраторы."); return; }
+  if (b.dataset.pubshow) { pubSay(box, shortUrl(b.dataset.pubshow), { hidden: "Документ скрыт: по ссылке его увидят только администраторы.", to: "Тайный документ: по ссылке он откроется только у получателей.", all: "Ссылку можно отправлять игрокам." }[hVis(PUB[tool]().holder)]); return; }
   if (b.hasAttribute("data-pubcopy")) { copyText(box.querySelector(".pub-out input").value); return; }
   if (b.hasAttribute("data-ghsave") || b.hasAttribute("data-ghforget")) {
     const gb = b.closest("[data-ghbox]"), c = ghCfg(); gb.querySelectorAll("[data-gh]").forEach(i => c[i.dataset.gh] = i.value.trim());
@@ -2034,10 +2130,10 @@ function docsHTML() {
 let DOCS = [];
 function docCard(d) {
   return `<article class="dcard" data-no="${d.no}">
-    <header><span class="dno">№${d.no}</span><span class="dkind">${esc(DOC_KINDS[d.kind] || "Документ")}${(WFOLDERS.find(f => f.id === d.folder) || {}).name ? " · " + esc(WFOLDERS.find(f => f.id === d.folder).name) : ""}</span><span class="dstat${d.public ? " on" : ""}">${d.public ? "открыт" : "скрыт"}</span></header>
+    <header><span class="dno">№${d.no}</span><span class="dkind">${esc(DOC_KINDS[d.kind] || "Документ")}${(WFOLDERS.find(f => f.id === d.folder) || {}).name ? " · " + esc(WFOLDERS.find(f => f.id === d.folder).name) : ""}</span><span class="dstat v-${visOf(d)}">${VIS_NAMES[visOf(d)]}${visOf(d) !== "hidden" && (d.to || []).length ? ` · ${d.to.length} получ.` : ""}</span></header>
     <h4>${esc(d.title || "Без названия")}</h4>${d.note ? `<p>${esc(d.note)}</p>` : ""}
     ${d.updated || d.created ? `<small>${esc(d.updated || d.created)}</small>` : ""}
-    <div class="dbtns"><button type="button" data-dopen="${d.no}">Открыть</button><button type="button" data-dedit="${d.no}">Изменить</button><button type="button" data-dtoggle="${d.no}">${d.public ? "Скрыть" : "Открыть игрокам"}</button><button type="button" data-dlink="${d.no}">Ссылка</button><button type="button" class="danger" data-ddel="${d.no}">Удалить</button></div>
+    <div class="dbtns"><button type="button" data-dopen="${d.no}">Открыть</button><button type="button" data-dedit="${d.no}">Изменить</button><label class="dvis"><select data-dvis="${d.no}" aria-label="Кто видит">${Object.entries({ hidden: "Только админы", to: "Тайно — получателям", all: "Все игроки" }).map(([k, t]) => `<option value="${k}"${visOf(d) === k ? " selected" : ""}>${t}</option>`).join("")}</select></label><button type="button" data-dlink="${d.no}">Ссылка</button><button type="button" class="danger" data-ddel="${d.no}">Удалить</button></div>
   </article>`;
 }
 function docsDraw() {
@@ -2066,7 +2162,7 @@ const draftDirty = tool => {
   return STK.sheets.some(s => ownText(s.body));
 };
 document.addEventListener("click", async e => {
-  const b = e.target.closest && e.target.closest("[data-newdoc],[data-newkind],[data-dopen],[data-dedit],[data-dtoggle],[data-dlink],[data-ddel]");
+  const b = e.target.closest && e.target.closest("[data-newdoc],[data-newkind],[data-dopen],[data-dedit],[data-dlink],[data-ddel]");
   if (!b) return;
   if (b.hasAttribute("data-newdoc")) { const k = b.parentElement.querySelector(".dl-kinds"); k.hidden = !k.hidden; return; }
   if (b.dataset.newkind) {
@@ -2074,7 +2170,7 @@ document.addEventListener("click", async e => {
     if (draftDirty(tool) && !(await askYes("Несохранённый черновик в этом редакторе будет заменён новым документом. Продолжить?", "Продолжить"))) return;
     newDocState(tool); location.hash = tool; return;
   }
-  const no = +(b.dataset.dopen || b.dataset.dedit || b.dataset.dtoggle || b.dataset.dlink || b.dataset.ddel);
+  const no = +(b.dataset.dopen || b.dataset.dedit || b.dataset.dlink || b.dataset.ddel);
   if (b.dataset.ddel) {
     const d = DOCS.find(x => x.no === no);
     if (!(await askYes(`Удалить документ №${no} «${d ? d.title : ""}»? Он пропадёт у игроков, ссылка перестанет работать. Это нельзя отменить.`, "Удалить", "Отмена", true))) return;
@@ -2085,13 +2181,7 @@ document.addEventListener("click", async e => {
     return;
   }
   if (b.dataset.dopen) { location.hash = String(no); return; }
-  if (b.dataset.dlink) { const d = DOCS.find(x => x.no === no); copyText(shortUrl(no), d && d.public ? "Ссылка скопирована." : "Ссылка скопирована. Документ скрыт — игроки его пока не увидят."); return; }
-  if (b.dataset.dtoggle) {
-    const d = DOCS.find(x => x.no === no); b.disabled = true;
-    try { await dbSetPublic(no, !d.public); d.public = !d.public; docsDraw(); toast(d.public ? "Открыт игрокам — появится в меню примерно через минуту." : "Скрыт от игроков."); }
-    catch (err) { b.disabled = false; toast("Не получилось: " + err.message); }
-    return;
-  }
+  if (b.dataset.dlink) { const d = DOCS.find(x => x.no === no); copyText(shortUrl(no), d && visOf(d) === "all" ? "Ссылка скопирована." : "Ссылка скопирована. Документ скрыт — игроки его пока не увидят."); return; }
   if (b.dataset.dedit) editDoc(no, b);
 });
 
@@ -2101,7 +2191,7 @@ async function editDoc(no, b) {
     if (!DOCS.length) DOCS = await dbList(true);
     const { data } = await ghRead(ghCfg(), `docs/${no}.json`); if (!data) throw new Error("файл не найден");
     const ent = DOCS.find(x => x.no === no) || {}, tool = KIND_TOOL[data.kind];
-    const meta = { pubNo: no, docTitle: ent.title || data.title || "", note: ent.note != null ? ent.note : (data.note || ""), isPublic: !!ent.public, folder: ent.folder || "" };
+    const meta = { pubNo: no, docTitle: ent.title || data.title || "", note: ent.note != null ? ent.note : (data.note || ""), isPublic: visOf(ent) === "all", vis: visOf(ent) || "hidden", to: ent.to || [], folder: ent.folder || "" };
     if (draftDirty(tool) && !(await askYes("Несохранённый черновик в этом редакторе будет заменён. Продолжить?", "Продолжить"))) { if (b) b.disabled = false; location.hash = "docs"; return; }
     if (tool === "pisma") { const h = lwHost; lwHost = null; LW = Object.assign({}, LW_BASE, data.data, meta); lwSave(); lwHost = h; }
     if (tool === "kniga") { BK = Object.assign({}, data.data, meta); bkFocus = 0; bkSave(); }
@@ -2118,13 +2208,13 @@ async function wsOpenNumber(no) {
   const host = wsViewer("Документ №" + no, closable); host.innerHTML = `<p class="ws-bad">Открываю…</p>`;
   try {
     const list = await dbList(admin && !!c.token), ent = list.find(x => x.no === +no);
-    if (!admin && (!ent || !ent.public)) { host.innerHTML = `<p class="ws-bad">${ent ? "Этот документ пока скрыт мастером." : `Документ №${esc(no)} не найден или ещё скрыт. Если мастер только что его открыл — подождите минуту и обновите страницу.`}</p>`; return; }
+    if (!admin && !canSee(ent)) { host.innerHTML = `<p class="ws-bad">${ent ? (visOf(ent) === "to" ? "Это тайный документ. Он открывается только у тех, кому его выдали — откройте его из приложения ВК, раздел «Документы»." : "Этот документ пока скрыт мастером.") : `Документ №${esc(no)} не найден или ещё скрыт. Если мастер только что его открыл — подождите минуту и обновите страницу.`}</p>`; return; }
     let doc = null;
     if (admin && c.token) doc = (await ghRead(c, `docs/${no}.json`)).data;
     else { const r = await fetch("docs/" + no + ".json?t=" + Date.now(), { cache: "no-store" }); if (r.ok) doc = await r.json(); }
     if (!doc) throw 0;
     const title = (ent && ent.title) || doc.title || "Документ", note = ent ? ent.note : doc.note;
-    const h = wsViewer(title + (admin && ent && !ent.public ? " · скрыт" : ""), closable, note);
+    const h = wsViewer(title + (ent && visOf(ent) === "to" ? " · тайно" : admin && ent && visOf(ent) === "hidden" ? " · скрыт" : ""), closable, note);
     if (doc.kind === "kniga") bookView(h, doc.data, { full: true });
     else if (doc.kind === "stopka") stackView(h, doc.data.sheets || []);
     else stackView(h, [doc.data]);
@@ -2132,6 +2222,14 @@ async function wsOpenNumber(no) {
   } catch (_) { host.innerHTML = `<p class="ws-bad">Документ №${esc(no)} не найден. Если мастер только что его создал — подождите минуту и обновите страницу.</p>`; }
 }
 lwExtra = () => pubHTML("pisma");
+
+document.addEventListener("change", async e => {
+  const t = e.target; if (!t.dataset || !t.dataset.dvis) return;
+  const no = +t.dataset.dvis, d = DOCS.find(x => x.no === no), was = visOf(d); t.disabled = true;
+  try { await dbSetVis(no, t.value); d.vis = t.value; d.public = t.value === "all"; docsDraw(); toast({ hidden: "Скрыт от игроков.", to: "Тайный — виден только получателям.", all: "Открыт всем игрокам." }[t.value] + " У игроков — примерно через минуту.");
+    ["pisma", "kniga", "stopka"].forEach(k => { const h = PUB[k]().holder; if (h.pubNo === no) { h.vis = t.value; h.isPublic = t.value === "all"; pubSave(k); } }); }
+  catch (err) { t.value = was; t.disabled = false; toast("Не получилось: " + err.message); }
+});
 
 /* =====================================================================
    КВЕСТЫ В МАСТЕРСКОЙ: свободен / занят / завершён + итоги.
@@ -2199,6 +2297,91 @@ document.addEventListener("click", e => {
   }
 });
 
+/* =====================================================================
+   ИГРОКИ: участники группы ВК, их роли в группе (только для учёта),
+   отметка «играет» и имя персонажа. Этот список используется при выдаче документов.
+   Загрузка участников идёт через само приложение ВК (VK Bridge в главном меню).
+   ===================================================================== */
+let PL = { list: [] }, plFilter = "all", plQuery = "";
+const plTimers = {};
+function playersHTML() {
+  const inVK = window.parent !== window && VK_P.has("vk_app_id");
+  return `<div class="pl wide">
+    <p class="lw-lead">Участники группы ВК. Отметьте, кто играет, и подпишите персонажа — тогда при выдаче документа их легко найти. Роли в группе показаны только для учёта, менять их здесь нельзя.</p>
+    <div class="pl-top">
+      <button type="button" class="btn" data-plload${inVK ? "" : " disabled"}>Загрузить участников группы</button>
+      <small id="pl-upd">${inVK ? "Нажимать может админ группы — ВК один раз спросит разрешение." : "Кнопка работает только внутри приложения ВК: главное меню → «Документы» → «Мастерская»."}</small>
+    </div>
+    <div class="pl-bar">
+      <input type="search" id="pl-q" placeholder="Поиск по имени или персонажу" value="${esc(plQuery)}">
+      <div class="filters">${[["all", "Все"], ["play", "Играют"], ["staff", "Руководство"], ["left", "Вышли"]].map(([k, t]) => `<button type="button" class="chip" data-plf="${k}" aria-pressed="${plFilter === k}">${t}<span data-plc="${k}"></span></button>`).join("")}</div>
+    </div>
+    <div id="pl-list"><p class="lw-lead">Загружаю список…</p></div>
+    ${ghCfg().token ? "" : `<p class="lw-lead">Чтобы сохранять список, подключите ключ GitHub:</p>${ghSetHTML()}`}
+  </div>`;
+}
+const isStaff = p => p.role && p.role !== "member";
+function plDraw() {
+  const box = $("#pl-list"); if (!box) return;
+  const L = PL.list || [], q = plQuery.trim().toLowerCase();
+  const f = { all: p => !p.left, play: p => p.play && !p.left, staff: p => isStaff(p) && !p.left, left: p => p.left };
+  document.querySelectorAll("[data-plc]").forEach(s => s.textContent = L.filter(f[s.dataset.plc]).length);
+  const rank = { creator: 0, administrator: 1, editor: 2, moderator: 3 };
+  const list = L.filter(f[plFilter]).filter(p => !q || (p.name + " " + (p.char || "")).toLowerCase().includes(q))
+    .sort((a, b) => (rank[a.role] ?? 9) - (rank[b.role] ?? 9) || (b.play ? 1 : 0) - (a.play ? 1 : 0) || a.name.localeCompare(b.name, "ru"));
+  const up = $("#pl-upd"); if (up && PL.updated) up.textContent = `Последняя загрузка: ${PL.updated}. В группе ${L.filter(p => !p.left).length} чел.`;
+  if (!L.length) { box.innerHTML = `<p class="lw-lead">Список пуст. Откройте Мастерскую из приложения ВК и нажмите «Загрузить участников группы».</p>`; return; }
+  box.innerHTML = list.length ? list.map(p => `<div class="pl-row${p.left ? " left" : ""}" data-pid="${p.id}">
+      ${p.photo ? `<img src="${esc(p.photo)}" alt="" loading="lazy">` : `<span class="pl-ava"></span>`}
+      <div class="pl-who"><a href="https://vk.com/id${p.id}" target="_blank" rel="noopener">${esc(p.name)}</a>${isStaff(p) ? `<span class="pl-role r-${p.role}">${ROLE_NAMES[p.role]}</span>` : ""}${p.left ? `<span class="pl-role">вышел из группы</span>` : ""}</div>
+      <label class="lw-chk pl-play"><input type="checkbox" data-plplay="${p.id}"${p.play ? " checked" : ""}> играет</label>
+      <input type="text" class="pl-char" data-plchar="${p.id}" value="${esc(p.char || "")}" placeholder="Персонаж">
+    </div>`).join("") : `<p class="lw-lead">Никого не нашлось.</p>`;
+}
+async function playersInit() {
+  try { PL = await plLoad(!!ghCfg().token); if (!PL.list) PL.list = []; } catch (err) { toast("Не получилось загрузить список: " + err.message); }
+  plDraw();
+}
+async function plSaveOne(id, patch) {
+  const p = PL.list.find(x => x.id === id); if (p) Object.assign(p, patch);
+  if (!ghCfg().token) { toast("Чтобы сохранить, подключите ключ GitHub."); return; }
+  try { const P = await plUpdate(P => { const x = P.list.find(y => y.id === id); if (x) Object.assign(x, patch); }, `Игрок id${id}`); PL = P; }
+  catch (err) { toast("Не получилось сохранить: " + err.message); }
+}
+/* ответ главного меню на просьбу загрузить участников */
+let plWait = null;
+addEventListener("message", e => { if (e.data && e.data.velaris === "vkMembersResult" && plWait) { const w = plWait; plWait = null; w(e.data); } });
+async function plLoadFromVK(btn) {
+  if (!ghCfg().token) { toast("Сначала подключите ключ GitHub — иначе список некуда сохранить."); return; }
+  btn.disabled = true; const t = btn.textContent; btn.textContent = "Спрашиваю ВК…";
+  const res = await new Promise(r => { plWait = r; try { window.parent.postMessage({ velaris: "vkMembers" }, "*"); } catch (_) { r({ ok: false, error: "нет связи с приложением" }); } setTimeout(() => { if (plWait === r) { plWait = null; r({ ok: false, error: "ВК не ответил. Попробуйте ещё раз." }); } }, 90000); });
+  if (!res.ok) { btn.disabled = false; btn.textContent = t; toast("Не получилось: " + res.error); return; }
+  btn.textContent = "Сохраняю…";
+  const { members, managers } = res.res;
+  try {
+    PL = await plUpdate(P => {
+      const by = new Map(P.list.map(p => [p.id, p])), seen = new Set();
+      members.forEach(m => { const p = by.get(m.id) || { id: m.id, play: false, char: "" }; Object.assign(p, { name: m.name, photo: m.photo, role: "member", left: false }); by.set(m.id, p); seen.add(m.id); });
+      managers.forEach(m => { const p = by.get(m.id); if (p) p.role = m.role; });
+      by.forEach(p => { if (!seen.has(p.id)) p.left = true; });
+      P.list = [...by.values()]; P.updated = dbToday();
+    }, `Игроки: загружено ${members.length} участников`);
+    toast(`Загружено участников: ${members.length}${managers.length ? `, из них в руководстве: ${managers.length}` : ""}.`);
+  } catch (err) { toast("Не получилось сохранить: " + err.message); }
+  btn.disabled = false; btn.textContent = t; plDraw();
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-plload],[data-plf]"); if (!b) return;
+  if (b.hasAttribute("data-plload")) return plLoadFromVK(b);
+  plFilter = b.dataset.plf; document.querySelectorAll("[data-plf]").forEach(x => x.setAttribute("aria-pressed", String(x === b))); plDraw();
+});
+document.addEventListener("input", e => {
+  const t = e.target;
+  if (t.id === "pl-q") { plQuery = t.value; plDraw(); const i = $("#pl-q"); if (i !== t) i.focus(); return; }
+  if (t.dataset && t.dataset.plchar) { const id = +t.dataset.plchar; clearTimeout(plTimers[id]); plTimers[id] = setTimeout(() => plSaveOne(id, { char: t.value.trim() }), 900); }
+});
+document.addEventListener("change", e => { const t = e.target; if (t.dataset && t.dataset.plplay) plSaveOne(+t.dataset.plplay, { play: t.checked }); });
+
 
 /* ---------- Инструменты мастерской ----------
    Новый инструмент: добавьте строку в TOOLS — [адрес, название, функция-разметка, функция-запуск]. */
@@ -2207,7 +2390,8 @@ const TOOLS = [
   ["pisma", "Письма и указы", letterHTML, letterInit],
   ["kniga", "Книга", bookHTML, bookInit],
   ["stopka", "Стопка бумаг", stackHTML, stackInit],
-  ["kvesty", "Квесты", questsAdminHTML, questsAdminInit]
+  ["kvesty", "Квесты", questsAdminHTML, questsAdminInit],
+  ["igroki", "Игроки", playersHTML, playersInit]
 ];
 function route() {
   const id = location.hash.slice(1), sh = id.match(/^(kniga|stopka)=(.+)$/);
