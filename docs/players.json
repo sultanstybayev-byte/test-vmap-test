@@ -787,7 +787,11 @@
     {
      "id": "cmvig5jixf59",
      "name": "Ла́дья Ллойд",
-     "post": 87
+     "post": 87,
+     "facs": [
+      "none"
+     ],
+     "fac": "none"
     }
    ],
    "ank": [
