@@ -359,7 +359,7 @@
   {
    "id": 601008832,
    "play": true,
-   "char": "Ссерпента (Ная) Виперисс, Элиан де Верис, Селеста Монтгомери",
+   "char": "Ссерпента (Ная) Виперисс, Элиан де Верис, Селеста Монтгомери, Новый персонаж",
    "name": "מכשפה האנטר",
    "photo": "https://sun1-26.vkuserphoto.ru/s/v1/ig2/Aw8YLW4Biw-yrvMy4hjjQfzbB9r8nCvnoFBdHwbuo0lnhSvX8lm1uP2bu63yQF130C0i6Bsa0jGqc-06VdeyFtij.jpg?quality=95&crop=3,0,1013,1013&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720&ava=1&cs=100x100",
    "role": "member",
@@ -379,6 +379,10 @@
     {
      "id": "cmvifrqfwdiu",
      "name": "Селеста Монтгомери"
+    },
+    {
+     "id": "cmvifu53lkht",
+     "name": "Новый персонаж"
     }
    ]
   },
