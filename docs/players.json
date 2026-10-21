@@ -425,7 +425,8 @@
    "chars": [
     {
      "id": "cmvig6qmgkdg",
-     "name": "Элио"
+     "name": "Элио",
+     "fac": "none"
     }
    ]
   },
