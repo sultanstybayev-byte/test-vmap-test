@@ -666,7 +666,11 @@
    "chars": [
     {
      "id": "cmvifrbhz02b",
-     "name": "Сенза Воке"
+     "name": "Сенза Воке",
+     "facs": [
+      "none"
+     ],
+     "fac": "none"
     },
     {
      "id": "cmvifyzc84vf",
