@@ -409,7 +409,8 @@
    "chars": [
     {
      "id": "cmvifvhndvdp",
-     "name": "Геката"
+     "name": "Геката",
+     "fac": "none"
     }
    ]
   },
