@@ -34,15 +34,17 @@ button { font: inherit; color: inherit; }
 @keyframes idle { 50% { transform: translateY(1.2%) rotate(-1deg); } }
 @keyframes idleR { 0%, 100% { transform: scaleX(-1); } 50% { transform: scaleX(-1) translateY(1.2%) rotate(-1deg); } }
 .hand.busy .hand-svg { animation: none; }
-.eyes { animation: eyes 7s infinite; }
-@keyframes eyes { 0%, 40%, 100% { opacity: 1; } 42% { opacity: 0; } 44% { opacity: 1; } 70% { opacity: .5; } }
+.eyes { animation: eyes 9s infinite; }
+@keyframes eyes { 0%, 100% { opacity: .15; } 12%, 30% { opacity: .9; } 31% { opacity: 0; } 33% { opacity: .9; } 45%, 60% { opacity: .1; } 70%, 85% { opacity: .75; } }
+.nebula { transform-box: view-box; transform-origin: 500px 312px; animation: neb 40s linear infinite; }
+@keyframes neb { to { transform: rotate(360deg); } }
 .cglow { animation: flick 3.2s infinite; } .orbglow { animation: flick 5s infinite; }
 @keyframes flick { 0%,100% { opacity: .9 } 20% { opacity: .7 } 45% { opacity: 1 } 70% { opacity: .8 } }
 .orbstars { animation: twinkle 4s infinite alternate; }
 @keyframes twinkle { from { opacity: .4; } to { opacity: 1; } }
 
 /* карты на столе */
-.slots { position: absolute; left: 12%; right: 12%; top: 70%; height: 22.5%; display: flex; justify-content: center; align-items: center; gap: 2.2%; z-index: 3; perspective: 900px; pointer-events: auto; }
+.slots { position: absolute; left: 14%; right: 14%; top: 62%; height: 22%; display: flex; justify-content: center; align-items: center; gap: 2.2%; z-index: 3; perspective: 900px; pointer-events: auto; }
 .slot { position: relative; height: 100%; aspect-ratio: 120 / 200; border-radius: 6px; border: 1px dashed rgba(240,214,150,.28); display: grid; place-items: center; }
 .slot > span { position: absolute; bottom: -2px; left: 50%; transform: translate(-50%, 100%); font: 600 11px/1 var(--fd); letter-spacing: .08em; color: rgba(240,214,150,.75); white-space: nowrap; text-shadow: 0 1px 3px #000; }
 .slot { background: rgba(0,0,0,.18); }
@@ -128,9 +130,12 @@ button { font: inherit; color: inherit; }
 
 /* ---------- вход: полог ---------- */
 .gate { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; pointer-events: none; }
-.flap { position: absolute; top: 0; bottom: 0; width: 51%; pointer-events: auto; transition: transform 1.6s cubic-bezier(.6,.05,.25,1); background: linear-gradient(180deg, transparent 14%, #1a0f08 14% 16.5%, transparent 16.5% 82%, #1a0f08 82% 84.5%, transparent 84.5%), repeating-linear-gradient(90deg, #3e2512 0 2px, #5a3820 2px 58px, #4a2e18 58px 62px), #4a2e18; box-shadow: inset 0 0 140px rgba(0,0,0,.85); }
-.flap::before { content: ""; position: absolute; top: 48%; width: 16px; height: 56px; border-radius: 8px; background: linear-gradient(90deg, #5a3d14, #f5dc98, #8a6420); box-shadow: 0 4px 10px rgba(0,0,0,.6); }
-.flap.l::before { right: 26px; } .flap.r::before { left: 26px; }
+.flap { position: absolute; top: 0; bottom: 0; width: 51%; pointer-events: auto; transition: transform 1.6s cubic-bezier(.6,.05,.25,1); background: repeating-linear-gradient(90deg, #3e2512 0 2px, #5a3820 2px 58px, #4a2e18 58px 62px), #4a2e18; box-shadow: inset 0 0 140px rgba(0,0,0,.85); }
+.flap .door-art { position: absolute; inset: 0; width: 100%; height: 100%; }
+.gate { place-items: end center; } .gate-c { margin-bottom: 4vh; padding: 18px 24px; background: radial-gradient(ellipse at 50% 0, rgba(70,26,38,.94), rgba(14,6,9,.94)); }
+.gate .gate-c { max-width: 400px; padding: 14px 20px; background: rgba(14,6,9,.78); backdrop-filter: blur(2px); }
+.gate .gate-c svg { display: none; } .gate .gate-c h1 { font-size: 26px; } .gate .gate-c p { margin-bottom: 8px; font-size: 15px; line-height: 1.3; }
+.gate-c .opt { margin-top: 6px; padding-top: 8px; padding-bottom: 8px; }
 .flap::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(0,0,0,.25), transparent 30%, rgba(0,0,0,.35) 60%, transparent); }
 .flap.l { left: 0; transform-origin: 0 0; border-right: 2px solid #b8893f; }
 .flap.r { right: 0; transform-origin: 100% 0; border-left: 2px solid #b8893f; }
@@ -179,8 +184,6 @@ body.outside .dlg { transform: translateY(110%); }
     <svg class="room" id="room" viewBox="0 0 1600 640" preserveAspectRatio="xMidYMax slice" aria-hidden="true"></svg>
     <div class="stage" id="stage">
       <svg viewBox="0 0 1000 640" id="tbl" aria-hidden="true"></svg>
-      <div class="hand l" id="hand-l" aria-hidden="true"></div>
-      <div class="hand r" id="hand-r" aria-hidden="true"></div>
       <div class="slots" id="slots"></div>
     </div>
     <div class="dust" id="dust"></div>
@@ -556,10 +559,10 @@ const SCN = (() => {
     const x1 = x0 + w, sx = mirror ? x0 : x1 - 18, inner0 = mirror ? x0 + 18 : x0, inner1 = mirror ? x1 : x1 - 18;
     let s = `<rect x="${x0}" y="0" width="${w}" height="560" fill="url(#woodDark)"/><rect x="${inner0}" y="0" width="${inner1 - inner0}" height="380" fill="#170e09"/>`;
     s += `<rect x="${sx}" y="0" width="18" height="560" fill="url(#woodV)"/>`;
-    [86, 186, 286].forEach(y => { s += `<rect x="${inner0}" y="${y}" width="${inner1 - inner0}" height="10" fill="url(#woodH)"/><rect x="${inner0}" y="${y + 10}" width="${inner1 - inner0}" height="10" fill="#000" opacity=".35"/>`; });
-    s += `<rect x="${x0}" y="376" width="${w}" height="14" fill="url(#woodH)"/><rect x="${x0}" y="390" width="${w}" height="170" fill="url(#woodDark)"/>`;
+    [86, 186, 286].forEach(y => { s += `<rect x="${inner0}" y="${y - 12}" width="${inner1 - inner0}" height="18" fill="url(#shelfTop)"/><rect x="${inner0}" y="${y + 6}" width="${inner1 - inner0}" height="11" fill="url(#woodH)"/><rect x="${inner0}" y="${y + 17}" width="${inner1 - inner0}" height="10" fill="#000" opacity=".4"/>`; });
+    s += `<rect x="${x0}" y="360" width="${w}" height="22" fill="url(#shelfTop)"/><rect x="${x0}" y="382" width="${w}" height="13" fill="url(#woodH)"/><rect x="${x0}" y="395" width="${w}" height="165" fill="url(#woodDark)"/>`;
     const dw = (inner1 - inner0 - 30) / 2;
-    [0, 1].forEach(r => [0, 1].forEach(c => { const dx = inner0 + 10 + c * (dw + 10), dy = 402 + r * 76; s += `<rect x="${dx}" y="${dy}" width="${dw}" height="64" fill="url(#woodH)" stroke="#120a06" stroke-width="2"/><rect x="${dx + dw / 2 - 26}" y="${dy + 28}" width="52" height="6" rx="3" fill="url(#brass)"/><circle cx="${dx + dw / 2 - 26}" cy="${dy + 31}" r="5" fill="url(#brass)"/><circle cx="${dx + dw / 2 + 26}" cy="${dy + 31}" r="5" fill="url(#brass)"/>`; }));
+    [0, 1].forEach(r => [0, 1].forEach(c => { const dx = inner0 + 10 + c * (dw + 10), dy = 404 + r * 76; s += `<rect x="${dx}" y="${dy}" width="${dw}" height="64" fill="url(#woodH)" stroke="#120a06" stroke-width="2"/><rect x="${dx + dw / 2 - 26}" y="${dy + 28}" width="52" height="6" rx="3" fill="url(#brass)"/><circle cx="${dx + dw / 2 - 26}" cy="${dy + 31}" r="5" fill="url(#brass)"/><circle cx="${dx + dw / 2 + 26}" cy="${dy + 31}" r="5" fill="url(#brass)"/>`; }));
     return s;
   }
   function room() {
@@ -567,11 +570,13 @@ const SCN = (() => {
       <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#140f0c"/><stop offset=".6" stop-color="#241a14"/><stop offset="1" stop-color="#1a120e"/></linearGradient>
       <linearGradient id="woodDark" x1="0" x2="1"><stop offset="0" stop-color="#2a170c"/><stop offset=".5" stop-color="#3f2414"/><stop offset="1" stop-color="#2a170c"/></linearGradient>
       <linearGradient id="woodH" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a4224"/><stop offset=".45" stop-color="#4a2c16"/><stop offset="1" stop-color="#2e1a0c"/></linearGradient>
+      <linearGradient id="shelfTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e120a"/><stop offset="1" stop-color="#5a3a20"/></linearGradient>
       <linearGradient id="woodV" x1="0" x2="1"><stop offset="0" stop-color="#2e1a0c"/><stop offset=".5" stop-color="#5a3820"/><stop offset="1" stop-color="#2e1a0c"/></linearGradient>
       <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1e120a"/><stop offset="1" stop-color="#3a2414"/></linearGradient>
       <linearGradient id="spine" x1="0" x2="1"><stop offset="0" stop-color="#000" stop-opacity=".45"/><stop offset=".4" stop-color="#fff" stop-opacity=".12"/><stop offset="1" stop-color="#000" stop-opacity=".5"/></linearGradient>
       <linearGradient id="wax" x1="0" x2="1"><stop offset="0" stop-color="#bfae8c"/><stop offset=".45" stop-color="#f6ecd4"/><stop offset="1" stop-color="#a8977a"/></linearGradient>
       <linearGradient id="burlap" x1="0" x2="1"><stop offset="0" stop-color="#5a4428"/><stop offset=".45" stop-color="#9a7c52"/><stop offset="1" stop-color="#4a3820"/></linearGradient>
+      <linearGradient id="paper" x1="0" x2="1"><stop offset="0" stop-color="#a8946a"/><stop offset=".45" stop-color="#efe4c8"/><stop offset="1" stop-color="#9a8660"/></linearGradient>
       <linearGradient id="crate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8a6236"/><stop offset="1" stop-color="#5a3c1e"/></linearGradient>
       ${brassG("brass")}
       <radialGradient id="cglow"><stop offset="0" stop-color="#ffcf7a" stop-opacity=".75"/><stop offset=".4" stop-color="#ff9a3a" stop-opacity=".22"/><stop offset="1" stop-color="#ff8a2a" stop-opacity="0"/></radialGradient>
@@ -617,8 +622,14 @@ const SCN = (() => {
     /* ящики и мешки на полу */
     const crate = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#crate)"/>${[1, 2, 3].map(k => `<path d="M${x} ${y + h * k / 4} h${w}" stroke="#3a2410" stroke-width="2"/>`).join("")}<rect x="${x}" y="${y}" width="10" height="${h}" fill="#4a2e14"/><rect x="${x + w - 10}" y="${y}" width="10" height="${h}" fill="#4a2e14"/><path d="M${x + 10} ${y + h - 6} L${x + w - 10} ${y + 6}" stroke="#4a2e14" stroke-width="9"/><path d="M${x} ${y} l14 -12 h${w} l-14 12Z" fill="#9a7244"/><path d="M${x + w} ${y} l14 -12 v${h} l-14 12Z" fill="#3e2812"/>`;
     s += `<ellipse cx="150" cy="628" rx="150" ry="14" fill="#000" opacity=".5"/>` + crate(40, 520, 160, 108) + crate(196, 548, 110, 80) + crate(70, 432, 116, 88) + `<path d="M84 432 q30 -26 60 -4 q-30 -10 -60 4Z" fill="#c9b48a" opacity=".8"/>`;
-    const sack = (x, y, w, h, rot) => `<g transform="rotate(${rot} ${x + w / 2} ${y + h})"><path d="M${x + w * .3} ${y + 14} Q${x - 10} ${y + h * .5} ${x + 6} ${y + h} H${x + w - 6} Q${x + w + 10} ${y + h * .5} ${x + w * .7} ${y + 14}Z" fill="url(#burlap)"/><path d="M${x + w * .3} ${y + 14} Q${x + w * .5} ${y + 22} ${x + w * .7} ${y + 14}" stroke="#3a2a14" stroke-width="3" fill="none"/><path d="M${x + w * .34} ${y + 14} q${w * .16} -26 ${w * .32} 0" fill="#8a6e48"/><path d="M${x + w * .5} ${y - 6} l-6 -10 M${x + w * .5} ${y - 6} l7 -9" stroke="#6a5030" stroke-width="3"/>${[.35, .55, .75].map(k => `<path d="M${x + 10} ${y + h * k} q${w * .4} 8 ${w - 20} 0" stroke="#4a3820" stroke-width="1" opacity=".5" fill="none"/>`).join("")}</g>`;
-    s += `<ellipse cx="1450" cy="630" rx="170" ry="14" fill="#000" opacity=".5"/>` + sack(1330, 486, 116, 140, -5) + sack(1440, 506, 104, 120, 6) + sack(1510, 470, 90, 156, -2) + `<circle cx="1420" cy="628" r="5" fill="#c9a24a"/><circle cx="1431" cy="630" r="4" fill="#c9a24a"/>`;
+    /* бочка, полная свёрнутых свитков, и пирамида свитков на полу */
+    const roll = (x, y, len, ang, w = 15) => `<g transform="rotate(${ang} ${x} ${y})"><rect x="${x - w / 2}" y="${y - len}" width="${w}" height="${len}" fill="url(#paper)"/><path d="M${x - w / 2} ${y - len * .55} h${w}" stroke="#8a2a2a" stroke-width="3"/><ellipse cx="${x}" cy="${y - len}" rx="${w / 2}" ry="${w * .22}" fill="#efe4c8"/><ellipse cx="${x}" cy="${y - len}" rx="${w * .28}" ry="${w * .12}" fill="none" stroke="#a8946a" stroke-width="1"/></g>`;
+    const end = (x, y, r) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#e2d4b0" stroke="#7a6640" stroke-width="1.2"/><path d="M${x} ${y} m-${r * .55} 0 a${r * .55} ${r * .55} 0 1 1 ${r * .55} ${r * .55} a${r * .35} ${r * .35} 0 1 1 -${r * .3} -${r * .35} a${r * .15} ${r * .15} 0 1 1 ${r * .12} ${r * .12}" fill="none" stroke="#9a8458" stroke-width="1"/>`;
+    s += `<ellipse cx="1430" cy="630" rx="190" ry="14" fill="#000" opacity=".55"/>`;
+    s += [[-34, 70, -24], [-20, 86, -12], [-6, 92, -4], [8, 80, 6], [22, 90, 14], [34, 74, 24], [-14, 64, -30], [16, 60, 32]].map(([dx, len, ang]) => roll(1400 + dx, 500, len, ang)).join("");
+    s += `<path d="M1336 488 Q1322 556 1338 626 H1462 Q1478 556 1464 488Z" fill="url(#crate)"/>${[1352, 1374, 1400, 1426, 1448].map(x => `<path d="M${x} 490 Q${x + (x - 1400) * .12} 556 ${x} 624" stroke="#3a2410" stroke-width="2" fill="none"/>`).join("")}<path d="M1331 512 Q1400 522 1469 512 M1330 600 Q1400 610 1470 600" stroke="#26262a" stroke-width="9" fill="none"/><path d="M1331 510 Q1400 520 1469 510" stroke="#6a6a72" stroke-width="2" fill="none"/><ellipse cx="1400" cy="488" rx="64" ry="11" fill="#1a0e06"/><ellipse cx="1400" cy="488" rx="64" ry="11" fill="none" stroke="#6a4424" stroke-width="4"/>`;
+    [[4, 616, 14], [3, 590, 14], [2, 564, 14], [1, 538, 14]].forEach(([n, y, r], row) => { for (let k = 0; k < n; k++) s += end(1500 + row * 13 + k * 26, y, r); });
+    s += `<g transform="rotate(-8 1290 616)"><rect x="1236" y="604" width="92" height="20" fill="url(#paper)"/><ellipse cx="1328" cy="614" rx="5" ry="10" fill="#efe4c8"/><path d="M1236 604 q-30 4 -44 20 h44Z" fill="#e8dcc0"/><path d="M1200 618 h30 M1206 612 h24" stroke="#8a7a5a" stroke-width="1"/><path d="M1282 604 v20" stroke="#8a2a2a" stroke-width="3"/></g>`;
     /* дым и общий свет */
     s += `<path class="smoke" d="M1452 140 c-10 -20 12 -30 0 -50 c-10 -18 10 -28 2 -44"/><path class="smoke b" d="M262 40 c12 -18 -8 -32 4 -52"/>`;
     s += `<rect width="1600" height="640" fill="url(#vig)"/>`;
@@ -635,19 +646,23 @@ const SCN = (() => {
       <radialGradient id="top" cx=".5" cy=".25" r=".75"><stop offset="0" stop-color="#3a2230"/><stop offset=".55" stop-color="#1e1016"/><stop offset="1" stop-color="#120a0e"/></radialGradient>
       <linearGradient id="drape" x1="0" x2="1"><stop offset="0" stop-color="#0e0709"/><stop offset=".5" stop-color="#2a1218"/><stop offset="1" stop-color="#0e0709"/></linearGradient>
       <radialGradient id="orbC" cx=".42" cy=".38" r=".62"><stop offset="0" stop-color="#fffbe8"/><stop offset=".35" stop-color="#ffe7a8"/><stop offset=".75" stop-color="#c79a4a" stop-opacity=".85"/><stop offset="1" stop-color="#4a3018" stop-opacity=".9"/></radialGradient>
+      <radialGradient id="eyeG"><stop offset="0" stop-color="#ffd98a" stop-opacity=".55"/><stop offset="1" stop-color="#ffb84a" stop-opacity="0"/></radialGradient>
+      <radialGradient id="orbB" cx=".38" cy=".32" r=".72"><stop offset="0" stop-color="#d6ecff" stop-opacity=".55"/><stop offset=".35" stop-color="#5a9cf0" stop-opacity=".32"/><stop offset=".8" stop-color="#1d3f9a" stop-opacity=".55"/><stop offset="1" stop-color="#0a1a52" stop-opacity=".85"/></radialGradient>
+      <radialGradient id="tglow" cx=".5" cy=".2" r=".7"><stop offset="0" stop-color="#7ab8ff" stop-opacity=".5"/><stop offset=".45" stop-color="#4a7ad8" stop-opacity=".18"/><stop offset="1" stop-color="#2a4aa8" stop-opacity="0"/></radialGradient>
+      <linearGradient id="silver" x1="0" x2="1"><stop offset="0" stop-color="#3e434e"/><stop offset=".3" stop-color="#c9ced8"/><stop offset=".5" stop-color="#f4f7fb"/><stop offset=".72" stop-color="#8a909c"/><stop offset="1" stop-color="#2e323a"/></linearGradient>
+      <clipPath id="tclip"><ellipse cx="500" cy="470" rx="442" ry="120"/></clipPath>
+      <clipPath id="oclip"><circle cx="500" cy="312" r="56"/></clipPath>
+      <filter id="neb" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="7"/></filter>
       <radialGradient id="orbH"><stop offset="0" stop-color="#ffe9b0" stop-opacity=".6"/><stop offset=".35" stop-color="#ffd27a" stop-opacity=".18"/><stop offset="1" stop-color="#ffd27a" stop-opacity="0"/></radialGradient>
       <linearGradient id="rib" x1="0" x2="1"><stop offset="0" stop-color="#5a0e16"/><stop offset=".5" stop-color="#a8202e"/><stop offset="1" stop-color="#5a0e16"/></linearGradient>
     </defs>
     <ellipse cx="500" cy="260" rx="560" ry="400" fill="url(#void)"/>
-    <path d="M330 470 Q330 330 380 270 Q400 160 500 130 Q600 160 620 270 Q670 330 670 470Z" fill="url(#hood)"/>
-    <path d="M420 250 Q430 175 500 155 Q570 175 580 250" fill="none" stroke="#7a6aa8" stroke-opacity=".14" stroke-width="3"/>
-    <g class="eyes"><ellipse cx="478" cy="232" rx="4" ry="1.6" fill="#e8d9b0" opacity=".35"/><ellipse cx="522" cy="232" rx="4" ry="1.6" fill="#e8d9b0" opacity=".35"/></g>
-    <circle cx="500" cy="330" r="200" fill="url(#orbH)" class="orbglow"/>`;
+    <g class="eyes"><ellipse cx="476" cy="196" rx="14" ry="6" fill="url(#eyeG)"/><ellipse cx="524" cy="196" rx="14" ry="6" fill="url(#eyeG)"/><path d="M469 196 Q476 192.6 483 196 Q476 198.4 469 196Z" fill="#f2d48a"/><path d="M517 196 Q524 192.6 531 196 Q524 198.4 517 196Z" fill="#f2d48a"/><circle cx="476" cy="195.8" r="1.1" fill="#1a0c04"/><circle cx="524" cy="195.8" r="1.1" fill="#1a0c04"/></g>`;
     /* стол: столешница и скатерть */
     s += `<path d="M58 470 L40 660 H960 L942 470Z" fill="url(#drape)"/>`;
     for (let k = 0; k < 16; k++) { const x = 70 + k * 58; s += `<path d="M${x} ${560 + Math.sin(k * 1.7) * 18} Q${x + 10} 620 ${x - 4 + (k % 3) * 6} 660" stroke="#000" stroke-opacity=".4" stroke-width="${8 + (k % 3) * 4}" fill="none"/><path d="M${x + 20} ${570 + Math.cos(k) * 14} Q${x + 28} 620 ${x + 26} 660" stroke="#5a2a34" stroke-opacity=".35" stroke-width="3" fill="none"/>`; }
     s += `<ellipse cx="500" cy="478" rx="446" ry="124" fill="#0a0507"/><ellipse cx="500" cy="470" rx="442" ry="120" fill="url(#top)"/>`;
-    s += `<ellipse cx="500" cy="470" rx="442" ry="120" fill="none" stroke="#5a3a2a" stroke-width="3"/>`;
+    s += `<ellipse cx="500" cy="470" rx="442" ry="120" fill="none" stroke="#5a3a2a" stroke-width="3"/><g clip-path="url(#tclip)"><ellipse cx="500" cy="420" rx="420" ry="150" fill="url(#tglow)" class="orbglow"/></g>`;
     /* круг зодиака */
     s += `<g fill="none" stroke="#cfc6d8" stroke-opacity=".55"><ellipse cx="500" cy="478" rx="360" ry="96" stroke-width="2"/><ellipse cx="500" cy="478" rx="342" ry="91" stroke-width="1"/><ellipse cx="500" cy="478" rx="276" ry="73" stroke-width="1.5"/><ellipse cx="500" cy="478" rx="150" ry="40" stroke-width="1.2" stroke-dasharray="2 6"/></g>`;
     const RN = ["XII", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI"];
@@ -658,17 +673,15 @@ const SCN = (() => {
       s += `<text x="0" y="0" transform="translate(${r2(x)} ${r2(y + 5)}) scale(${r2(.8 + .25 * Math.sin(a))} ${r2(sy)})" font-family="Georgia,serif" font-size="17" fill="#d8d0e0" fill-opacity=".55" text-anchor="middle">${RN[k]}</text>`;
       const x2 = 500 + Math.cos(a) * 352, y2 = 478 + Math.sin(a) * 94; s += `<circle cx="${r2(x2)}" cy="${r2(y2)}" r="2" fill="#d8d0e0" opacity=".5"/>`;
     }
-    /* шар на подставке */
-    s += `<ellipse cx="500" cy="404" rx="60" ry="12" fill="#000" opacity=".5"/><path d="M450 404 Q460 382 500 378 Q540 382 550 404Z" fill="url(#brass2)"/><path d="M462 388 Q470 366 500 362 Q530 366 538 388 Q500 396 462 388Z" fill="url(#brass2)"/>
-      <path d="M466 380 q-10 -10 -4 -22 M534 380 q10 -10 4 -22" stroke="url(#brass2)" stroke-width="5" fill="none"/>
-      <circle cx="500" cy="316" r="56" fill="url(#orbC)"/><g class="orbstars">${[...Array(16)].map((_, i) => `<circle cx="${r2(500 + Math.cos(i * 2.4) * (10 + (i * 7) % 38))}" cy="${r2(316 + Math.sin(i * 2.4) * (10 + (i * 5) % 36))}" r="${(i % 3) * .5 + .8}" fill="#fff"/>`).join("")}</g>
-      <ellipse cx="482" cy="294" rx="16" ry="9" fill="#fff" opacity=".55" transform="rotate(-30 482 294)"/>
-      <path class="smoke" d="M500 258 c-14 -22 16 -34 0 -60 c-12 -20 12 -32 2 -52"/><path class="smoke b" d="M504 258 c14 -20 -10 -36 6 -58 c12 -18 -8 -30 0 -46"/>`;
-    /* подсвечники по краям стола */
-    const st = (x, base, h, sc, ch) => `<circle cx="${x}" cy="${base - h - ch - 20}" r="${120 * sc}" fill="url(#cglow2)" class="cglow"/><ellipse cx="${x}" cy="${base + 2}" rx="${30 * sc}" ry="${8 * sc}" fill="#000" opacity=".5"/>` +
-      `<ellipse cx="${x}" cy="${base}" rx="${24 * sc}" ry="${7 * sc}" fill="url(#brass2)"/><path d="M${x - 20 * sc} ${base} Q${x} ${base - 18 * sc} ${x + 20 * sc} ${base}Z" fill="url(#brass2)"/><rect x="${x - 4 * sc}" y="${base - h}" width="${8 * sc}" height="${h}" fill="url(#brass2)"/>${[.25, .55, .8].map(k => `<ellipse cx="${x}" cy="${base - h * k}" rx="${8 * sc}" ry="${4.4 * sc}" fill="url(#brass2)"/>`).join("")}<path d="M${x - 15 * sc} ${base - h} Q${x} ${base - h + 12 * sc} ${x + 15 * sc} ${base - h}Z" fill="url(#brass2)"/>` +
-      `<rect x="${x - 8 * sc}" y="${base - h - ch}" width="${16 * sc}" height="${ch}" fill="url(#wax2)"/><path d="M${x - 8 * sc} ${base - h - ch + 3} q4 ${ch * .3} 0 ${ch * .45}" stroke="#efe2c4" stroke-width="3.4" fill="none" stroke-linecap="round"/><ellipse cx="${x}" cy="${base - h - ch}" rx="${8 * sc}" ry="2.6" fill="#fff4dc"/><path d="M${x} ${base - h - ch} v-6" stroke="#1a0c06" stroke-width="1.4"/>` + flame(x, base - h - ch - 5, sc);
-    s += st(150, 470, 70, 1, 64) + st(96, 520, 44, .8, 40) + st(850, 470, 70, 1, 64) + st(904, 520, 44, .8, 40);
+    /* шар: голубое стекло, внутри плывёт космос; подставка из серебра */
+    s += `<ellipse cx="500" cy="402" rx="74" ry="14" fill="#5a8ad8" opacity=".22"/><ellipse cx="500" cy="400" rx="52" ry="9" fill="#000" opacity=".55"/>
+      <path d="M452 400 Q462 380 500 376 Q538 380 548 400 Q500 410 452 400Z" fill="url(#silver)"/><path d="M466 384 Q474 362 500 358 Q526 362 534 384 Q500 392 466 384Z" fill="url(#silver)"/>
+      <path d="M468 378 q-14 -8 -10 -24 M532 378 q14 -8 10 -24 M500 376 v-14" stroke="url(#silver)" stroke-width="4" fill="none"/>
+      <circle cx="500" cy="312" r="56" fill="#0a1440" opacity=".55"/>
+      <g clip-path="url(#oclip)"><g class="nebula"><ellipse cx="482" cy="300" rx="34" ry="16" fill="#7a5cff" opacity=".7" filter="url(#neb)"/><ellipse cx="522" cy="324" rx="30" ry="14" fill="#2ec8ff" opacity=".65" filter="url(#neb)"/><ellipse cx="506" cy="296" rx="16" ry="22" fill="#ff6ad5" opacity=".4" filter="url(#neb)"/><ellipse cx="486" cy="334" rx="20" ry="10" fill="#4a7aff" opacity=".6" filter="url(#neb)"/>
+        ${[...Array(30)].map((_, i) => `<circle cx="${r2(500 + Math.cos(i * 2.39) * (6 + (i * 13) % 50))}" cy="${r2(312 + Math.sin(i * 2.39) * (6 + (i * 11) % 48))}" r="${(i % 4) * .35 + .5}" fill="#fff" opacity="${.5 + (i % 3) * .25}"/>`).join("")}</g></g>
+      <circle cx="500" cy="312" r="56" fill="url(#orbB)"/><circle cx="500" cy="312" r="56" fill="none" stroke="#bfe0ff" stroke-opacity=".55" stroke-width="1.4"/>
+      <ellipse cx="480" cy="288" rx="17" ry="9" fill="#fff" opacity=".5" transform="rotate(-30 480 288)"/><ellipse cx="528" cy="342" rx="10" ry="4" fill="#bfe0ff" opacity=".35" transform="rotate(-30 528 342)"/>`;
     /* розы и ленты на скатерти */
     const rose = (x, y) => `<g>${[0, 1, 2, 3, 4, 5].map(k => `<path d="M${x} ${y} q${r2(Math.cos(k) * 22)} ${r2(Math.sin(k) * 22 - 6)} ${r2(Math.cos(k + .9) * 14)} ${r2(Math.sin(k + .9) * 14)}" fill="#7a1220" stroke="#3a060c" stroke-width="1"/>`).join("")}<circle cx="${x}" cy="${y}" r="9" fill="#9a1a2a"/><path d="M${x - 5} ${y} a5 5 0 1 1 5 5 a3 3 0 1 1 -3 -3" stroke="#4a0810" stroke-width="1.6" fill="none"/>
       <path d="M${x - 4} ${y + 10} q-14 40 -4 70 q8 20 -2 44" stroke="url(#rib)" stroke-width="5" fill="none"/><path d="M${x + 4} ${y + 10} q16 34 6 64 q-8 24 4 48" stroke="url(#rib)" stroke-width="5" fill="none"/></g>`;
@@ -705,7 +718,38 @@ const SCN = (() => {
       ${[60, 74, 89, 103].map(x => `<ellipse cx="${x}" cy="${220}" rx="5" ry="3" fill="#fff" opacity=".18"/>`).join("")}
     </g></svg>`;
   }
-  return { room, table, hand };
+  /* ---------- створка двери: резной дракон во всю высоту, железное кольцо ---------- */
+  function door(mirror) {
+    const carve = (d, w) => `<path d="${d}" stroke="#120904" stroke-width="${w + 4}" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" stroke="#7a5230" stroke-width="${w}" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" stroke="#a87a48" stroke-width="${Math.max(1, w * .25)}" fill="none" stroke-linecap="round" transform="translate(-1.2 -1.2)" opacity=".7"/>`;
+    const body = "M214 176 C196 214 150 236 140 288 C128 350 214 380 218 450 C222 520 140 540 128 610 C116 690 196 712 206 772 C214 826 168 850 150 846";
+    let scales = ""; for (let k = 0; k < 34; k++) scales += `<use href="#sc" x="0" y="0" style="offset-distance:${k * 3}%"/>`;
+    const spikes = [[172, 214], [146, 252], [136, 300], [160, 352], [196, 392], [214, 440], [204, 492], [166, 532], [134, 580], [130, 640], [156, 694], [192, 734], [206, 790]].map(([x, y]) => `<path d="M${x} ${y} l-14 -6 l6 12Z" fill="#120904" stroke="#7a5230" stroke-width="1.6"/>`).join("");
+    const g = `<g>
+      <rect x="22" y="22" width="256" height="856" rx="6" fill="none" stroke="#120904" stroke-width="7"/><rect x="22" y="22" width="256" height="856" rx="6" fill="none" stroke="#6a4424" stroke-width="3"/>
+      <rect x="36" y="36" width="228" height="828" rx="4" fill="#000" opacity=".16"/>
+      ${carve("M150 300 C110 250 76 220 46 214 C64 236 66 254 60 270 C80 268 90 276 94 292 C78 300 68 316 66 336 C90 324 110 330 122 344", 4)}
+      ${carve("M150 300 L58 222 M150 300 L66 278 M150 300 L72 332", 2)}
+      ${carve(body, 34)}
+      <path d="${body}" stroke="#120904" stroke-width="2" fill="none" stroke-dasharray="1 9" stroke-linecap="round" opacity=".9"/>
+      <path d="${body}" stroke="#c49a62" stroke-width="1.2" fill="none" stroke-dasharray="1 9" stroke-dashoffset="5" opacity=".5" transform="translate(6 0)"/>
+      ${spikes}
+      ${carve("M150 846 C130 842 126 818 142 812 C156 808 160 826 150 828", 6)}
+      ${carve("M202 432 C226 436 240 450 250 468 M246 462 l12 2 M248 470 l10 8 M244 474 l4 12", 5)}
+      ${carve("M140 628 C164 636 180 650 190 666 M186 660 l12 2 M188 668 l10 8 M184 672 l4 12", 5)}
+      ${carve("M196 172 L222 140 L262 146 L282 160 L262 168 L276 180 L246 184 L222 180Z", 3)}
+      <path d="M222 150 L258 152 M244 172 L270 176" stroke="#120904" stroke-width="2"/>
+      ${carve("M206 150 L176 104 L200 140 M216 144 L198 90 L226 136", 3)}
+      ${carve("M200 170 C188 176 180 188 186 200", 3)}
+      <ellipse cx="236" cy="156" rx="6" ry="4" fill="#120904"/><circle cx="237" cy="155.4" r="1.6" fill="#d8a85a"/>
+      ${carve("M276 180 l-10 18 M262 182 l-6 14", 2)}
+      ${carve("M110 70 h80 M150 50 v40 M118 830 q32 -20 64 0", 2)}
+    </g>`;
+    const ring = `<g transform="translate(246 330)"><circle r="17" fill="#1e1e22" stroke="#4a4a52" stroke-width="2"/><circle r="9" fill="#2a2a30"/><circle r="4" fill="#5a5a62"/>
+      <ellipse cx="0" cy="44" rx="30" ry="32" fill="none" stroke="#0e0e10" stroke-width="12"/><ellipse cx="0" cy="44" rx="30" ry="32" fill="none" stroke="url(#iron)" stroke-width="8"/><path d="M-18 22 Q0 14 18 22" stroke="#9a9aa4" stroke-width="1.6" fill="none" opacity=".6"/></g>`;
+    return `<svg viewBox="0 0 300 900" preserveAspectRatio="${mirror ? "xMinYMid" : "xMaxYMid"} meet" class="door-art"><defs><linearGradient id="iron${mirror ? "R" : "L"}" x1="0" x2="1"><stop offset="0" stop-color="#2a2a30"/><stop offset=".45" stop-color="#7a7a84"/><stop offset="1" stop-color="#1e1e22"/></linearGradient></defs>
+      <g${mirror ? ' transform="translate(300 0) scale(-1 1)"' : ""}>${g.replace(/url\(#iron\)/g, "")}${ring.replace("url(#iron)", `url(#iron${mirror ? "R" : "L"})`)}</g></svg>`;
+  }
+  return { room, table, hand, door };
 })();
 
 /* =====================================================================
@@ -881,27 +925,13 @@ function store(k, v) { try { if (v === undefined) return localStorage.getItem(k)
 /* ===================== ЛАВКА ===================== */
 $("#room").innerHTML = SCN.room();
 $("#tbl").innerHTML = SCN.table();
-$("#hand-l").innerHTML = SCN.hand("L");
-$("#hand-r").innerHTML = SCN.hand("R");
+document.querySelector(".flap.l").innerHTML = SCN.door(false);
+document.querySelector(".flap.r").innerHTML = SCN.door(true);
 (() => { let d = ""; for (let i = 0; i < 16; i++) d += `<i style="left:${tRand(100)}%;top:${20 + tRand(70)}%;animation-duration:${9 + tRand(10)}s;animation-delay:-${tRand(12)}s"></i>`; $("#dust").innerHTML = d; })();
 const M = () => document.body;
 function look() {}
-/* рука тянется к карте, переворачивает её и возвращается во тьму */
-async function handFlip(i, el) {
-  const slot = $(`.slot[data-slot="${i}"]`), st = $("#stage").getBoundingClientRect(), sr = slot.getBoundingClientRect();
-  const cx = sr.left + sr.width / 2, useR = cx > st.left + st.width / 2 + 1, h = useR ? $("#hand-r") : $("#hand-l");
-  h.style.transform = ""; const hr = h.getBoundingClientRect();
-  const dx = cx - (hr.left + hr.width * (useR ? .4 : .6)), dy = (sr.top + sr.height * .45) - (hr.top + hr.height * .9);
-  h.classList.add("busy");
-  h.style.transform = `translate(${dx}px, ${dy}px) scale(1.12)`;
-  await wait(760);
-  h.style.transform = `translate(${dx + (useR ? -10 : 10)}px, ${dy - 6}px) scale(1.1) rotate(${useR ? -8 : 8}deg)`;
-  el.classList.add("open");
-  await wait(420);
-  h.style.transform = "";
-  await wait(500);
-  h.classList.remove("busy");
-}
+/* карта сама переворачивается на столе */
+async function handFlip(i, el) { el.classList.add("open"); await wait(950); }
 
 /* ===================== ДИАЛОГОВЫЙ ДВИЖОК ===================== */
 let G = { n: "", name: "", topic: "", spread: "three", drawn: [], deck: [], visits: 0 };
