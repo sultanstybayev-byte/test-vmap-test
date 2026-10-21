@@ -1084,6 +1084,9 @@ function letterHTML(extra = lwExtra()) {
   return `<div class="lw wide">
   <div class="lw-ctl">
     <div class="fld"><label for="lw-preset">Образец</label><select id="lw-preset"><option value="">— выбрать образец —</option>${opt(LW_PRESETS, "")}</select></div>
+    <h3>Оформление</h3>
+    <div class="fld"><div class="lw-dsg">${LW_DESIGNS.map((d, i) => `<button type="button" data-lwd="${i}" aria-pressed="${lwDesignOf(LW) === i}" title="${esc(d[0])}"><span class="lw-dsg-p" style="background-image:url('data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 470'><rect width='360' height='470' fill='#ecdaae'/><g fill='#3b2a18' stroke='#3b2a18' stroke-linecap='round' stroke-linejoin='round'>${d[1](360, 470, "#3b2a18", "#7a2414", EMBLEMS.crown)}</g><g stroke='#8a7350' stroke-width='5' opacity='.45'><path d='M80 170H280M80 200H270M80 230H280M80 260H230'/></g></svg>`).replace(/'/g, "%27")}')"></span><small>${esc(d[0])}</small></button>`).join("")}</div></div>
+    <div class="fld"><label>Огонь</label><div class="lw-seg">${LW_BURN.map((t, i) => `<button type="button" data-lwb="${i}" aria-pressed="${(+LW.burn || 0) === i}">${t}</button>`).join("")}</div></div>
     <h3>Вид</h3>
     ${seg("data-lwk", Object.entries(LW_KINDS), LW.kind)}
     <div class="lw-2">
@@ -1107,9 +1110,6 @@ function letterHTML(extra = lwExtra()) {
     <div class="fld"><label for="lw-seal">Оттиск</label><select id="lw-seal" data-lw="seal">${seals.map(([k, t]) => `<option value="${k}"${k === LW.seal ? " selected" : ""}>${esc(t)}</option>`).join("")}</select></div>
     ${LW.seal === "initial" ? inp("initial", "Буква на печати", (LW.sign || "А")[0]) : ""}
     ${LW.seal === "none" ? "" : `<div class="fld"><label>Сургуч</label><div class="lw-wax">${Object.entries(LW_WAX).map(([k, w]) => `<button type="button" data-lwx="${k}" aria-pressed="${k === LW.wax}" title="${w[0]}" aria-label="${w[0]}" style="--w:${w[1]};--h:${w[2]}"></button>`).join("")}</div></div>`}
-    <h3>Оформление</h3>
-    <div class="fld"><div class="lw-dsg">${LW_DESIGNS.map((d, i) => `<button type="button" data-lwd="${i}" aria-pressed="${lwDesignOf(LW) === i}" title="${esc(d[0])}"><span class="lw-dsg-p" style="background-image:url('data:image/svg+xml;charset=utf-8,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 470'><rect width='360' height='470' fill='#ecdaae'/><g fill='#3b2a18' stroke='#3b2a18' stroke-linecap='round' stroke-linejoin='round'>${d[1](360, 470, "#3b2a18", "#7a2414", EMBLEMS.crown)}</g><g stroke='#8a7350' stroke-width='5' opacity='.45'><path d='M80 170H280M80 200H270M80 230H280M80 260H230'/></g></svg>`).replace(/'/g, "%27")}')"></span><small>${esc(d[0])}</small></button>`).join("")}</div></div>
-    <div class="fld"><label>Огонь</label><div class="lw-seg">${LW_BURN.map((t, i) => `<button type="button" data-lwb="${i}" aria-pressed="${(+LW.burn || 0) === i}">${t}</button>`).join("")}</div></div>
     <h3>Украшения</h3>
     <div class="lw-chks">${chk("folds", "Сгибы")}${chk("blots", "Кляксы")}${chk("wobble", "Живой почерк")}${chk("backdrop", "Тёмный фон вокруг")}</div>
     <button type="button" class="btn ghost" id="lw-reseed">Другие пятна и кляксы</button>
