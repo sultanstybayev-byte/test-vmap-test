@@ -196,12 +196,17 @@
   {
    "id": 470552226,
    "play": true,
-   "char": "",
+   "char": "Новый персонаж",
    "name": "Олег Болотов",
    "photo": "https://sun2-8.vkuserphoto.ru/s/v1/ig2/yMBTF1yFpCEiWc693Rtf7J463wsmi5lXORnVKoyTHNZu6efHKNjaFwQAe8WxdrUuhaCVn55vtmtUS51p88jMtDsW.jpg?quality=95&crop=99,86,1305,1305&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1080x1080,1280x1280&ava=1&cs=100x100",
    "role": "member",
    "left": false,
-   "chars": []
+   "chars": [
+    {
+     "id": "cmvifwrxaj50",
+     "name": "Новый персонаж"
+    }
+   ]
   },
   {
    "id": 478619114,
