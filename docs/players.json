@@ -618,7 +618,11 @@
     {
      "id": "cmvifwjlzl9z",
      "name": "Изольда Тирел Ксарион Тар'Веррин",
-     "fac": "council"
+     "fac": "council",
+     "facs": [
+      "council",
+      "crown"
+     ]
     },
     {
      "id": "cmvifyixoeaz",
