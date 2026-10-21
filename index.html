@@ -2171,22 +2171,34 @@ const edCheckHash = () => setEditor(location.hash === "#redaktor");
 addEventListener("hashchange", edCheckHash);
 if (location.hash === "#redaktor") setTimeout(edCheckHash, 400);
 
-let nightEnabled = true;
-try { nightEnabled = localStorage.getItem("atlas-night") !== "off"; } catch (e) {}
+/* Переключатель день/ночь.
+   Сам по себе вид следует часам устройства: ночь с 19:00 до 6:00.
+   Нажатие сразу меняет вид на противоположный; выбор держится до следующей смены дня и ночи по часам,
+   после чего карта снова идёт по времени. */
+const NIGHT_KEY = "atlas-night-v2";
 const isNightNow = () => { const h = new Date().getHours(); return h < 6 || h >= 19; };
+let nightForce = null;
+try { const v = JSON.parse(localStorage.getItem(NIGHT_KEY) || "null"); if (v && typeof v.force === "boolean") nightForce = v; } catch (e) {}
+const KNOB_MOON = `<path d="M15.8 3.6a8.6 8.6 0 1 0 4.6 14.6A7.2 7.2 0 0 1 15.8 3.6z"/>`;
+const KNOB_SUN = `<circle cx="12" cy="12" r="5.2"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1" stroke="#2a1d12" stroke-width="2" stroke-linecap="round"/>`;
 function applyNight() {
-  const realNight = isNightNow(), night = nightEnabled && realNight;
+  const realNight = isNightNow();
+  if (nightForce && nightForce.period !== realNight) { nightForce = null; try { localStorage.removeItem(NIGHT_KEY); } catch (e) {} }
+  const night = nightForce ? nightForce.force : realNight;
   document.body.classList.toggle("night", night);
   const el = $("#clock");
   el.querySelector(".sky").innerHTML = realNight ? MOON : SUN;
   el.classList.toggle("night", realNight);
   const b = $("#b-night");
-  b.setAttribute("aria-pressed", String(nightEnabled));
-  b.title = nightEnabled ? "Ночь на карте: включена (с 19:00 до 6:00)" : "Ночь на карте: выключена";
+  b.setAttribute("aria-pressed", String(night));
+  b.querySelector(".knob svg").innerHTML = night ? KNOB_MOON : KNOB_SUN;
+  b.title = (night ? "Сейчас на карте ночь" : "Сейчас на карте день") + (nightForce ? " (выбрано вручную)" : " (по часам)") + ". Нажмите, чтобы переключить";
+  b.setAttribute("aria-label", b.title);
 }
 $("#b-night").addEventListener("click", () => {
-  nightEnabled = !nightEnabled;
-  try { localStorage.setItem("atlas-night", nightEnabled ? "on" : "off"); } catch (e) {}
+  const realNight = isNightNow(), shown = document.body.classList.contains("night"), want = !shown;
+  nightForce = want === realNight ? null : { force: want, period: realNight };
+  try { nightForce ? localStorage.setItem(NIGHT_KEY, JSON.stringify(nightForce)) : localStorage.removeItem(NIGHT_KEY); } catch (e) {}
   applyNight();
 });
 applyNight(); setInterval(applyNight, 60000);
