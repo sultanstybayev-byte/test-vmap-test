@@ -53,7 +53,7 @@
   {
    "id": 294645498,
    "play": true,
-   "char": "Новый персонаж",
+   "char": "Элеонора Ван Гримм",
    "name": "Феликс Шрёдингер",
    "photo": "https://sun1-18.vkuserphoto.ru/s/v1/ig2/ew0ZhXZSPxZUErM8x8QE5HEPmyLJIYQrlCIJjPwI_NLStroem-p5Aq2wxZttkagQpnxD8gHfjbil3lSinCGSf8Wt.jpg?quality=95&crop=161,80,697,697&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640&ava=1&cs=100x100",
    "role": "member",
@@ -61,7 +61,7 @@
    "chars": [
     {
      "id": "cmvifo5glrw8",
-     "name": "Новый персонаж"
+     "name": "Элеонора Ван Гримм"
     }
    ]
   },
