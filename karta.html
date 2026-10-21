@@ -28,8 +28,6 @@
   color-scheme: dark;
 }
 *, *::before, *::after { box-sizing: border-box; }
-[hidden] { display: none !important; }
-body { margin: 0; }
 html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
 body { touch-action: none; -webkit-user-select: none; user-select: none; }
 .sheet, #flyout { touch-action: pan-y; -webkit-user-select: text; user-select: text; }
@@ -101,6 +99,9 @@ body { background: var(--ink); color: var(--parchment); font-family: var(--font-
 .zoombar { margin-top: auto; display: flex; gap: 8px; }
 .zoombar .mbtn { justify-content: center; padding: 10px 0; flex: 1; font-size: 22px; }
 .zoombar .mbtn svg { width: 20px; height: 20px; }
+#b-fs[hidden] { display: none !important; }
+#b-fs .fs-out, .is-fs #b-fs .fs-in { display: none; }
+.is-fs #b-fs .fs-out { display: inline; }
 @keyframes slideIn { to { opacity: 1; transform: none; } }
 
 /* Folding the menu into an icon rail: only widths and opacity animate, nothing re-wraps */
@@ -429,7 +430,7 @@ span.pchip { cursor: default; } span.pchip:hover { transform: none; }
 
 @media (max-width: 760px) {
   .zoombar { display: flex !important; position: fixed; left: max(12px, env(safe-area-inset-left, 0px)); bottom: max(14px, env(safe-area-inset-bottom, 0px)); margin: 0; z-index: 20; }
-  #b-zin, #b-zout { display: none !important; }
+  #b-zin, #b-zout, #b-fs { display: none !important; }
   #menu .zoombar .nightsw { width: 52px; height: 36px; }
   .quest header b { font-size: 19px; }
 }
@@ -483,6 +484,8 @@ span.pchip { cursor: default; } span.pchip:hover { transform: none; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-delay: 0s !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
 }
+
+[hidden]{display:none!important} body{margin:0}
 </style>
 </head>
 <body>
@@ -515,6 +518,7 @@ span.pchip { cursor: default; } span.pchip:hover { transform: none; }
     <button class="mbtn nightsw" style="--i:4" id="b-night" type="button" aria-pressed="true" aria-label="Ночь на карте" title="Ночь на карте: включена"><span class="sw"><span class="knob"><svg viewBox="0 0 24 24"><path d="M15.8 3.6a8.6 8.6 0 1 0 4.6 14.6A7.2 7.2 0 0 1 15.8 3.6z"/></svg></span></span></button>
     <button class="mbtn" style="--i:5" id="b-zin" type="button" aria-label="Приблизить"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
     <button class="mbtn" style="--i:6" id="b-zout" type="button" aria-label="Отдалить"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+    <button class="mbtn" style="--i:7" id="b-fs" type="button" aria-label="На весь экран" title="На весь экран" hidden><svg viewBox="0 0 24 24"><path class="fs-in" d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/><path class="fs-out" d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5"/></svg></button>
   </div>
 </nav>
 
@@ -1076,6 +1080,23 @@ const zoomBtn = f => { ease = .12; zoomAt(innerWidth / 2, innerHeight / 2, tgt.s
 $("#b-zin").addEventListener("click", () => zoomBtn(1.4));
 $("#b-zout").addEventListener("click", () => zoomBtn(1 / 1.4));
 
+/* Полный экран (если браузер и ВКонтакте это разрешают) */
+(() => {
+  const d = document, root = d.documentElement, btn = $("#b-fs");
+  const enabled = d.fullscreenEnabled || d.webkitFullscreenEnabled;
+  const cur = () => d.fullscreenElement || d.webkitFullscreenElement;
+  if (!enabled || matchMedia("(pointer: coarse)").matches) return;
+  btn.hidden = false;
+  const sync = () => { const on = !!cur(); root.classList.toggle("is-fs", on); btn.setAttribute("aria-label", on ? "Выйти из полного экрана" : "На весь экран"); btn.title = btn.getAttribute("aria-label"); };
+  btn.addEventListener("click", () => {
+    try {
+      if (cur()) (d.exitFullscreen || d.webkitExitFullscreen).call(d);
+      else { const r = (root.requestFullscreen || root.webkitRequestFullscreen).call(root); if (r && r.catch) r.catch(() => {}); }
+    } catch (_) {}
+  });
+  d.addEventListener("fullscreenchange", sync); d.addEventListener("webkitfullscreenchange", sync);
+})();
+
 $("#b-hub").href = "index.html" + location.search;
 /* Если карта открыта внутри главного меню — «Главное меню» просто закрывает её */
 $("#b-hub").addEventListener("click", e => { if (window.parent !== window) { e.preventDefault(); try { window.parent.postMessage({ velaris: "closeMap" }, "*"); } catch (_) {} } });
@@ -1200,6 +1221,9 @@ updateClock(); setInterval(updateClock, 60000);
     } catch (e) {}
   };
   send("VKWebAppInit");
+  if (window.parent === window || !/(^|[?&])vk_platform=desktop_web/.test(location.search)) return;
+  const grow = () => send("VKWebAppResizeWindow", { width: 1000, height: Math.max(600, Math.min(4050, (screen.availHeight || 900) - 160)) });
+  grow(); setTimeout(grow, 800);
 })();
 
 /* =====================================================================

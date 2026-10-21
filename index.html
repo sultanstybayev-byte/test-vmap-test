@@ -1125,7 +1125,7 @@ function openMap(h) {
   if (!ov.firstChild || mapSrc !== src) { ov.innerHTML = `<iframe title="Атлас земель" src="${src}" allow="fullscreen"></iframe>`; mapSrc = src; }
   ov.hidden = false; document.documentElement.classList.add("map-open");
 }
-function closeMap() { const ov = $("#mapov"); if (ov) ov.hidden = true; document.documentElement.classList.remove("map-open"); }
+function closeMap() { const ov = $("#mapov"); try { const fe = document.fullscreenElement || document.webkitFullscreenElement; if (fe) (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (_) {} if (ov) ov.hidden = true; document.documentElement.classList.remove("map-open"); }
 addEventListener("message", e => {
   if (e.data && e.data.velaris === "closeMap") { if (location.hash.startsWith("#karta")) history.back(); else closeMap(); }
 });
@@ -1210,6 +1210,11 @@ addEventListener("popstate", render);
     if (window.AndroidBridge && window.AndroidBridge[m]) window.AndroidBridge[m]("{}");
     else if (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers[m]) window.webkit.messageHandlers[m].postMessage({});
     else if (window.parent !== window) window.parent.postMessage({ handler: m, params: {}, type: "vk-connect" }, "*");
+    /* на компьютере просим ВКонтакте расширить окно приложения до максимума */
+    if (window.parent !== window && /(^|[?&])vk_platform=desktop_web/.test(location.search)) {
+      const grow = () => window.parent.postMessage({ handler: "VKWebAppResizeWindow", params: { width: 1000, height: Math.max(600, Math.min(4050, (screen.availHeight || 900) - 160)) }, type: "vk-connect" }, "*");
+      grow(); setTimeout(grow, 800);
+    }
   } catch (e) {}
 })();
 render();
