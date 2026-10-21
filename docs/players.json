@@ -192,12 +192,17 @@
   {
    "id": 439139905,
    "play": true,
-   "char": "",
+   "char": "Новый персонаж",
    "name": "Виктория Апрельская",
    "photo": "https://sun1-28.vkuserphoto.ru/s/v1/ig2/qdUFtRikK98H23Cg8Q27-HPldNkK1OhUPchFHzaUky5nlnR-ksyQX8_I51SLX_0WrsF6D02BPLsEJUZmp9WZal01.jpg?quality=95&crop=27,205,825,825&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720&ava=1&cs=100x100",
    "role": "member",
    "left": false,
-   "chars": []
+   "chars": [
+    {
+     "id": "cmvig5rsorpx",
+     "name": "Новый персонаж"
+    }
+   ]
   },
   {
    "id": 445371615,
