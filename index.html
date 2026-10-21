@@ -2204,7 +2204,9 @@ function boot() {
   tgt.s = homeS() * 1.12; tgt.x = innerWidth / 2 - fx / 100 * W * tgt.s; tgt.y = innerHeight / 2 - .5 * H * tgt.s;
   bound(tgt); Object.assign(cur, tgt); apply();
   map.classList.add("ready");
-  const id = decodeURIComponent(location.hash.slice(1));
+  /* Внутри ВК карта всегда открывается общим видом, даже если в адресе приложения остался #город */
+  const inVK = /(^|[?&])vk_/.test(location.search);
+  const id = inVK ? "" : decodeURIComponent(location.hash.slice(1));
   setTimeout(() => byId[id] ? select(id) : loreById[id] ? showLore(id) : id === "kvesty" ? showQuests() : id === "vlast" ? showPower() : overview(), 250);
 }
 const img = map.querySelector("img");
