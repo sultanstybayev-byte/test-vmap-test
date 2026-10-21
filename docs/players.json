@@ -614,12 +614,17 @@
   {
    "id": 835922526,
    "play": true,
-   "char": "",
+   "char": "Новый персонаж",
    "name": "Саша Наранча",
    "photo": "https://sun1-27.vkuserphoto.ru/s/v1/ig2/umwsSwuIvFgAmVNT7IpuOgqkpqZixPncBQzB58ExiIkFzYkQg_4UVMGflO8hzpMkqq0Vpu02y2a-3BKmb77uCUHF.jpg?quality=95&crop=0,128,1082,1082&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720,1080x1080&ava=1&cs=100x100",
    "role": "member",
    "left": false,
-   "chars": []
+   "chars": [
+    {
+     "id": "cmvig252s5wa",
+     "name": "Новый персонаж"
+    }
+   ]
   },
   {
    "id": 895842660,
