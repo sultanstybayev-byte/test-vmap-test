@@ -535,7 +535,7 @@
   {
    "id": 895842660,
    "play": true,
-   "char": "Новый персонаж",
+   "char": "Клодевен фа Лемрой",
    "name": "Singing Lullaby",
    "photo": "https://sun1-28.vkuserphoto.ru/s/v1/ig2/o9lQ9TRNiXbDu_iXt3QZ2kyh2z0CoZsupQf-7n43e2YGUfFHZsJTqo6F8i6TM7T8YeX8UY2xlvh2QjzgtT1OkVTk.jpg?quality=95&crop=0,44,1074,1074&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540,640x640,720x720&ava=1&cs=100x100",
    "role": "member",
@@ -543,7 +543,7 @@
    "chars": [
     {
      "id": "cmviftrvic0i",
-     "name": "Новый персонаж"
+     "name": "Клодевен фа Лемрой"
     }
    ]
   },
