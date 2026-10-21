@@ -5,7 +5,7 @@
    "kind": "stopka",
    "title": "Найденные бумаги",
    "note": "",
-   "public": false,
+   "public": true,
    "created": "",
    "updated": ""
   }
