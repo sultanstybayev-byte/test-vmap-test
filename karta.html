@@ -488,6 +488,9 @@ span.pchip { cursor: default; } span.pchip:hover { transform: none; }
 .q-who > span { margin-right: 4px; font: 700 11.5px/1 var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); }
 .q-ava { display: block; width: 28px; height: 28px; border-radius: 50%; overflow: hidden; border: 2px solid var(--gold); background: var(--leather); text-decoration: none; }
 .q-ava img { width: 100%; height: 100%; object-fit: cover; display: block; } .q-ava b { display: grid; place-items: center; width: 100%; height: 100%; color: var(--gold-hi); font: 700 13px/1 var(--font-display); }
+.q-ava.named { width: auto; height: auto; overflow: visible; border: 0; background: none; display: inline-flex; flex-direction: column; align-items: center; gap: 2px; max-width: 80px; }
+.q-ava.named img, .q-ava.named b { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--gold); background: var(--leather); }
+.q-ava em { max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 11.5px/1.1 var(--font-body); color: var(--text-ink); font-style: normal; }
 
 [hidden]{display:none!important} body{margin:0}
 </style>
@@ -1601,8 +1604,10 @@ let questFilter = "all-groups", questFree = false;
 const pips4 = n => `<span class="pips">${[1, 2, 3, 4].map(i => `<i style="--n:${i}" data-on="${i <= n ? 1 : 0}"></i>`).join("")}</span>`;
 function mapWho(ids) {
   if (!ids || !ids.length) return "";
-  const by = new Map((window.QPLAYERS || []).map(p => [p.id, p]));
-  return `<div class="q-who"><span>Участники</span>${ids.map(id => { const p = by.get(id), t = p ? (p.char ? p.char + " — " + p.name : p.name) : "участник"; return `<a class="q-ava" href="https://vk.com/id${id}" target="_blank" rel="noopener" title="${esc(t)}">${p && p.photo ? `<img src="${esc(p.photo)}" alt="${esc(t)}">` : `<b>${esc(((p && (p.char || p.name)) || "?").charAt(0))}</b>`}</a>`; }).join("")}</div>`;
+  const P = window.QPLAYERS || [];
+  const chars = p => Array.isArray(p.chars) ? p.chars : String(p.char || "").split(/,\s*/).filter(Boolean).map((n, i) => ({ id: "c" + p.id + "x" + i, name: n }));
+  return `<div class="q-who"><span>Участники</span>${ids.map(w => { const [a, cid] = typeof w === "number" ? [w, ""] : String(w).split(":"), pid = +a, p = P.find(x => x.id === pid), c = p && cid ? chars(p).find(x => x.id === cid) : null, t = c ? c.name + " — " + p.name : p ? p.name : "участник";
+    return `<a class="q-ava${c ? " named" : ""}" href="https://vk.com/id${pid}" target="_blank" rel="noopener" title="${esc(t)}">${p && p.photo ? `<img src="${esc(p.photo)}" alt="">` : `<b>${esc(((c && c.name) || (p && p.name) || "?").charAt(0))}</b>`}${c ? `<em>${esc(c.name)}</em>` : ""}</a>`; }).join("")}</div>`;
 }
 function questCard(q, showGroup) {
   const places = q.places.filter(id => byId[id]);

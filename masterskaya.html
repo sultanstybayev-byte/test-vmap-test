@@ -377,6 +377,20 @@ html.rail-narrow .bar small { display: none; }
 .sheet { container-type: inline-size; }
 @container (max-width: 760px) { .lw { grid-template-columns: 1fr; } .lw-prev { position: static; order: -1; } .lw-prev .lw-cv, .lw-prev #bk-prev { max-width: 560px; margin: 0 auto; } }
 @media (max-width: 860px) { .rail .rail-fold { display: none; } html.rail-narrow .layout { grid-template-columns: 1fr; } html.rail-narrow .rail button span { display: inline; } html.rail-narrow .rail button { padding: 8px 12px; } }
+.pl-row { grid-template-columns: 40px minmax(140px, .7fr) auto minmax(0, 1.6fr); }
+.pl-chars { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.pc { display: inline-flex; align-items: center; gap: 4px; padding: 2px 4px 2px 3px; border: 1px solid rgba(63,90,44,.45); border-radius: 999px; background: rgba(238,243,223,.65); }
+.pc.busy { border-color: rgba(142,47,28,.5); background: rgba(246,225,215,.7); }
+.pc input { width: auto; min-width: 3ch; max-width: 22ch; padding: 3px 6px; border: 0; border-radius: 999px; background: transparent; font: 700 14.5px/1.2 var(--font-body); color: var(--text-ink); }
+.pc input:focus { background: #fff; outline: 2px solid var(--gold); }
+.pc i { font: italic 600 11.5px/1 var(--font-body); color: #3f5a2c; white-space: nowrap; } .pc.busy i { color: var(--blood); }
+.pc button { width: 18px; height: 18px; padding: 0; border: 0; border-radius: 50%; background: rgba(111,85,50,.2); color: var(--text-ink); font-size: 12px; line-height: 1; cursor: pointer; }
+.pc-add { padding: 4px 9px; border: 1px dashed rgba(111,85,50,.55); border-radius: 999px; background: transparent; color: var(--text-muted); font: 700 13px/1 var(--font-display); cursor: pointer; }
+@media (max-width: 640px) { .pl-chars { grid-column: 2 / -1; } }
+.ava-c { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; max-width: 76px; }
+.ava-c small { max-width: 76px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 11.5px/1.1 var(--font-body); color: var(--text-ink); }
+.qa-who { align-items: flex-start; }
+.qa-res b { font-weight: 700; } .qa-res i.busy { color: var(--blood); }
 </style>
 </head>
 <body>
@@ -887,12 +901,26 @@ async function plUpdate(mutate, message) {
   }
   throw new Error("Список игроков менялся одновременно с вами. Попробуйте ещё раз.");
 }
-const plName = p => p ? (p.char ? `${p.char} (${p.name})` : p.name) : "";
+/* персонажи игрока: [{ id: "c…", name }] — у каждого свой постоянный номер.
+   Старые записи (строка char через запятую) превращаются в персонажей при первом сохранении. */
+const newCid = () => "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+function charsOf(p) {
+  if (!p) return [];
+  if (Array.isArray(p.chars)) return p.chars;
+  return String(p.char || "").split(/,\s*/).map(x => x.trim()).filter(Boolean).map((n, i) => ({ id: "c" + p.id + "x" + i, name: n }));
+}
+function setChars(p, list) { p.chars = list.filter(c => String(c.name || "").trim()); p.char = p.chars.map(c => c.name).join(", "); }
+const plName = p => p ? (charsOf(p).length ? `${charsOf(p).map(c => c.name).join(", ")} (${p.name})` : p.name) : "";
+/* участник квеста: число — игрок целиком, "игрок:персонаж" — конкретный персонаж */
+function whoParse(w) { if (typeof w === "number") return { pid: w, cid: "" }; const [a, b] = String(w).split(":"); return { pid: +a, cid: b || "" }; }
+function whoInfo(w, players) {
+  const { pid, cid } = whoParse(w), p = (players || []).find(x => x.id === pid), c = p && cid ? charsOf(p).find(x => x.id === cid) : null;
+  return { p, c, pid, cid, label: c ? `${c.name} — ${p.name}` : p ? (charsOf(p).length ? plName(p) : p.name) : "участник", short: c ? c.name : p ? p.name : "?" };
+}
 /* круглые аватарки участников (для меню и карты) */
 function whoHTML(ids, players) {
   if (!ids || !ids.length) return "";
-  const by = new Map((players || []).map(p => [p.id, p]));
-  return `<div class="q-who"><span>Участники</span>${ids.map(id => { const p = by.get(id), t = p ? (p.char ? p.char + " — " + p.name : p.name) : "участник"; return `<a class="q-ava" href="https://vk.com/id${id}" target="_blank" rel="noopener" title="${esc(t)}">${p && p.photo ? `<img src="${esc(p.photo)}" alt="${esc(t)}">` : `<b>${esc(((p && (p.char || p.name)) || "?").charAt(0))}</b>`}</a>`; }).join("")}</div>`;
+  return `<div class="q-who"><span>Участники</span>${ids.map(w => { const I = whoInfo(w, players); return `<a class="q-ava${I.c ? " named" : ""}" href="https://vk.com/id${I.pid}" target="_blank" rel="noopener" title="${esc(I.label)}">${I.p && I.p.photo ? `<img src="${esc(I.p.photo)}" alt="">` : `<b>${esc(I.short.charAt(0))}</b>`}${I.c ? `<em>${esc(I.c.name)}</em>` : ""}</a>`; }).join("")}</div>`;
 }
 
 
@@ -2322,8 +2350,8 @@ function qaCard(q) {
   return `<article class="qa-card st-${st}">
     <header><div><b>${esc(q.n)}</b><span class="qg">${esc(groupName[q.g] || "")}</span></div><div class="lw-seg qa-seg">${seg}</div></header>
     <p>${esc(q.d)}</p>
-    <div class="qa-who"><span class="qa-who-l">Участники</span>${(s.who || []).map(id => { const p = QPL.find(x => x.id === id); return `<span class="ava" title="${esc(p ? plName(p) : "id" + id)}">${p && p.photo ? `<img src="${esc(p.photo)}" alt="">` : `<b>${esc((p ? (p.char || p.name) : "?").charAt(0))}</b>`}<button type="button" data-qawrm="${id}" data-qn="${esc(q.n)}" aria-label="Убрать">×</button></span>`; }).join("")}<button type="button" class="ava-add" data-qawadd="${esc(q.n)}" aria-label="Добавить участника" title="Добавить участника">+</button></div>
-    ${qaPick === q.n ? `<div class="qa-pick"><input type="search" data-qawq placeholder="${QPL.length ? "Найти игрока…" : "Список игроков пуст — загрузите его в «Игроках»"}" autocomplete="off"><div class="qa-res"></div></div>` : ""}
+    <div class="qa-who"><span class="qa-who-l">Участники</span>${(s.who || []).map(w => { const I = whoInfo(w, QPL); return `<span class="ava-c" title="${esc(I.label)}"><span class="ava">${I.p && I.p.photo ? `<img src="${esc(I.p.photo)}" alt="">` : `<b>${esc(I.short.charAt(0))}</b>`}<button type="button" data-qawrm="${esc(String(w))}" data-qn="${esc(q.n)}" aria-label="Убрать">×</button></span><small>${esc(I.c ? I.c.name : I.p ? I.p.name : "?")}</small></span>`; }).join("")}<button type="button" class="ava-add" data-qawadd="${esc(q.n)}" aria-label="Добавить участника" title="Добавить участника">+</button></div>
+    ${qaPick === q.n ? `<div class="qa-pick"><input type="search" data-qawq placeholder="${QPL.length ? "Найти персонажа или игрока…" : "Список игроков пуст — загрузите его в «Игроках»"}" autocomplete="off"><div class="qa-res"></div></div>` : ""}
     ${st === "done" && !open ? `<p class="qa-end"><b>Итог.</b> ${esc(s.end || "— не вписан —")}${s.date ? ` <small>${esc(s.date)}</small>` : ""}</p>` : ""}
     ${open ? `<div class="qa-form"><label>Итоги квеста — что произошло, кто участвовал, чем кончилось</label><textarea rows="4" data-qaend>${esc(s.end || "")}</textarea>
       <div class="actions"><button type="button" class="btn" data-qasave="${esc(q.n)}">Сохранить итоги — в архив</button><button type="button" class="btn ghost" data-qacancel>Отмена</button></div></div>`
@@ -2371,17 +2399,24 @@ document.addEventListener("click", e => {
 });
 document.addEventListener("input", e => { if (e.target.id === "qa-q") { qaQuery = e.target.value; qaDraw(); } });
 /* участники квеста */
+/* персонаж занят, если он участник другого незавершённого квеста */
+function qaBusyChar(pid, cid, except) { for (const [n, st] of Object.entries(QST)) { if (n === except || st.st === "done") continue; if ((st.who || []).some(w => { const W = whoParse(w); return W.pid === pid && W.cid === cid; })) return n; } return ""; }
 function qaResults(box, val) {
-  const name = qaPick, who = new Set(((QST[name] || {}).who) || []), v = (val || "").trim().toLowerCase();
-  const list = QPL.filter(p => !p.left && !who.has(p.id) && (!v || (p.name + " " + (p.char || "")).toLowerCase().includes(v)))
-    .sort((a, b) => (b.play ? 1 : 0) - (a.play ? 1 : 0) || a.name.localeCompare(b.name, "ru")).slice(0, 8);
-  box.querySelector(".qa-res").innerHTML = list.map(p => `<button type="button" data-qawpick="${p.id}">${p.photo ? `<img src="${esc(p.photo)}" alt="">` : ""}<span>${esc(plName(p))}</span>${p.play ? "<i>играет</i>" : ""}</button>`).join("") || (v ? "<p>Никого не нашлось</p>" : "");
+  const name = qaPick, who = new Set((((QST[name] || {}).who) || []).map(String)), v = (val || "").trim().toLowerCase();
+  const rows = [];
+  QPL.filter(p => !p.left).forEach(p => {
+    const cs = charsOf(p);
+    if (cs.length) cs.forEach(c => { const key = p.id + ":" + c.id; if (!who.has(key)) rows.push({ key, p, c, hay: (c.name + " " + p.name).toLowerCase(), busy: qaBusyChar(p.id, c.id, name) }); });
+    else if (!who.has(String(p.id))) rows.push({ key: String(p.id), p, c: null, hay: p.name.toLowerCase(), busy: "" });
+  });
+  const list = rows.filter(r => !v || r.hay.includes(v)).sort((a, b) => (a.busy ? 1 : 0) - (b.busy ? 1 : 0) || (b.p.play ? 1 : 0) - (a.p.play ? 1 : 0) || (a.c ? a.c.name : a.p.name).localeCompare(b.c ? b.c.name : b.p.name, "ru")).slice(0, 10);
+  box.querySelector(".qa-res").innerHTML = list.map(r => `<button type="button" data-qawpick="${esc(r.key)}">${r.p.photo ? `<img src="${esc(r.p.photo)}" alt="">` : ""}<span>${r.c ? `<b>${esc(r.c.name)}</b> · ${esc(r.p.name)}` : esc(r.p.name)}</span>${r.busy ? `<i class="busy">в квесте «${esc(r.busy)}»</i>` : r.c ? "<i>свободен</i>" : ""}</button>`).join("") || (v ? "<p>Никого не нашлось</p>" : "");
 }
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest("[data-qawadd],[data-qawrm],[data-qawpick]"); if (!b) return;
   if (b.dataset.qawadd) { qaPick = qaPick === b.dataset.qawadd ? null : b.dataset.qawadd; qaDraw(); const i = document.querySelector("[data-qawq]"); if (i) { i.focus(); qaResults(i.closest(".qa-pick"), ""); } return; }
-  if (b.dataset.qawrm) { const n = b.dataset.qn, who = (((QST[n] || {}).who) || []).filter(x => x !== +b.dataset.qawrm); qaSet(n, { who }, ""); return; }
-  if (b.dataset.qawpick) { const n = qaPick, who = (((QST[n] || {}).who) || []).slice(); const id = +b.dataset.qawpick; if (!who.includes(id)) who.push(id); qaPick = null; qaSet(n, { who }, ""); }
+  if (b.dataset.qawrm) { const n = b.dataset.qn, who = (((QST[n] || {}).who) || []).filter(x => String(x) !== b.dataset.qawrm); qaSet(n, { who }, ""); return; }
+  if (b.dataset.qawpick) { const n = qaPick, who = (((QST[n] || {}).who) || []).slice(), k = b.dataset.qawpick, val = /^\d+$/.test(k) ? +k : k; if (!who.map(String).includes(k)) who.push(val); qaPick = null; qaSet(n, { who }, ""); }
 });
 document.addEventListener("input", e => { if (e.target.hasAttribute && e.target.hasAttribute("data-qawq")) qaResults(e.target.closest(".qa-pick"), e.target.value); });
 
@@ -2416,7 +2451,8 @@ function plDraw() {
   const f = { all: p => !p.left, play: p => p.play && !p.left, staff: p => isStaff(p) && !p.left, left: p => p.left };
   document.querySelectorAll("[data-plc]").forEach(s => s.textContent = L.filter(f[s.dataset.plc]).length);
   const rank = { creator: 0, administrator: 1, editor: 2, moderator: 3 };
-  const list = L.filter(f[plFilter]).filter(p => !q || (p.name + " " + (p.char || "")).toLowerCase().includes(q))
+  const list = L.filter(f[plFilter]).filter(p => !q || (p.name + " " + charsOf(p).map(c => c.name).join(" ")).toLowerCase().includes(q))
+    .filter(p => !q || true)
     .sort((a, b) => (rank[a.role] ?? 9) - (rank[b.role] ?? 9) || (b.play ? 1 : 0) - (a.play ? 1 : 0) || a.name.localeCompare(b.name, "ru"));
   const up = $("#pl-upd"); if (up && PL.updated) up.textContent = `Последняя загрузка: ${PL.updated}. В группе ${L.filter(p => !p.left).length} чел.`;
   if (!L.length) { box.innerHTML = `<p class="lw-lead">Список пуст. Откройте Мастерскую из приложения ВК и нажмите «Загрузить участников группы».</p>`; return; }
@@ -2424,11 +2460,17 @@ function plDraw() {
       ${p.photo ? `<img src="${esc(p.photo)}" alt="" loading="lazy">` : `<span class="pl-ava"></span>`}
       <div class="pl-who"><a href="https://vk.com/id${p.id}" target="_blank" rel="noopener">${esc(p.name)}</a>${isStaff(p) ? `<span class="pl-role r-${p.role}">${ROLE_NAMES[p.role]}</span>` : ""}${p.left ? `<span class="pl-role">вышел из группы</span>` : ""}</div>
       <label class="lw-chk pl-play"><input type="checkbox" data-plplay="${p.id}"${p.play ? " checked" : ""}> играет</label>
-      <input type="text" class="pl-char" data-plchar="${p.id}" value="${esc(p.char || "")}" placeholder="Персонаж">
+      <div class="pl-chars">${charsOf(p).map(c => { const q = charQuest(p.id, c.id); return `<span class="pc${q ? " busy" : ""}" title="${q ? "В квесте «" + esc(q) + "»" : "Свободен от квестов"}"><input type="text" value="${esc(c.name)}" data-pcn="${p.id}" data-cid="${c.id}" size="${Math.max(4, c.name.length)}" aria-label="Имя персонажа"><i>${q ? "в квесте" : "свободен"}</i><button type="button" data-pcdel="${p.id}" data-cid="${c.id}" aria-label="Удалить персонажа">×</button></span>`; }).join("")}<button type="button" class="pc-add" data-pcadd="${p.id}">+ персонаж</button></div>
     </div>`).join("") : `<p class="lw-lead">Никого не нашлось.</p>`;
 }
+/* в каком незавершённом квесте сейчас персонаж */
+let PQS = {};
+function charQuest(pid, cid) { for (const [n, s] of Object.entries(PQS)) { if (s.st === "done") continue; if ((s.who || []).some(w => { const W = whoParse(w); return W.pid === pid && W.cid === cid; })) return n; } return ""; }
 async function playersInit() {
-  try { PL = await plLoad(!!ghCfg().token); if (!PL.list) PL.list = []; } catch (err) { toast("Не получилось загрузить список: " + err.message); }
+  qsLoad(!!ghCfg().token).then(st => { PQS = st || {}; plDraw(); }).catch(() => {});
+  try { PL = await plLoad(!!ghCfg().token); if (!PL.list) PL.list = [];
+    /* один раз закрепляем постоянные номера персонажей у старых записей */
+    if (ghCfg().token && PL.list.some(p => !Array.isArray(p.chars) && p.char)) PL = await plUpdate(P => P.list.forEach(x => { if (!Array.isArray(x.chars)) setChars(x, charsOf(x)); }), "Игроки: номера персонажей"); } catch (err) { toast("Не получилось загрузить список: " + err.message); }
   plDraw();
 }
 async function plSaveOne(id, patch) {
@@ -2467,7 +2509,7 @@ document.addEventListener("click", e => {
 document.addEventListener("input", e => {
   const t = e.target;
   if (t.id === "pl-q") { plQuery = t.value; plDraw(); const i = $("#pl-q"); if (i !== t) i.focus(); return; }
-  if (t.dataset && t.dataset.plchar) { const id = +t.dataset.plchar; clearTimeout(plTimers[id]); plTimers[id] = setTimeout(() => plSaveOne(id, { char: t.value.trim() }), 900); }
+  if (t.dataset && t.dataset.pcn) { t.size = Math.max(4, t.value.length); const id = +t.dataset.pcn, cid = t.dataset.cid; clearTimeout(plTimers[cid]); plTimers[cid] = setTimeout(() => plChars(id, L => { const c = L.find(x => x.id === cid); if (c) c.name = t.value.replace(/\s+/g, " ").trim(); return L; }), 900); }
 });
 document.addEventListener("change", e => { const t = e.target; if (t.dataset && t.dataset.plplay) plSaveOne(+t.dataset.plplay, { play: t.checked }); });
 
@@ -2499,7 +2541,7 @@ function ankHTML() {
   const byId = new Map(PL.list.map(p => [p.id, p]));
   const opts = sel => `<option value="0">— не выбран —</option>` + PL.list.filter(p => !p.left).sort((a, b) => a.name.localeCompare(b.name, "ru")).map(p => `<option value="${p.id}"${p.id === sel ? " selected" : ""}>${esc(p.name)}</option>`).join("");
   return `<div class="ank"><header><b>Найдено анкет: ${ANK.list.length}</b><small>Проверьте пары «персонаж → игрок». Без отметки или без игрока — не впишутся.</small></header>
-    ${ANK.list.map((a, i) => { const p = byId.get(a.player), has = p && (p.char || "").split(/,\s*/).includes(a.name);
+    ${ANK.list.map((a, i) => { const p = byId.get(a.player), has = p && charsOf(p).some(c => c.name === a.name);
       return `<div class="ank-row${has ? " done" : ""}"><label class="lw-chk"><input type="checkbox" data-ankon="${i}"${a.on ? " checked" : ""}></label>
         <a href="https://vk.com/wall-${ANK.gid}_${a.post}" target="_blank" rel="noopener" class="ank-n">${esc(a.name)}</a><span class="ank-ar">→</span>
         <select data-ankpl="${i}">${opts(a.player)}</select>${has ? `<small>уже вписан</small>` : ""}</div>`; }).join("")}
@@ -2515,7 +2557,7 @@ async function ankScan(btn) {
   if (!res.ok) { toast("Не получилось: " + res.error); return; }
   const known = new Set(PL.list.map(p => p.id)), seen = new Set();
   const list = res.res.posts.map(ankParse).filter(Boolean).filter(a => { const k = a.player + "|" + a.name; if (seen.has(k)) return false; seen.add(k); return true; });
-  list.forEach(a => { if (!known.has(a.player)) a.player = 0; const p = PL.list.find(x => x.id === a.player); a.on = !!a.player && !(p && (p.char || "").split(/,\s*/).includes(a.name)); });
+  list.forEach(a => { if (!known.has(a.player)) a.player = 0; const p = PL.list.find(x => x.id === a.player); a.on = !!a.player && !(p && charsOf(p).some(c => c.name === a.name)); });
   ANK = { gid: res.res.gid, list }; ankDraw();
   toast(list.length ? `Найдено анкет: ${list.length}. Проверьте и нажмите «Вписать».` : "Анкет на стене не нашлось.");
 }
@@ -2531,9 +2573,24 @@ document.addEventListener("click", async e => {
   const pick = ANK.list.filter(a => a.on && a.player); if (!pick.length) { toast("Ничего не отмечено."); return; }
   if (!ghCfg().token) { toast("Чтобы сохранить, подключите ключ GitHub."); return; }
   b.disabled = true;
-  const add = (P) => pick.forEach(a => { const p = P.list.find(x => x.id === a.player); if (!p) return; const cs = (p.char || "").split(/,\s*/).filter(Boolean); if (!cs.includes(a.name)) cs.push(a.name); p.char = cs.join(", "); p.play = true; p.ank = Array.from(new Set([...(p.ank || []), a.post])); });
+  const add = (P) => pick.forEach(a => { const p = P.list.find(x => x.id === a.player); if (!p) return; const cs = charsOf(p).map(c => Object.assign({}, c)); if (!cs.some(c => c.name === a.name)) cs.push({ id: newCid(), name: a.name, post: a.post }); setChars(p, cs); p.play = true; p.ank = Array.from(new Set([...(p.ank || []), a.post])); });
   try { PL = await plUpdate(P => add(P), `Игроки: персонажи из анкет (${pick.length})`); toast(`Вписано персонажей: ${pick.length}.`); ANK = null; ankDraw(); plDraw(); }
   catch (err) { b.disabled = false; toast("Не получилось: " + err.message); }
+});
+
+/* правка персонажей: mutate(список) → новый список; сохраняется на сайт */
+async function plChars(id, mutate, msg) {
+  const p = PL.list.find(x => x.id === id); if (!p) return;
+  setChars(p, mutate(charsOf(p).map(c => Object.assign({}, c))));
+  if (!ghCfg().token) { toast("Чтобы сохранить, подключите ключ GitHub."); return; }
+  try { PL = await plUpdate(P => { const x = P.list.find(y => y.id === id); if (x) { if (!Array.isArray(x.chars)) setChars(x, charsOf(x)); setChars(x, mutate(charsOf(x).map(c => Object.assign({}, c)))); } }, `Игрок id${id}: персонажи`); if (msg) toast(msg); }
+  catch (err) { toast("Не получилось сохранить: " + err.message); }
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-pcadd],[data-pcdel]"); if (!b) return;
+  if (b.dataset.pcadd) { const id = +b.dataset.pcadd, cid = newCid(); const p = PL.list.find(x => x.id === id); setChars(p, charsOf(p).concat([{ id: cid, name: "Новый персонаж" }])); plDraw(); const i = document.querySelector(`[data-cid="${cid}"]`); if (i) { i.focus(); i.select(); } plChars(id, L => L.some(c => c.id === cid) ? L : L.concat([{ id: cid, name: "Новый персонаж" }])); return; }
+  const id = +b.dataset.pcdel, cid = b.dataset.cid, p = PL.list.find(x => x.id === id), c = charsOf(p).find(x => x.id === cid);
+  askYes(`Удалить персонажа «${c ? c.name : ""}» у игрока ${p.name}?`, "Удалить", "Отмена", true).then(ok => { if (ok) { plChars(id, L => L.filter(x => x.id !== cid), "Персонаж удалён."); plDraw(); } });
 });
 
 

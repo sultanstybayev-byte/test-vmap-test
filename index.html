@@ -409,6 +409,9 @@ html.dragging-doc, html.dragging-doc * { cursor: grabbing !important; }
 .q-who > span { margin-right: 4px; font: 700 12px/1 var(--font-display); letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); }
 .q-ava { display: block; width: 30px; height: 30px; border-radius: 50%; overflow: hidden; border: 2px solid var(--gold); background: var(--leather); box-shadow: 0 1px 3px rgba(0,0,0,.3); text-decoration: none; }
 .q-ava img { width: 100%; height: 100%; object-fit: cover; display: block; } .q-ava b { display: grid; place-items: center; width: 100%; height: 100%; color: var(--gold-hi); font: 700 14px/1 var(--font-display); }
+.q-ava.named { width: auto; height: auto; overflow: visible; border: 0; background: none; box-shadow: none; display: inline-flex; flex-direction: column; align-items: center; gap: 2px; max-width: 80px; }
+.q-ava.named img, .q-ava.named b { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--gold); background: var(--leather); box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+.q-ava em { max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 600 12px/1.1 var(--font-body); color: var(--text-ink); font-style: normal; }
 </style>
 </head>
 <body>
@@ -1117,12 +1120,26 @@ async function plUpdate(mutate, message) {
   }
   throw new Error("Список игроков менялся одновременно с вами. Попробуйте ещё раз.");
 }
-const plName = p => p ? (p.char ? `${p.char} (${p.name})` : p.name) : "";
+/* персонажи игрока: [{ id: "c…", name }] — у каждого свой постоянный номер.
+   Старые записи (строка char через запятую) превращаются в персонажей при первом сохранении. */
+const newCid = () => "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+function charsOf(p) {
+  if (!p) return [];
+  if (Array.isArray(p.chars)) return p.chars;
+  return String(p.char || "").split(/,\s*/).map(x => x.trim()).filter(Boolean).map((n, i) => ({ id: "c" + p.id + "x" + i, name: n }));
+}
+function setChars(p, list) { p.chars = list.filter(c => String(c.name || "").trim()); p.char = p.chars.map(c => c.name).join(", "); }
+const plName = p => p ? (charsOf(p).length ? `${charsOf(p).map(c => c.name).join(", ")} (${p.name})` : p.name) : "";
+/* участник квеста: число — игрок целиком, "игрок:персонаж" — конкретный персонаж */
+function whoParse(w) { if (typeof w === "number") return { pid: w, cid: "" }; const [a, b] = String(w).split(":"); return { pid: +a, cid: b || "" }; }
+function whoInfo(w, players) {
+  const { pid, cid } = whoParse(w), p = (players || []).find(x => x.id === pid), c = p && cid ? charsOf(p).find(x => x.id === cid) : null;
+  return { p, c, pid, cid, label: c ? `${c.name} — ${p.name}` : p ? (charsOf(p).length ? plName(p) : p.name) : "участник", short: c ? c.name : p ? p.name : "?" };
+}
 /* круглые аватарки участников (для меню и карты) */
 function whoHTML(ids, players) {
   if (!ids || !ids.length) return "";
-  const by = new Map((players || []).map(p => [p.id, p]));
-  return `<div class="q-who"><span>Участники</span>${ids.map(id => { const p = by.get(id), t = p ? (p.char ? p.char + " — " + p.name : p.name) : "участник"; return `<a class="q-ava" href="https://vk.com/id${id}" target="_blank" rel="noopener" title="${esc(t)}">${p && p.photo ? `<img src="${esc(p.photo)}" alt="${esc(t)}">` : `<b>${esc(((p && (p.char || p.name)) || "?").charAt(0))}</b>`}</a>`; }).join("")}</div>`;
+  return `<div class="q-who"><span>Участники</span>${ids.map(w => { const I = whoInfo(w, players); return `<a class="q-ava${I.c ? " named" : ""}" href="https://vk.com/id${I.pid}" target="_blank" rel="noopener" title="${esc(I.label)}">${I.p && I.p.photo ? `<img src="${esc(I.p.photo)}" alt="">` : `<b>${esc(I.short.charAt(0))}</b>`}${I.c ? `<em>${esc(I.c.name)}</em>` : ""}</a>`; }).join("")}</div>`;
 }
 
 
