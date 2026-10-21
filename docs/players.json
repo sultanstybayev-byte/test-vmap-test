@@ -23,12 +23,17 @@
   {
    "id": 170684085,
    "play": true,
-   "char": "",
+   "char": "Новый персонаж",
    "name": "Эд Золотарев",
    "photo": "https://sun1-29.vkuserphoto.ru/s/v1/ig2/nY8ptA2_5U6-Mmu1JFMhynhTyvuc5oH5p35AO0PapvB8zcKX-ZsDcSSByx4In9u7NyVemRRmvvsnmFwlp2cXfZPP.jpg?quality=95&crop=256,748,503,503&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480&ava=1&cs=100x100",
    "role": "member",
    "left": false,
-   "chars": []
+   "chars": [
+    {
+     "id": "cmvifr5cz7yd",
+     "name": "Новый персонаж"
+    }
+   ]
   },
   {
    "id": 188595799,
