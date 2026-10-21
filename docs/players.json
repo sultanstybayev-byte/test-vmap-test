@@ -367,7 +367,7 @@
   {
    "id": 578045749,
    "play": true,
-   "char": "Новый персонаж",
+   "char": "Элио",
    "name": "Лукас Кранах",
    "photo": "https://sun1-55.vkuserphoto.ru/s/v1/ig2/ZZ7M_mgm48ChG3rQsYCjH53Yom5jJrfIbqpv-tziMDDbBi3BNVpn1SErvWFOeInR7MDfq1fvvg4tVme_bx7skGSh.jpg?quality=95&crop=224,0,628,628&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480,540x540&ava=1&cs=100x100",
    "role": "member",
@@ -375,7 +375,7 @@
    "chars": [
     {
      "id": "cmvig6qmgkdg",
-     "name": "Новый персонаж"
+     "name": "Элио"
     }
    ]
   },
