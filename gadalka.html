@@ -16,7 +16,7 @@
   --fh: "Marck Script", "Cormorant Garamond", cursive;
 }
 * { box-sizing: border-box; }
-html, body { margin: 0; height: 100%; background: #12070c; color: var(--ink); font: 500 19px/1.4 var(--fb); overflow: hidden; -webkit-tap-highlight-color: transparent; }
+html, body { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; margin: 0; height: 100%; background: #12070c; color: var(--ink); font: 500 19px/1.4 var(--fb); overflow: hidden; -webkit-tap-highlight-color: transparent; }
 button { font: inherit; color: inherit; }
 [hidden] { display: none !important; }
 
@@ -44,7 +44,7 @@ button { font: inherit; color: inherit; }
 @keyframes twinkle { from { opacity: .4; } to { opacity: 1; } }
 
 /* карты на столе */
-.slots { position: absolute; left: 14%; right: 14%; top: 62%; height: 22%; display: flex; justify-content: center; align-items: center; gap: 2.2%; z-index: 3; perspective: 900px; pointer-events: auto; }
+.slots { position: absolute; left: 14%; right: 14%; top: 62%; height: 22%; container-type: size; display: flex; justify-content: center; align-items: center; gap: 2.2%; z-index: 3; perspective: 900px; pointer-events: auto; }
 .slot { position: relative; height: 100%; aspect-ratio: 120 / 200; border-radius: 6px; border: 1px dashed rgba(240,214,150,.28); display: grid; place-items: center; }
 .slot > span { position: absolute; bottom: -2px; left: 50%; transform: translate(-50%, 100%); font: 600 11px/1 var(--fd); letter-spacing: .08em; color: rgba(240,214,150,.75); white-space: nowrap; text-shadow: 0 1px 3px #000; }
 .slot { background: rgba(0,0,0,.18); }
@@ -58,7 +58,8 @@ button { font: inherit; color: inherit; }
 .card.open .fl { transform: rotateY(180deg); }
 .card.rev.open .fl { transform: rotateY(180deg) rotateZ(180deg); }
 .card.now .f svg { filter: drop-shadow(0 0 10px rgba(255,214,140,.75)) drop-shadow(0 4px 6px rgba(0,0,0,.55)); }
-.slots.n5 .slot { height: 88%; }
+.slots.n5 .slot { height: min(100cqh, 30cqw); } .slots.n3 .slot { height: min(100cqh, 52cqw); }
+@media (max-width: 560px) { .slots { left: 27.5%; right: 27.5%; top: 56%; height: 30%; gap: 2.2%; } .slot > span { font-size: 9px !important; } }
 .slots.n5 .slot > span { white-space: normal; width: 112%; text-align: center; line-height: 1.05; }
 
 .tc-svg { display: block; width: 100%; height: 100%; }
@@ -111,17 +112,18 @@ button { font: inherit; color: inherit; }
 .opt.gold::before { display: none; }
 @keyframes optin { from { opacity: 0; transform: translateY(6px); } }
 .name-row { display: flex; gap: 8px; flex-wrap: wrap; }
-.name-row input { flex: 1 1 200px; min-width: 0; padding: 10px 12px; border: 1px solid rgba(127,166,201,.55); border-radius: 2px; background: rgba(0,0,0,.35); color: #e3ecf5; font: 600 19px/1.2 var(--fh); }
+.name-row input { -webkit-user-select: text; user-select: text;  flex: 1 1 200px; min-width: 0; padding: 10px 12px; border: 1px solid rgba(127,166,201,.55); border-radius: 2px; background: rgba(0,0,0,.35); color: #e3ecf5; font: 600 19px/1.2 var(--fh); }
 .name-row input:focus { outline: none; border-color: #b9d3ea; }
 .name-row .opt { flex: 0 0 auto; }
 
 /* веер — тянуть карты */
-.fan { position: relative; flex: 1 1 auto; min-height: 100px; max-height: 150px; margin-top: 2px; }
-.fan button { position: absolute; left: 50%; bottom: 4px; width: clamp(54px, 8vw, 70px); aspect-ratio: 120 / 200; padding: 0; border: 0; background: none; cursor: pointer; transform-origin: 50% 280%; transform: translateX(-50%) rotate(calc((var(--k) - 10.5) * var(--sp, 3.6deg))); transition: transform .45s var(--ease), opacity .35s; filter: drop-shadow(0 3px 5px rgba(0,0,0,.6)); animation: deal .7s var(--ease) both; animation-delay: calc(var(--k) * 22ms); }
+.fan { position: fixed; left: 0; right: 0; bottom: 0; height: min(46vh, 330px); z-index: 9; pointer-events: none; }
+.fan::before { content: ""; position: absolute; inset: 30% 0 0; background: linear-gradient(180deg, transparent, rgba(8,4,6,.75)); pointer-events: none; }
+.fan button { pointer-events: auto; position: absolute; left: 50%; bottom: -13%; width: clamp(84px, 10vw, 128px); aspect-ratio: 120 / 200; padding: 0; border: 0; background: none; cursor: pointer; transform-origin: 50% 280%; transform: translateX(-50%) rotate(calc((var(--k) - 10.5) * var(--sp, 3.6deg))); transition: transform .45s var(--ease), opacity .35s; filter: drop-shadow(0 3px 5px rgba(0,0,0,.6)); animation: deal .7s var(--ease) both; animation-delay: calc(var(--k) * 22ms); }
 .fan button:hover, .fan button:focus-visible { transform: translateX(-50%) rotate(calc((var(--k) - 10.5) * var(--sp, 3.6deg))) translateY(-14px); outline: none; }
 .fan button.taken { opacity: 0; pointer-events: none; transform: translateX(-50%) rotate(calc((var(--k) - 10.5) * var(--sp, 3.6deg))) translateY(-120px); }
 @keyframes deal { from { transform: translateX(-50%) rotate(0deg); opacity: 0; } }
-@media (max-width: 560px) { .fan { max-height: 130px; } .fan button { --sp: 2.2deg; width: 58px; bottom: 26px; transform-origin: 50% 240%; } }
+@media (max-width: 560px) { .fan { height: 40vh; } .fan button { --sp: 2.4deg; width: 78px; bottom: -4%; transform-origin: 50% 250%; } }
 
 /* верхняя полоса */
 .top { position: absolute; left: 0; right: 0; top: 0; z-index: 8; display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; pointer-events: none; }
@@ -130,7 +132,7 @@ button { font: inherit; color: inherit; }
 
 /* ---------- вход: полог ---------- */
 .gate { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; pointer-events: none; }
-.flap { position: absolute; top: 0; bottom: 0; width: 51%; pointer-events: auto; transition: transform 1.6s cubic-bezier(.6,.05,.25,1); background: repeating-linear-gradient(90deg, #3e2512 0 2px, #5a3820 2px 58px, #4a2e18 58px 62px), #4a2e18; box-shadow: inset 0 0 140px rgba(0,0,0,.85); }
+.flap { position: absolute; top: 0; bottom: 0; width: 50%; pointer-events: auto; transition: transform 1.6s cubic-bezier(.6,.05,.25,1); background: repeating-linear-gradient(90deg, #3e2512 0 2px, #5a3820 2px 58px, #4a2e18 58px 62px), #4a2e18; box-shadow: inset 0 0 140px rgba(0,0,0,.85); }
 .flap .door-art { position: absolute; inset: 0; width: 100%; height: 100%; }
 .gate { place-items: end center; } .gate-c { margin-bottom: 4vh; padding: 18px 24px; background: radial-gradient(ellipse at 50% 0, rgba(70,26,38,.94), rgba(14,6,9,.94)); }
 .gate .gate-c { max-width: 400px; padding: 14px 20px; background: rgba(14,6,9,.78); backdrop-filter: blur(2px); }
