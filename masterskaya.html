@@ -457,23 +457,44 @@ async function ghWrite(c, path, obj, sha, message) {
   if (!r.ok) { const e = new Error(ghErr(r.status)); e.status = r.status; throw e; }
   return (await r.json()).content.sha;
 }
-/* список документов: для мастера — свежий через GitHub, для игроков — с сайта */
-async function dbList(fresh) {
-  const c = ghCfg();
-  if (fresh && c.token) { const { data } = await ghRead(c, "docs/index.json"); return ((data && data.docs) || []).filter(d => !d.deleted); }
-  try { const r = await fetch("docs/index.json?t=" + Date.now(), { cache: "no-store" }); if (!r.ok) return []; const j = await r.json(); return (j.docs || []).filter(d => !d.deleted); } catch (_) { return []; }
+/* Папки, с которых всё начинается (админы потом меняют их как хотят) */
+const DEFAULT_FOLDERS = [
+  { id: "f-pisma", name: "Письма", icon: "quill" }, { id: "f-ukazy", name: "Указы", icon: "crown" },
+  { id: "f-knigi", name: "Книги и дневники", icon: "book" }, { id: "f-tainye", name: "Тайные бумаги", icon: "key" }
+];
+/* список документов и папок: для мастера — свежий через GitHub, для игроков — с сайта */
+async function dbIndex(fresh) {
+  const c = ghCfg(); let data = null;
+  if (fresh && c.token) data = (await ghRead(c, "docs/index.json")).data;
+  else { try { const r = await fetch("docs/index.json?t=" + Date.now(), { cache: "no-store" }); if (r.ok) data = await r.json(); } catch (_) {} }
+  data = data || {};
+  return { docs: (data.docs || []).filter(d => !d.deleted), folders: data.folders || (data.docs ? DEFAULT_FOLDERS.slice() : []) };
 }
-/* изменить список: mutate(docs) правит массив; повтор, если кто-то успел записать раньше */
+async function dbList(fresh) { return (await dbIndex(fresh)).docs; }
+/* изменить список: mutate(docs, idx) правит документы и папки; повтор, если кто-то успел записать раньше */
 async function dbUpdate(mutate, message) {
   const c = ghCfg();
   for (let attempt = 0; attempt < 3; attempt++) {
     const { data, sha } = await ghRead(c, "docs/index.json");
-    const docs = (data && data.docs) || [];
-    const res = await mutate(docs);
-    try { await ghWrite(c, "docs/index.json", { docs }, sha, message); return res; }
+    const idx = { docs: (data && data.docs) || [], folders: (data && data.folders) || DEFAULT_FOLDERS.map(f => Object.assign({}, f)) };
+    const res = await mutate(idx.docs, idx);
+    try { await ghWrite(c, "docs/index.json", idx, sha, message); return res; }
     catch (e) { if (e.status !== 409 && e.status !== 422) throw e; }
   }
   throw new Error("Список документов менялся одновременно с вами. Попробуйте ещё раз.");
+}
+/* папки */
+async function dbMove(no, folder) {
+  return dbUpdate(docs => { const d = docs.find(x => x.no === +no); if (d) { if (folder) d.folder = folder; else delete d.folder; } }, `Документ №${no}: в папку`);
+}
+async function dbFolderSave(f) {
+  return dbUpdate((docs, idx) => { const e = idx.folders.find(x => x.id === f.id); if (e) Object.assign(e, { name: f.name, icon: f.icon }); else idx.folders.push({ id: f.id, name: f.name, icon: f.icon }); }, `Папка «${f.name}»`);
+}
+async function dbFolderDelete(id) {
+  return dbUpdate((docs, idx) => { idx.folders = idx.folders.filter(x => x.id !== id); docs.forEach(d => { if (d.folder === id) delete d.folder; }); }, "Папка удалена");
+}
+async function dbFolderMove(id, dir) {
+  return dbUpdate((docs, idx) => { const F = idx.folders, i = F.findIndex(x => x.id === id), j = i + dir; if (i < 0 || j < 0 || j >= F.length) return; [F[i], F[j]] = [F[j], F[i]]; }, "Порядок папок");
 }
 /* старые документы, сохранённые до появления списка, добавляем в список скрытыми */
 async function dbAdopt() {
@@ -1521,7 +1542,8 @@ let BKShared = null;
    ===================================================================== */
 const siteBase = () => location.href.split("#")[0].split("?")[0].replace(/[^/]*$/, "");
 const shortUrl = n => siteBase() + "#" + n;
-const META = ["pubNo", "docTitle", "note", "isPublic"];
+const META = ["pubNo", "docTitle", "note", "isPublic", "folder"];
+let WFOLDERS = [];
 const PUB = {
   pisma:  () => ({ kind: "pismo",  auto: LW.sign ? "Письмо: " + LW.sign : "Письмо", data: LW, holder: LW }),
   kniga:  () => ({ kind: "kniga",  auto: BK.title || "Книга", data: BK, holder: BK }),
@@ -1549,6 +1571,7 @@ function pubHTML(tool) {
     <h4 class="pub-h">${no ? `Документ №${no} <span class="dstat${h.isPublic ? " on" : ""}">${h.isPublic ? "открыт игрокам" : "скрыт от игроков"}</span>` : "Новый документ"}</h4>
     <div class="fld"><label>Название в списке документов</label><input type="text" data-dmeta="docTitle" value="${esc(h.docTitle || "")}" placeholder="${esc(d.auto)}"></div>
     <div class="fld"><label>Сводка для игроков</label><textarea data-dmeta="note" rows="3" placeholder="При каких обстоятельствах и кем получено. Например: найдено у курьера на тракте к Кальдерону; досталось Эрику и Лире.">${esc(h.note || "")}</textarea><small>Видна в списке документов, но не внутри самого документа.</small></div>
+    <div class="fld"><label>Папка</label><select data-dmeta="folder"><option value="">Разное</option>${WFOLDERS.map(f => `<option value="${esc(f.id)}"${h.folder === f.id ? " selected" : ""}>${esc(f.name)}</option>`).join("")}</select></div>
     <div class="actions">${no
       ? `<button type="button" class="btn" data-pubgo="update">Сохранить изменения</button><button type="button" class="btn ghost" data-pubtoggle>${h.isPublic ? "Скрыть от игроков" : "Открыть игрокам"}</button><button type="button" class="btn ghost" data-pubshow="${no}">Ссылка</button><button type="button" class="btn ghost danger" data-pubdel>Удалить</button>`
       : `<button type="button" class="btn" data-pubgo="new"${tok ? "" : " disabled"}>Создать документ</button>`}</div>
@@ -1573,8 +1596,13 @@ function pubRedraw(tool, keepMsg) {
 }
 /* при открытии редактора уточняем, не открыли/скрыли ли документ из главного меню */
 function pubSync(tool) {
-  const h = PUB[tool]().holder; if (!h.pubNo || !ghCfg().token) return;
-  dbList(true).then(list => { const e = list.find(x => x.no === h.pubNo); if (e && !!e.public !== !!h.isPublic) { h.isPublic = !!e.public; pubSave(tool); pubRedraw(tool); } }).catch(() => {});
+  const h = PUB[tool]().holder; if (!ghCfg().token) return;
+  dbIndex(true).then(ix => {
+    const fchg = JSON.stringify(ix.folders) !== JSON.stringify(WFOLDERS); WFOLDERS = ix.folders;
+    const e = h.pubNo && ix.docs.find(x => x.no === h.pubNo);
+    if (e) { h.isPublic = !!e.public; h.folder = e.folder || ""; pubSave(tool); }
+    if (fchg || e) pubRedraw(tool);
+  }).catch(() => {});
 }
 async function publish(tool, mode, btn) {
   const box = pubBox(btn), d = PUB[tool](), c = ghCfg(), h = d.holder;
@@ -1588,12 +1616,12 @@ async function publish(tool, mode, btn) {
       no = h.pubNo;
       const { sha } = await ghRead(c, `docs/${no}.json`);
       await ghWrite(c, `docs/${no}.json`, doc, sha, `Документ №${no}: ${title}`);
-      await dbUpdate(docs => { let e = docs.find(x => x.no === no); if (!e) { e = { no, public: false, created: dbToday() }; docs.push(e); } Object.assign(e, { kind: d.kind, title, note, updated: dbToday() }); h.isPublic = !!e.public; }, `Документ №${no}: ${title}`);
+      await dbUpdate(docs => { let e = docs.find(x => x.no === no); if (!e) { e = { no, public: false, created: dbToday() }; docs.push(e); } Object.assign(e, { kind: d.kind, title, note, updated: dbToday() }); if (h.folder) e.folder = h.folder; else delete e.folder; h.isPublic = !!e.public; }, `Документ №${no}: ${title}`);
     } else {
       no = await dbUpdate(async docs => {
         let max = docs.reduce((m, x) => Math.max(m, x.no), 0);
         const r = await ghApi(c, "docs"); if (r.ok) (await r.json()).forEach(f => { const m = /^(\d+)\.json$/.exec(f.name); if (m) max = Math.max(max, +m[1]); });
-        const n = max + 1; docs.push({ no: n, kind: d.kind, title, note, public: false, created: dbToday(), updated: dbToday() }); docs.sort((a, b) => a.no - b.no); return n;
+        const n = max + 1; docs.push(Object.assign({ no: n, kind: d.kind, title, note, public: false, created: dbToday(), updated: dbToday() }, h.folder ? { folder: h.folder } : {})); docs.sort((a, b) => a.no - b.no); return n;
       }, `Новый документ: ${title}`);
       await ghWrite(c, `docs/${no}.json`, doc, null, `Документ №${no}: ${title}`);
       h.isPublic = false;
@@ -1612,6 +1640,8 @@ async function pubToggle(tool, btn) {
 document.addEventListener("input", e => {
   const t = e.target; if (!t.dataset || !t.dataset.dmeta) return;
   const box = pubBox(t), tool = box.dataset.pub; PUB[tool]().holder[t.dataset.dmeta] = t.value; pubSave(tool);
+  const h = PUB[tool]().holder;
+  if (t.dataset.dmeta === "folder" && h.pubNo && ghCfg().token) dbMove(h.pubNo, t.value).then(() => toast("Документ переложен в папку.")).catch(err => toast("Не получилось: " + err.message));
 });
 const copyText = (txt, ok) => navigator.clipboard.writeText(txt).then(() => toast(ok || "Скопировано."), () => toast(txt));
 document.addEventListener("click", e => {
@@ -1653,7 +1683,7 @@ function docsHTML() {
 let DOCS = [];
 function docCard(d) {
   return `<article class="dcard" data-no="${d.no}">
-    <header><span class="dno">№${d.no}</span><span class="dkind">${esc(DOC_KINDS[d.kind] || "Документ")}</span><span class="dstat${d.public ? " on" : ""}">${d.public ? "открыт" : "скрыт"}</span></header>
+    <header><span class="dno">№${d.no}</span><span class="dkind">${esc(DOC_KINDS[d.kind] || "Документ")}${(WFOLDERS.find(f => f.id === d.folder) || {}).name ? " · " + esc(WFOLDERS.find(f => f.id === d.folder).name) : ""}</span><span class="dstat${d.public ? " on" : ""}">${d.public ? "открыт" : "скрыт"}</span></header>
     <h4>${esc(d.title || "Без названия")}</h4>${d.note ? `<p>${esc(d.note)}</p>` : ""}
     ${d.updated || d.created ? `<small>${esc(d.updated || d.created)}</small>` : ""}
     <div class="dbtns"><button type="button" data-dopen="${d.no}">Открыть</button><button type="button" data-dedit="${d.no}">Изменить</button><button type="button" data-dtoggle="${d.no}">${d.public ? "Скрыть" : "Открыть игрокам"}</button><button type="button" data-dlink="${d.no}">Ссылка</button><button type="button" class="danger" data-ddel="${d.no}">Удалить</button></div>
@@ -1666,7 +1696,7 @@ function docsDraw() {
 }
 async function docsInit() {
   if (!ghCfg().token) { const g = $("#dl-grid .dl-wait"); if (g) g.textContent = "Чтобы видеть и создавать документы, подключите ключ GitHub — ниже."; return; }
-  try { await dbAdopt(); DOCS = await dbList(true); docsDraw(); }
+  try { await dbAdopt(); const ix = await dbIndex(true); DOCS = ix.docs; WFOLDERS = ix.folders; docsDraw(); }
   catch (err) { const g = $("#dl-grid .dl-wait"); if (g) g.textContent = "Не получилось загрузить: " + err.message; }
 }
 function blankLetter() { return Object.assign({}, LW_BASE, LW_PRESETS.guild.s, { place: "", greet: "", body: "", close: "", sign: "", ps: "", seal: "none", seed: Math.floor(Math.random() * 9000) + 1 }); }
@@ -1720,7 +1750,7 @@ async function editDoc(no, b) {
     if (!DOCS.length) DOCS = await dbList(true);
     const { data } = await ghRead(ghCfg(), `docs/${no}.json`); if (!data) throw new Error("файл не найден");
     const ent = DOCS.find(x => x.no === no) || {}, tool = KIND_TOOL[data.kind];
-    const meta = { pubNo: no, docTitle: ent.title || data.title || "", note: ent.note != null ? ent.note : (data.note || ""), isPublic: !!ent.public };
+    const meta = { pubNo: no, docTitle: ent.title || data.title || "", note: ent.note != null ? ent.note : (data.note || ""), isPublic: !!ent.public, folder: ent.folder || "" };
     if (draftDirty(tool) && !(await askYes("Несохранённый черновик в этом редакторе будет заменён. Продолжить?", "Продолжить"))) { if (b) b.disabled = false; location.hash = "docs"; return; }
     if (tool === "pisma") { const h = lwHost; lwHost = null; LW = Object.assign({}, LW_BASE, data.data, meta); lwSave(); lwHost = h; }
     if (tool === "kniga") { BK = Object.assign({}, data.data, meta); bkFocus = 0; bkSave(); }
