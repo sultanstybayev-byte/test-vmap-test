@@ -764,7 +764,11 @@
     {
      "id": "cmviftrvic0i",
      "name": "Клодевен фа Лемрой",
-     "post": 28
+     "post": 28,
+     "facs": [
+      "none"
+     ],
+     "fac": "none"
     },
     {
      "id": "cmvifutq4r27",
