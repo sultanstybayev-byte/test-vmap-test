@@ -1045,7 +1045,7 @@ function powerHTML() {
 function showPower() {
   current = null; lore = null; view = "power"; closeFly(); hideTip();
   panel.classList.add("wide"); tabs.hidden = true; markUI();
-  swapTo(powerHTML(), [62, 50, 1]);
+  swapTo(powerHTML(), [62, 50, 1], "places/vlast.webp");
   $(".pager").hidden = true;
   requestAnimationFrame(() => lookAt(66, 50, homeS(), true));
   setHash("vlast");
