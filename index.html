@@ -683,6 +683,18 @@ async function stUpdate(mutate, message) {
   }
   throw new Error("Настройки менялись одновременно с вами. Попробуйте ещё раз.");
 }
+const FAC_DEFAULT = {};
+function facStyleApply(S) {
+  if (typeof FACTIONS === "undefined") return false;
+  const st = (S && S.facStyle) || {}; let any = false;
+  FACTIONS.forEach(f => {
+    if (!FAC_DEFAULT[f.id]) FAC_DEFAULT[f.id] = { color: f.color, svg: typeof EMBLEMS !== "undefined" ? EMBLEMS[f.id] || "" : "" };
+    const o = st[f.id] || {}; if (o.color || o.svg) any = true;
+    f.color = o.color || FAC_DEFAULT[f.id].color;
+    if (typeof EMBLEMS !== "undefined") EMBLEMS[f.id] = o.svg || FAC_DEFAULT[f.id].svg;
+  });
+  return any;
+}
 /* персонажи игрока: [{ id: "c…", name }] — у каждого свой постоянный номер.
    Старые записи (строка char через запятую) превращаются в персонажей при первом сохранении. */
 const newCid = () => "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
@@ -965,6 +977,7 @@ function invGate() {
   b.textContent = INV_HIDDEN === null ? "…" : INV_HIDDEN ? "🔒 Скрыт" : "👁 Виден";
   b.classList.toggle("off", !!INV_HIDDEN); t.classList.toggle("dim", !!INV_HIDDEN);
 }
+stLoad().then(S => { if (facStyleApply(S)) render(); }).catch(() => {});
 function tarotLoad() { stLoad().then(S => { TAROT_HIDDEN = !!S.tarotHidden; INV_HIDDEN = !!S.invHidden; tarotGate(); invGate(); if (!ADMIN && INV_HIDDEN && route === "inventar") { location.hash = ""; } }).catch(() => { TAROT_HIDDEN = false; INV_HIDDEN = false; tarotGate(); invGate(); }); }
 function homeHTML() {
   let i = 0;

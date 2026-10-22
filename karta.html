@@ -1706,6 +1706,11 @@ $("#b-quests").addEventListener("click", () => { if (view === "quests") closePan
   if (!member) $("#b-quests").style.display = "none";
   window.MAP_ADMIN = !!tok || role === "admin" || role === "editor";
   const get = f => fetch("docs/" + f + "?t=" + Date.now(), { cache: "no-store" }).then(r => r.ok ? r.json() : null).catch(() => null);
+  get("settings.json").then(S => { const st = (S && S.facStyle) || {}; let any = false;
+    FACTIONS.forEach(f => { const o = st[f.id]; if (!o) return; any = true; if (o.color) f.color = o.color; if (o.svg) EMBLEMS[f.id] = o.svg; });
+    if (!any || !$("#panel").classList.contains("open")) return;
+    if (current) select(current); else if (view === "power") showPower(); else if (view === "quests") showQuests();
+  });
   if (member) get("settings.json").then(S => { const hid = !!(S && S.tarotHidden); GD.show = !hid || window.MAP_ADMIN; GD.off = hid; gdCard(current === "sarkoniya" && $("#panel").classList.contains("open")); });
   document.addEventListener("click", e => { if (!e.target.closest("#gd-card")) return; e.preventDefault(); e.stopPropagation();
     if (window.parent !== window) { try { window.parent.postMessage({ velaris: "openGadalka" }, "*"); return; } catch (_) {} }
