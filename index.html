@@ -869,6 +869,7 @@ const ICON = {
   tarot: '<rect x="6" y="3" width="9" height="14" rx="1.5" transform="rotate(-12 10 10)"/><rect x="10" y="6" width="9" height="14" rx="1.5" transform="rotate(10 14 13)"/><path d="M15 11.5l.8 1.6 1.7.3-1.2 1.2.3 1.7-1.6-.8-1.6.8.3-1.7-1.2-1.2 1.7-.3z"/>',
   docs: '<path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4M10 11h6M10 15h6"/><path d="M4 6v15h11"/>',
   lock: '<rect x="5" y="11" width="14" height="10" rx="1.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  play: '<circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l5.5-3.5z"/>',
   quill: '<path d="M20 4c-7 1-12 6-13 13l-3 3"/><path d="M20 4c0 6-4 11-10 12"/>',
   vestnik: '<path d="M4 5h13v14a2 2 0 0 0 2 2H6a2 2 0 0 1-2-2z"/><path d="M17 9h3v10a2 2 0 0 1-2 2M7 9h7M7 13h7M7 17h4"/>',
   arrow: '<path d="M9 5l7 7-7 7"/>', back: '<path d="M15 5l-7 7 7 7"/>', chev: '<path d="M6 9l6 6 6-6"/>', x: '<path d="M6 6l12 12M18 6 6 18"/>'
@@ -984,7 +985,7 @@ function homeHTML() {
   return `<header class="crest">
       <svg class="sigil" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="29"/><circle cx="32" cy="32" r="24" stroke-dasharray="2 4"/><path d="M32 8v48M8 32h48"/><path d="M32 14l5 18-5 18-5-18z" fill="rgba(201,162,90,.25)"/><path d="M14 32l18-4 18 4-18 4z"/></svg>
       <h1>Империя Веларис</h1><p>Ролевая игра. Империя умирает, а ночь принадлежит обескровленным.</p><div class="rule-g"></div>
-      <div class="crest-btns">${ADMIN ? `<button type="button" class="btn dark crest-btn" data-workshop="docs">${svg("quill")} Мастерская</button>` : ""}</div>
+      <div class="crest-btns"><button type="button" class="btn dark crest-btn" data-prolog>${svg("play")} Пролог</button>${ADMIN ? `<button type="button" class="btn dark crest-btn" data-workshop="docs">${svg("quill")} Мастерская</button>` : ""}</div>
       ${MEMBER ? "" : `<p class="guest">Вы смотрите как гость: открыты карта, правила и мир. Остальное — для участников группы.</p>`}</header>
     <div class="groups">${GROUPS.map(([g, tiles, cls]) => `<section class="group"${g === "Лавка гадалки" ? ` id="g-tarot"${ADMIN ? "" : " hidden"}` : ""}><h2>${esc(g)}</h2><div class="tiles${cls ? " " + cls : ""}">${tiles.map(([ic, t, s, href, cls]) =>
       !MEMBER && !GUEST_TILES.has(ic) ? `<a class="tile locked${cls ? " " + cls : ""}" style="--i:${i++}" href="#" data-locked>${svg(ic)}<b>${esc(t)}</b><span>Для участников группы</span>${svg("lock", "arrow")}</a>` :
@@ -1177,6 +1178,7 @@ function openMap(h) {
 function closeMap() { const ov = $("#mapov"); try { const fe = document.fullscreenElement || document.webkitFullscreenElement; if (fe) (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (_) {} if (ov) ov.hidden = true; if (document.documentElement.classList.contains("map-open")) { document.documentElement.classList.remove("map-open"); scrollTo(0, hubScroll); } }
 addEventListener("message", e => {
   if (e.data && e.data.velaris === "closeOverlay") { closeOverlay(); return; }
+  if (e.data && e.data.velaris === "vkBridge" && /^VKWebAppStorage(Get|Set)$/.test(e.data.method)) { const src = e.source, seq = e.data.seq; loadBridge().then(b => b.send("VKWebAppInit").catch(() => {}).then(() => b.send(e.data.method, e.data.params))).then(res => src.postMessage({ velaris: "vkBridgeResult", seq, ok: true, res }, "*")).catch(err => src.postMessage({ velaris: "vkBridgeResult", seq, ok: false, error: vkErr(err) }, "*")); return; }
   if (e.data && e.data.velaris === "openGadalka") { if (location.hash.startsWith("#karta")) history.back(); else closeMap(); setTimeout(() => openOverlay("gadalka.html" + KEEP), 420); return; }
   if (e.data && e.data.velaris === "vkCall") { vkApi(e.data.method, e.data.params).then(res => e.source.postMessage({ velaris: "vkCallResult", seq: e.data.seq, ok: true, res }, "*")).catch(err => e.source.postMessage({ velaris: "vkCallResult", seq: e.data.seq, ok: false, error: vkErr(err) }, "*")); return; }
   if (e.data && e.data.velaris === "vkWall") { vkWall().then(res => e.source.postMessage({ velaris: "vkWallResult", ok: true, res }, "*")).catch(err => e.source.postMessage({ velaris: "vkWallResult", ok: false, error: vkErr(err) }, "*")); return; }
@@ -1547,6 +1549,9 @@ async function vkWall() {
   }
   return { gid, posts: out };
 }
+const PROLOG_SEEN = "velaris-prolog-seen" + (VK_P.get("vk_user_id") ? ":" + VK_P.get("vk_user_id") : "");
+function openProlog() { openOverlay("prolog.html" + KEEP); }
+function prologAuto() { let seen = "1"; try { seen = localStorage.getItem(PROLOG_SEEN); } catch (_) {} if (!seen && !location.hash) openProlog(); }
 function openOverlay(src) { const ov = $("#docov"); ov.innerHTML = `<iframe title="Документ" src="${src}" allow="fullscreen; clipboard-write"></iframe>`; if (!document.documentElement.classList.contains("map-open")) hubScroll = scrollY; ov.hidden = false; document.documentElement.classList.add("map-open"); }
 function closeOverlay() { const ov = $("#docov"); ov.hidden = true; ov.innerHTML = ""; document.documentElement.classList.remove("map-open"); scrollTo(0, hubScroll); if (route === "dokumenty") docsLoad(); if (route === "kvesty" && ADMIN) location.reload(); }
 const workshopHref = h => "masterskaya.html" + KEEP + "#" + h;
@@ -1579,6 +1584,7 @@ document.addEventListener("click", e => {
   const t = e.target;
   if (t.closest("[data-locked]")) { e.preventDefault(); toast("Этот раздел открыт участникам группы. Вступите в группу и откройте приложение снова."); return; }
   const ws = t.closest("[data-workshop]"); if (ws) { openOverlay(workshopHref(ws.dataset.workshop)); return; }
+  if (t.closest("[data-prolog]")) { openProlog(); return; }
   const dc = t.closest("[data-doc]"); if (dc) { markSeen(dc.dataset.doc); openOverlay(workshopHref(dc.dataset.doc)); setTimeout(myDocsDraw, 500); return; }
   const dd = t.closest("[data-docdel]"); if (dd) {
     if (!ADMIN) return;
@@ -1656,6 +1662,7 @@ addEventListener("popstate", render);
   } catch (e) {}
 })();
 render();
+prologAuto();
 Promise.all([qsLoad(ADMIN && !!ghCfg().token), plLoad(false).catch(() => ({ list: [] }))]).then(([st, P]) => { QPLAYERS = P.list || []; if (applyQuestStates(st) && route === "kvesty") render(); }).catch(() => {});
 </script>
 </body>

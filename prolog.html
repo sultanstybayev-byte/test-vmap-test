@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Пролог — Империя Веларис</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Cormorant+SC:wght@600;700&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Cormorant+SC:wght@600;700&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Cormorant+SC:wght@600;700&display=swap"></noscript>
+<style>:root{--gold:#c9a25a;--gold-hi:#f0d696;--ink:#efe3c8}*{box-sizing:border-box}html,body{margin:0;height:100%;background:#050304;color:var(--ink);overflow:hidden;font:500 20px/1.4 "Cormorant Garamond",Georgia,serif;-webkit-user-select:none;user-select:none}button{font:inherit;color:inherit}[hidden]{display:none !important}  :root{--fw:min(92vw,1120px,calc((100vh - 120px) * 1.5));--fh:calc(var(--fw) / 1.5);--ftop:calc(50% - var(--fh) / 2 - 10px)}@media (max-aspect-ratio:1/1){:root{--fw:calc(100vw - 20px);--fh:calc(var(--fw) / 1.33);--ftop:calc(38% - var(--fh) / 2)}}body{background:radial-gradient(ellipse 80% 70% at 50% 45%,#170d09,#050304 75%)}.film{position:fixed;top:var(--ftop);left:calc(50% - var(--fw) / 2);width:var(--fw);height:var(--fh);overflow:hidden;background:#050304;border-radius:2px;box-shadow:0 0 0 1px rgba(201,162,90,.55),0 0 0 5px #0b0705,0 0 0 6px rgba(201,162,90,.28),0 18px 60px rgba(0,0,0,.85),0 0 90px rgba(255,140,60,.07)}.film::after{content:"";position:absolute;inset:7px;z-index:4;pointer-events:none;border:1px solid rgba(240,214,150,.16)}.shot{position:absolute;inset:0;overflow:hidden}.shot .pic{position:absolute;inset:-2%;background:center / cover no-repeat;will-change:transform} .shot .color{filter:saturate(.92) contrast(1.04) brightness(.95)}@keyframes bloom{to{opacity:1}}.shot.first{opacity:0;animation:fadeIn 2.2s ease forwards}.burn{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}@keyframes fadeOut{to{opacity:0}}.shot.on .pic,.shot.out .pic{animation:kb var(--dur,10s) linear forwards}@keyframes kb{from{transform:translate(var(--x0,0),var(--y0,0)) scale(var(--s0,1.04))}to{transform:translate(var(--x1,0),var(--y1,0)) scale(var(--s1,1.16))}}.grain{position:absolute;inset:-50%;pointer-events:none;opacity:.13;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='220' height='220' filter='url(%23n)'/></svg>");animation:grain .9s steps(4) infinite}@keyframes grain{25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-2%,-1%)}}.vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 75% 70% at 50% 45%,transparent 35%,rgba(5,3,4,.55) 70%,rgba(5,3,4,.95) 100%),linear-gradient(180deg,rgba(5,3,4,.35),transparent 22%,transparent 55%,rgba(5,3,4,.92))}#embers{position:fixed;inset:0;z-index:3;pointer-events:none} .shade{position:absolute;left:0;right:0;bottom:0;height:52%;z-index:2;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(5,3,4,.45) 38%,rgba(5,3,4,.82) 78%,rgba(5,3,4,.9));transition:opacity 1s}body.title .shade{opacity:0}.say{position:absolute;left:50%;bottom:6%;z-index:5;width:min(92vw,980px);transform:translateX(-50%);text-align:center}.say.big{bottom:42vh}.say.big p{font:700 clamp(28px,4.2vw,54px)/1.25 "Cormorant SC",Georgia,serif;font-style:normal;letter-spacing:.08em;color:#e8c98a;text-shadow:0 0 30px rgba(255,140,60,.5),0 2px 14px #000}.say p{margin:.25em 0;font:italic 500 clamp(19px,2.4vw,30px)/1.35 "Cormorant Garamond",Georgia,serif;color:#f3e8cf;text-shadow:0 2px 14px #000,0 0 30px rgba(0,0,0,.9);text-wrap:balance}.say .w{display:inline-block;opacity:0;filter:blur(6px);transform:translateY(6px);animation:word .9s ease forwards;animation-delay:var(--d)}@keyframes word{to{opacity:1;filter:blur(0);transform:none}}.say.gone p{animation:sayOut 1s ease forwards}@keyframes sayOut{to{opacity:0;filter:blur(4px)}} .titlecard{position:fixed;inset:0;z-index:6;display:grid;place-items:center;text-align:center;pointer-events:none}.titlecard h1{margin:0;font:700 clamp(44px,9vw,120px)/1 "Cormorant SC",Georgia,serif;letter-spacing:.12em;color:var(--gold-hi);text-shadow:0 0 40px rgba(255,170,80,.45),0 4px 30px #000;opacity:0;filter:blur(14px);transform:scale(1.06);animation:title 3.4s ease forwards}.titlecard p{margin:14px 0 0;font:italic 500 clamp(18px,2.2vw,26px)/1.3 "Cormorant Garamond",serif;color:#d8c6a0;opacity:0;animation:fadeIn 2s 2s ease forwards}.titlecard .rule{width:min(420px,70vw);height:12px;margin:20px auto 0;opacity:0;animation:fadeIn 2s 1.6s ease forwards;background:radial-gradient(circle,var(--gold) 2.5px,transparent 3px) center / 12px 12px no-repeat,linear-gradient(var(--gold),var(--gold)) left center / calc(50% - 14px) 1px no-repeat,linear-gradient(var(--gold),var(--gold)) right center / calc(50% - 14px) 1px no-repeat}.titlecard .go{pointer-events:auto;margin-top:34px;opacity:0;animation:fadeIn 1.6s 3.2s ease forwards}@keyframes title{to{opacity:1;filter:blur(0);transform:none}}@keyframes fadeIn{to{opacity:1}} .finbg{position:absolute;inset:-8%;z-index:1;background:center 40% / cover no-repeat;filter:grayscale(.6) sepia(.35) blur(7px) brightness(.55) contrast(1.15);opacity:0;transform:scale(1.04);transition:opacity 1.6s ease,transform 14s linear}body.title .finbg{opacity:1;transform:scale(1)} .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 26px;border:1px solid var(--gold-hi);border-radius:3px;background:linear-gradient(180deg,#f1d79a,#c99a4e);color:#2a1a0c;font:700 19px/1 "Cormorant SC",Georgia,serif;letter-spacing:.08em;cursor:pointer}.btn.ghost{background:rgba(10,6,4,.55);color:var(--gold-hi);border-color:rgba(201,162,90,.6)}.hud{position:fixed;top:12px;right:12px;z-index:8;display:flex;gap:8px;opacity:.45;transition:opacity .3s}.hud:hover,.hud:focus-within{opacity:1}.hud button{padding:7px 12px;border:1px solid rgba(201,162,90,.55);border-radius:3px;background:rgba(10,6,4,.6);color:var(--gold-hi);font:700 13px/1 "Cormorant SC",Georgia,serif;letter-spacing:.08em;cursor:pointer}.hud button[aria-pressed="false"]{color:#8a7a62;text-decoration:line-through}.dots{position:fixed;left:50%;top:calc(var(--ftop) + var(--fh) + 16px);z-index:8;transform:translateX(-50%);display:flex;gap:6px}.dots i{width:6px;height:6px;border-radius:50%;background:rgba(240,214,150,.25);transition:background .4s,transform .4s}.dots i.on{background:var(--gold-hi);transform:scale(1.3)} .start{position:fixed;inset:0;z-index:10;display:grid;place-items:center;text-align:center;background:radial-gradient(ellipse at 50% 60%,#1a0e0a,#050304 70%)}.start .in{padding:20px}.start small{display:block;font:700 14px "Cormorant SC",serif;letter-spacing:.3em;color:var(--gold)}.start h2{margin:10px 0 26px;font:700 clamp(34px,6vw,64px)/1.05 "Cormorant SC",serif;color:var(--gold-hi);letter-spacing:.06em}.start p{margin:0 0 26px;font-style:italic;color:#b9a582}.start .row{display:flex;flex-direction:column;align-items:center;gap:12px;width:min(340px,86vw);margin:0 auto}.start .btn.wide{width:100%;justify-content:center;padding:15px 26px;font-size:21px}.start .btn.sub{padding:9px 22px;font-size:16px;opacity:.85}.mix{width:min(340px,86vw);margin:0 auto 24px;padding:14px 18px 6px;border:1px solid rgba(201,162,90,.35);border-radius:4px;background:rgba(10,6,4,.45);text-align:left}.mix b{display:block;margin-bottom:8px;font:700 13px "Cormorant SC",serif;letter-spacing:.2em;color:var(--gold);text-align:center}.mix label{display:grid;grid-template-columns:82px 1fr 34px;align-items:center;gap:10px;margin-bottom:10px;font-size:17px;color:#d8c6a0}.mix output{font-size:14px;color:#9c8a6c;text-align:right}.mix input[type=range]{width:100%;height:22px;margin:0;background:transparent;-webkit-appearance:none;appearance:none;cursor:pointer}.mix input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:linear-gradient(90deg,var(--gold) var(--p,70%),rgba(201,162,90,.25) var(--p,70%))}.mix input[type=range]::-moz-range-track{height:3px;border-radius:2px;background:rgba(201,162,90,.25)}.mix input[type=range]::-moz-range-progress{height:3px;background:var(--gold)}.mix input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;margin-top:-6.5px;border-radius:50%;border:1px solid var(--gold-hi);background:#2a1a0c;box-shadow:0 0 8px rgba(240,214,150,.4)}.mix input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;border:1px solid var(--gold-hi);background:#2a1a0c}.start .hint{margin-top:22px;font-size:15px;color:#7d6d58}@media (max-aspect-ratio:1/1){.say{width:calc(100% - 20px);bottom:5%}.say p{font-size:16.5px}.dots{top:auto;bottom:22px}}@media (prefers-reduced-motion:reduce){.shot .pic{animation:none !important}.grain{animation:none}}</style>
+</head>
+<body>
+<div class="film" id="film">
+  <canvas id="embers"></canvas>
+  <div class="vig" style="z-index:2"></div>
+  <div class="grain" style="z-index:3"></div>
+  <div class="finbg" id="finbg"></div>
+  <div class="shade"></div>
+  <div class="say" id="say"></div>
+  <div class="titlecard" id="title" hidden><div><h1>Веларис</h1><div class="rule"></div><p>Тёмное фэнтези · позднее Средневековье</p><button type="button" class="btn go" id="go">Вступить на земли</button></div></div>
+</div>
+<div class="hud" id="hud" hidden>
+  <button type="button" id="snd" aria-pressed="true" title="Музыка и звуки">Звук</button>
+  <button type="button" id="skip">Пропустить ›</button>
+</div>
+<div class="dots" id="dots" hidden></div>
+<div class="start" id="start">
+  <div class="in">
+    <small>Пролог</small>
+    <h2>Империя Веларис</h2>
+    <div class="mix" id="mix">
+      <b>Звук</b>
+      <label>Музыка <input type="range" id="volM" min="0" max="100" step="5"><output id="volMo"></output></label>
+      <label>Эффекты <input type="range" id="volE" min="0" max="100" step="5"><output id="volEo"></output></label>
+    </div>
+    <div class="row"><button type="button" class="btn wide" id="play">Смотреть</button><button type="button" class="btn ghost sub" id="nope">Пропустить</button></div>
+  </div>
+</div>
+<script>
+/* =====================================================================
+   ПРОЛОГ. Кадр = картинка + куда «едет» камера + слова рассказчика.
+   x0/y0/s0 → x1/y1/s1 — откуда и куда плывёт камера; mx/my — где проступают чернила.
+   ===================================================================== */
+const SCENES = [
+  { img: "prolog/preacher.webp", s0: 1.02, s1: 1.12, x0: "1%", x1: "-1%",
+    say: ["Империю терзают распри.", "Смутное время, как вороньё, клюёт её бока."] },
+  { img: "prolog/ghoul.webp", s0: 1.1, s1: 1.02,
+    say: ["Скверна превращает людей в голодных тварей.", "Твоя кровь — их единственное желание."] },
+  { img: "prolog/leshy.webp", s0: 1.02, s1: 1.1, y0: "1%", y1: "-1%",
+    say: ["Но есть враг страшнее монстров…", "Инквизиция."] },
+  { img: "prolog/burning.webp", s0: 1.1, s1: 1.02, x0: "-1%", x1: "1%",
+    say: ["Ордену Пылающего Сердца плевать на монстров.", "Они видят ересь в каждом, кто пережил укус или поклоняется магии."] },
+  { img: "prolog/bonfire.webp", torch: true, s0: 1.02, s1: 1.1, y0: "1%", y1: "-1%",
+    say: ["Их кодекс прост: «Огонь очищает».", "И они готовы сжечь полмира, чтобы доказать свою правоту."] },
+  { img: "prolog/helgrad.webp", s0: 1.1, s1: 1.02, x0: "1%", x1: "-1%",
+    say: ["Веларис — умирающий зверь.", "Он хрипит, истекает кровью на алтарях инквизиции и корчится в агонии от скверны."] },
+  { img: "prolog/statue.webp", s0: 1.02, s1: 1.1, x0: "-1%", x1: "1%",
+    say: ["Ты здесь — никто. И в то же время — всё.", "Присоединяйся, чтобы повернуть колесо судьбы Велариса."] }
+];
+const FIN_BG = "prolog/king.webp";
+const $ = s => document.querySelector(s);
+const IN_FRAME = (() => { try { return window.self !== window.top; } catch (_) { return true; } })();
+const store = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (_) {} };
+let idx = -1, timer = 0, playing = false;
+const QS = new URLSearchParams(location.search);
+const VK_ID = QS.get("vk_user_id") || "";
+const SEEN_KEY = "velaris-prolog-seen" + (VK_ID ? ":" + VK_ID : "");
+const SKEY = "velaris-prolog-audio" + (VK_ID ? ":" + VK_ID : "");
+const AUD = Object.assign({ m: 70, e: 70, on: true }, (() => { try { return JSON.parse(store(SKEY) || "{}"); } catch (_) { return {}; } })());
+let SOUND = AUD.on !== false;
+let bridgeP = null;
+function vkBridge() {
+  if (!VK_ID) return Promise.reject();
+  if (bridgeP) return bridgeP;
+  bridgeP = new Promise((res, rej) => {
+    if (window.vkBridge) return res(window.vkBridge);
+    const urls = ["https://unpkg.com/@vkontakte/vk-bridge@2.14.1/dist/browser.min.js", "https://cdn.jsdelivr.net/npm/@vkontakte/vk-bridge@2.14.1/dist/browser.min.js"]; let i = 0;
+    const next = () => { if (i >= urls.length) return rej(); const sc = document.createElement("script"); sc.src = urls[i++]; sc.onload = () => window.vkBridge ? res(window.vkBridge) : next(); sc.onerror = next; document.head.appendChild(sc); };
+    next();
+  }).then(b => { b.send("VKWebAppInit").catch(() => {}); return b; });
+  return bridgeP;
+}
+let vkSeq = 0; const vkWait = {};
+addEventListener("message", e => { const d = e.data; if (d && d.velaris === "vkBridgeResult" && vkWait[d.seq]) { const w = vkWait[d.seq]; delete vkWait[d.seq]; d.ok ? w[0](d.res) : w[1](d.error); } });
+function vkSend(method, params) {
+  if (!VK_ID) return Promise.reject();
+  if (!IN_FRAME) return vkBridge().then(b => b.send(method, params));
+  return new Promise((res, rej) => { const seq = ++vkSeq; vkWait[seq] = [res, rej]; try { parent.postMessage({ velaris: "vkBridge", seq, method, params }, "*"); } catch (_) { rej(); } setTimeout(() => { if (vkWait[seq]) { delete vkWait[seq]; rej(); } }, 4000); });
+}
+let saveT = 0;
+function saveAudio() {
+  AUD.on = SOUND; const j = JSON.stringify(AUD); store(SKEY, j);
+  clearTimeout(saveT); saveT = setTimeout(() => vkSend("VKWebAppStorageSet", { key: "prolog_audio", value: j }).catch(() => {}), 600);
+}
+vkSend("VKWebAppStorageGet", { keys: ["prolog_audio"] }).then(r => {
+  const v = r && r.keys && r.keys[0] && r.keys[0].value; if (!v) return;
+  Object.assign(AUD, JSON.parse(v)); SOUND = AUD.on !== false; store(SKEY, JSON.stringify(AUD)); syncMix(); applyVol();
+}).catch(() => {});
+
+const IMG = {}; SCENES.filter(s => s.img).map(s => s.img).concat(FIN_BG).forEach(src => { const i = new Image(); i.src = src; IMG[src] = i; });
+
+const MUSIC = new Audio("prolog/music.mp3"); MUSIC.loop = true; MUSIC.volume = 0; MUSIC.ok = false; MUSIC.addEventListener("canplaythrough", () => MUSIC.ok = true, { once: true });
+function sceneDur(s) { return Math.max(7000, s.say.join(" ").length * 70 + 3200); }
+function show(i) {
+  clearTimeout(timer);
+  if (i >= SCENES.length) return finale();
+  idx = i; const s = SCENES[i], film = $("#film");
+  const old = film.querySelector(".shot.on");
+  if (old) burnAway(old);
+  const d = sceneDur(s), el = document.createElement("div");
+  el.className = "shot" + (old ? "" : " first"); el.dataset.src = s.img;
+  const soft = z => 1 + ((z || 1.04) - 1) * .42, half = p => p ? (parseFloat(p) / 2) + "%" : "0";
+  const v = { "--dur": (d + 3200) + "ms", "--x0": half(s.x0), "--y0": half(s.y0), "--x1": half(s.x1), "--y1": half(s.y1), "--s0": soft(s.s0), "--s1": soft(s.s1) };
+  Object.entries(v).forEach(([k, x]) => el.style.setProperty(k, x));
+  el.innerHTML = s.img ? `<div class="pic color" style="background-image:url('${s.img}')"></div>` : "";
+  film.insertBefore(el, film.firstChild);
+  requestAnimationFrame(() => el.classList.add("on"));
+
+  $("#say").classList.toggle("big", !s.img);
+  sayLines(s.say);
+  if (old) boom();
+  torch(!!s.torch);
+  [...document.querySelectorAll(".dots i")].forEach((d2, k) => d2.classList.toggle("on", k === i));
+  timer = setTimeout(() => show(i + 1), d);
+}
+function sayLines(lines) {
+  const box = $("#say");
+  box.classList.add("gone");
+  const my = idx;
+  setTimeout(() => {
+    if (idx !== my || idx >= SCENES.length) return; /* кадр уже сменили — старые слова не показываем */
+    box.classList.remove("gone");
+    let t = 900;
+    box.innerHTML = lines.map(line => `<p>${line.split(" ").map(w => { const h = `<span class="w" style="--d:${t}ms">${w}</span>`; t += 90 + w.length * 18; return h; }).join(" ")}</p>`).join("");
+  }, idx === 0 ? 1200 : 700);
+}
+function finale() {
+  clearTimeout(timer); idx = SCENES.length;
+  $("#say").classList.add("gone");
+  document.body.classList.add("title");
+  torch(false);
+  $("#finbg").style.backgroundImage = `url('${FIN_BG}')`;
+  const old = $("#film").querySelector(".shot.on"); if (old) { burnAway(old, 3000); boom(true); }
+  $("#title").hidden = false; $("#dots").hidden = true;
+  store(SEEN_KEY, "1");
+}
+function leave() {
+  store(SEEN_KEY, "1");
+  fadeAudio();
+  if (IN_FRAME) { try { parent.postMessage({ velaris: "closeOverlay" }, "*"); return; } catch (_) {} }
+  location.href = "index.html" + location.search;
+}
+
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
+function snap(shot) {
+  const fr = $("#film").getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1), W = fr.width, H = fr.height;
+  const c = document.createElement("canvas"); c.width = Math.round(W * dpr); c.height = Math.round(H * dpr);
+  const x = c.getContext("2d"); x.scale(dpr, dpr); x.fillStyle = "#050304"; x.fillRect(0, 0, W, H);
+  const img = IMG[shot.dataset.src];
+  if (img && img.complete && img.naturalWidth) shot.querySelectorAll(".pic").forEach(p => {
+    const cs = getComputedStyle(p), r = p.getBoundingClientRect();
+    const k = Math.max(r.width / img.naturalWidth, r.height / img.naturalHeight), w = img.naturalWidth * k, h = img.naturalHeight * k;
+    x.save(); x.globalAlpha = +cs.opacity; if ("filter" in x) x.filter = cs.filter || "none";
+    x.drawImage(img, r.left - fr.left + (r.width - w) / 2, r.top - fr.top + (r.height - h) / 2, w, h); x.restore();
+  });
+  return c;
+}
+function burnField(W, H) {
+  const g = (n) => { const a = new Float32Array((n + 1) * (n + 1)); for (let i = 0; i < a.length; i++) a[i] = Math.random(); return a; };
+  const oct = [[4, .5], [9, .28], [19, .15], [40, .07]].map(([n, amp]) => [n, amp, g(n)]);
+  const sm = t => t * t * (3 - 2 * t);
+  const ang = Math.random() * 6.283, ix = .5 + Math.cos(ang) * .62, iy = .5 + Math.sin(ang) * .62; /* огонь заходит с края */
+  const f = new Float32Array(W * H); let lo = 9, hi = -9;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const u = x / W, v = y / H; let nz = 0;
+    for (const [n, amp, a] of oct) {
+      const X = u * n, Y = v * n, x0 = X | 0, y0 = Y | 0, fx = sm(X - x0), fy = sm(Y - y0), r = n + 1;
+      const q = a[y0 * r + x0] * (1 - fx) + a[y0 * r + x0 + 1] * fx, w = a[(y0 + 1) * r + x0] * (1 - fx) + a[(y0 + 1) * r + x0 + 1] * fx;
+      nz += amp * (q * (1 - fy) + w * fy);
+    }
+    const dx = (u - ix) * (W / H), dy = v - iy, val = Math.sqrt(dx * dx + dy * dy) * .62 + nz * .55;
+    f[y * W + x] = val; if (val < lo) lo = val; if (val > hi) hi = val;
+  }
+  const ord = Array.from(f.keys()).sort((a, b) => f[a] - f[b]), out = new Float32Array(f.length);
+  ord.forEach((k, r) => out[k] = r / (ord.length - 1));
+  return out;
+}
+let burns = [];
+function burnAway(shot, dur = 3000) {
+  if (REDUCED) { shot.remove(); return; }
+  const pic = snap(shot); shot.remove();
+  burns.forEach(b => b.kill()); /* если листают быстро — прежняя страница догорает мгновенно */
+  const film = $("#film"), cv = document.createElement("canvas"); cv.className = "burn"; cv.width = pic.width; cv.height = pic.height;
+  film.insertBefore(cv, film.querySelector(".vig"));
+  const ctx = cv.getContext("2d"), LW = 260, LH = Math.max(60, Math.round(LW * cv.height / cv.width));
+  const F = burnField(LW, LH), mk = n => { const c = document.createElement("canvas"); c.width = LW; c.height = LH; const x = c.getContext("2d"); return [c, x, x.createImageData(LW, LH)]; };
+  const [mC, mX, mD] = mk(), [gC, gX, gD] = mk(), [cC, cX, cD] = mk();
+  const sx = cv.width / LW, sy = cv.height / LH, DPR = cv.width / $("#film").clientWidth, sparks = [], t0 = performance.now();
+  let dead = false; const b = { kill() { dead = true; } }; burns.push(b);
+  const ease = p => p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
+  (function frame(now) {
+    const p = Math.min(1, (now - t0) / dur), T = -.06 + ease(p) * 1.14, md = mD.data, gd = gD.data, cd = cD.data;
+    const hot = [];
+    for (let i = 0, j = 0; i < F.length; i++, j += 4) {
+      const d = F[i] - T;
+      md[j + 3] = d <= 0 ? 0 : d >= .012 ? 255 : d / .012 * 255;                /* что осталось от страницы */
+      const ch = d > 0 && d < .13 ? Math.pow(Math.min(1, (.13 - d) / .1), 1.4) : 0; /* обугленная бурая кромка */
+      cd[j] = 26; cd[j + 1] = 11; cd[j + 2] = 4; cd[j + 3] = ch * 240;
+      const e = (d - .006) / .009, gl = d > -.01 && d < .03 ? Math.exp(-e * e) : 0; /* тлеющий край */
+      gd[j] = 255; gd[j + 1] = 70 + gl * 95; gd[j + 2] = 10 + gl * 35; gd[j + 3] = gl * 230;
+      if (gl > .8 && Math.random() < .003) hot.push(i);
+    }
+    mX.putImageData(mD, 0, 0); gX.putImageData(gD, 0, 0); cX.putImageData(cD, 0, 0);
+    ctx.globalCompositeOperation = "source-over"; ctx.clearRect(0, 0, cv.width, cv.height); ctx.drawImage(pic, 0, 0);
+    ctx.globalCompositeOperation = "source-atop"; ctx.drawImage(cC, 0, 0, cv.width, cv.height);
+    ctx.globalCompositeOperation = "destination-in"; ctx.drawImage(mC, 0, 0, cv.width, cv.height);
+    ctx.globalCompositeOperation = "lighter"; ctx.drawImage(gC, 0, 0, cv.width, cv.height);
+    if ("filter" in ctx) { ctx.filter = "blur(" + Math.round(10 * DPR) + "px)"; ctx.globalAlpha = .75; ctx.drawImage(gC, 0, 0, cv.width, cv.height); ctx.filter = "none"; ctx.globalAlpha = 1; }
+    for (const i of hot.slice(0, 7)) sparks.push({ x: (i % LW + .5) * sx, y: ((i / LW | 0) + .5) * sy, vx: (Math.random() - .5) * .8 * DPR, vy: -(.6 + Math.random() * 1.4) * DPR, l: 1, r: (.6 + Math.random() * 1.1) * DPR });
+    for (const k of sparks) {
+      k.x += k.vx; k.y += k.vy; k.vy *= .99; k.l -= .018;
+      if (k.l > 0) { ctx.globalAlpha = k.l; ctx.fillStyle = "#ffb35c"; ctx.beginPath(); ctx.arc(k.x, k.y, k.r, 0, 6.3); ctx.fill(); }
+    }
+    ctx.globalAlpha = 1;
+    if (!dead && (p < 1 || sparks.some(k => k.l > 0))) requestAnimationFrame(frame);
+    else { cv.remove(); burns = burns.filter(x => x !== b); }
+  })(t0);
+}
+
+(() => {
+  const cv = $("#embers"), ctx = cv.getContext("2d"); let W, H, P = [];
+  const fit = () => { W = cv.width = innerWidth * devicePixelRatio; H = cv.height = innerHeight * devicePixelRatio; };
+  fit(); addEventListener("resize", fit);
+  for (let i = 0; i < 46; i++) P.push({ x: Math.random(), y: Math.random(), r: .6 + Math.random() * 1.8, v: .0004 + Math.random() * .0012, w: Math.random() * 6.28, a: Math.random() });
+  (function loop(t) {
+    ctx.clearRect(0, 0, W, H);
+    for (const p of P) {
+      p.y -= p.v; p.w += .02; p.x += Math.sin(p.w) * .0004; if (p.y < -.02) { p.y = 1.02; p.x = Math.random(); }
+      const fl = .45 + .55 * Math.abs(Math.sin(t / 700 + p.a * 9));
+      ctx.beginPath(); ctx.arc(p.x * W, p.y * H, p.r * devicePixelRatio, 0, 7);
+      ctx.fillStyle = `rgba(255,${140 + p.a * 60 | 0},70,${.55 * fl})`; ctx.shadowColor = "rgba(255,140,60,.9)"; ctx.shadowBlur = 8 * devicePixelRatio; ctx.fill();
+    }
+    requestAnimationFrame(loop);
+  })(0);
+})();
+
+const MAX_OUT = .1;
+let AC = null, master = null, busM = null, busE = null, torchG = null;
+const volM = () => (SOUND ? AUD.m / 100 : 0), volE = () => (SOUND ? AUD.e / 100 : 0);
+function applyVol(fast) {
+  if (MUSIC.ok) MUSIC.volume = MAX_OUT * volM();
+  if (!AC) return; const t = AC.currentTime, k = fast ? .15 : .6;
+  busM.gain.cancelScheduledValues(t); busM.gain.setTargetAtTime(volM() * (MUSIC.ok ? .3 : 1), t, k / 3);
+  busE.gain.cancelScheduledValues(t); busE.gain.setTargetAtTime(volE(), t, k / 3);
+}
+function audioStart() {
+  if (MUSIC.ok && SOUND) { MUSIC.volume = 0; MUSIC.play().then(() => { let v = 0; const t = setInterval(() => { v = Math.min(MAX_OUT * volM(), v + .005); MUSIC.volume = v; if (v >= MAX_OUT * volM()) clearInterval(t); }, 150); }).catch(() => {}); }
+  if (AC) { AC.resume && AC.resume(); return; }
+  try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (_) { return; }
+  const lim = AC.createDynamicsCompressor(); lim.threshold.value = -6; lim.knee.value = 4; lim.ratio.value = 20; lim.attack.value = .003; lim.release.value = .25;
+  const cap = AC.createGain(); cap.gain.value = MAX_OUT; lim.connect(cap); cap.connect(AC.destination);
+  master = AC.createGain(); master.gain.value = 0; master.connect(lim);
+  master.gain.setValueAtTime(0, AC.currentTime); master.gain.linearRampToValueAtTime(1, AC.currentTime + 3);
+  busM = AC.createGain(); busE = AC.createGain(); busM.connect(master); busE.connect(master); applyVol(true);
+  const lp = AC.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 900; lp.Q.value = .2; lp.connect(busM);
+  [[73.4, 0, .22, 0], [146.8, -4, .2, 1], [220, 3, .13, 2], [293.7, -3, .08, 3], [349.2, 4, .05, 4]].forEach(([f, det, gv, k]) => {
+    const o = AC.createOscillator(), g = AC.createGain(); o.type = k ? "triangle" : "sine"; o.frequency.value = f; o.detune.value = det;
+    g.gain.value = gv; o.connect(g); g.connect(lp); o.start();
+    const l = AC.createOscillator(), lg = AC.createGain(); l.frequency.value = .045 + k * .017; lg.gain.value = gv * .45; l.connect(lg); lg.connect(g.gain); l.start();
+  });
+  const n = AC.createBuffer(1, AC.sampleRate * 2, AC.sampleRate), d = n.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  AC.noise = n;
+  torchG = AC.createGain(); torchG.gain.value = 0; torchG.connect(busE);
+  const hum = AC.createBufferSource(); hum.buffer = n; hum.loop = true;
+  const hlp = AC.createBiquadFilter(); hlp.type = "lowpass"; hlp.frequency.value = 380;
+  const hg = AC.createGain(); hg.gain.value = .2; hum.connect(hlp); hlp.connect(hg); hg.connect(torchG); hum.start();
+  const resume = () => { if (AC && AC.state !== "running") AC.resume().catch(() => {}); };
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) resume(); });
+  addEventListener("pointerdown", resume); addEventListener("keydown", resume);
+}
+function boom(big) {
+  if (!AC) return;
+  const sr = AC.sampleRate, dur = big ? 3.2 : 2.6, n = Math.floor(sr * dur), buf = AC.createBuffer(2, n, sr);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = buf.getChannelData(ch); let lp = 0, lp2 = 0;
+    const cr = Array.from({ length: 40 + (Math.random() * 30 | 0) }, () => [.15 + Math.pow(Math.random(), .8) * (dur - .5), .0015 + Math.random() * .006, .3 + Math.random() * .9]);
+    for (let i = 0; i < n; i++) {
+      const t = i / sr, w = Math.random() * 2 - 1;
+      const env = Math.min(1, t / .18) * Math.pow(Math.max(0, 1 - t / dur), 1.6) * (.85 + .15 * Math.sin(t * 23 + ch));
+      lp += (w - lp) * .06; lp2 += (lp - lp2) * .25;                    /* низкий гул огня */
+      let c = 0; for (const [ct, cw, ca] of cr) { const z = (t - ct) / cw; if (z > 0 && z < 6) c += ca * Math.exp(-z) * w; } /* щелчки */
+      d[i] = lp2 * env * 2.6 + c * .32 + w * env * .05;
+    }
+  }
+  const t = AC.currentTime, src = AC.createBufferSource(), hs = AC.createBiquadFilter(), g = AC.createGain();
+  src.buffer = buf; hs.type = "highshelf"; hs.frequency.value = 3500; hs.gain.value = -6;
+  g.gain.value = big ? .85 : .7; src.connect(hs); hs.connect(g); g.connect(busE); src.start(t);
+}
+let torchOn = false, crackT = 0;
+function crackle() {
+  if (!torchOn || !AC) return;
+  const t = AC.currentTime, src = AC.createBufferSource(), hp = AC.createBiquadFilter(), g = AC.createGain();
+  src.buffer = AC.noise; hp.type = "bandpass"; hp.frequency.value = 1800 + Math.random() * 2600; hp.Q.value = 1.2;
+  const len = .006 + Math.random() * .025, a = .2 + Math.random() * .4;
+  g.gain.setValueAtTime(a, t); g.gain.exponentialRampToValueAtTime(.0005, t + len);
+  src.connect(hp); hp.connect(g); g.connect(torchG); src.start(t, Math.random() * 1.5, len + .02);
+  crackT = setTimeout(crackle, Math.random() < .3 ? 30 + Math.random() * 60 : 120 + Math.random() * 420);
+}
+function torch(on) {
+  if (!AC || on === torchOn) return; torchOn = on; const t = AC.currentTime;
+  torchG.gain.cancelScheduledValues(t); torchG.gain.setTargetAtTime(on ? 1 : 0, t, on ? .8 : .5);
+  clearTimeout(crackT); if (on) crackle();
+}
+function fadeAudio() { torch(false); if (AC && master) { master.gain.cancelScheduledValues(AC.currentTime); master.gain.setTargetAtTime(0, AC.currentTime, .3); } MUSIC.pause(); }
+
+function syncMix() {
+  [["volM", "m"], ["volE", "e"]].forEach(([id, k]) => { const el = $("#" + id); el.value = AUD[k]; el.style.setProperty("--p", AUD[k] + "%"); $("#" + id + "o").textContent = AUD[k]; });
+  $("#snd").setAttribute("aria-pressed", String(SOUND));
+}
+[["volM", "m"], ["volE", "e"]].forEach(([id, k]) => {
+  $("#" + id).addEventListener("input", e => {
+    AUD[k] = +e.target.value; e.target.style.setProperty("--p", AUD[k] + "%"); $("#" + id + "o").textContent = AUD[k];
+    if (AUD[k] > 0) SOUND = true; applyVol(true); saveAudio();
+  });
+});
+syncMix();
+
+function start() {
+  $("#start").hidden = true; $("#hud").hidden = false;
+  $("#dots").hidden = false; $("#dots").innerHTML = SCENES.map(() => "<i></i>").join("");
+  playing = true; audioStart(); show(0);
+}
+$("#play").onclick = start;
+$("#nope").onclick = leave;
+$("#go").onclick = leave;
+$("#skip").onclick = e => { e.stopPropagation(); idx < SCENES.length ? finale() : leave(); };
+$("#snd").onclick = e => { e.stopPropagation(); SOUND = !SOUND; e.target.setAttribute("aria-pressed", String(SOUND)); applyVol(); saveAudio(); if (!SOUND) MUSIC.pause(); else if (MUSIC.ok) MUSIC.play().catch(() => {}); };
+$("#film").addEventListener("click", e => { if (!playing || e.target.closest("button")) return; if (idx < SCENES.length) show(idx + 1); });
+addEventListener("keydown", e => {
+  if (!playing) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); start(); } return; }
+  if (e.key === "Escape") { idx < SCENES.length ? finale() : leave(); }
+  if (e.key === " " || e.key === "ArrowRight" || e.key === "Enter") { e.preventDefault(); if (idx < SCENES.length) show(idx + 1); else leave(); }
+});
+</script>
+</body>
+</html>
