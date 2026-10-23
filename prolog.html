@@ -7,11 +7,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Cormorant+SC:wght@600;700&display=swap"><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Cormorant+SC:wght@600;700&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Cormorant+SC:wght@600;700&display=swap"></noscript>
-<style>:root{--gold:#c9a25a;--gold-hi:#f0d696;--ink:#efe3c8}*{box-sizing:border-box}html,body{margin:0;height:100%;background:#050304;color:var(--ink);overflow:hidden;font:500 20px/1.4 "Cormorant Garamond",Georgia,serif;-webkit-user-select:none;user-select:none}button{font:inherit;color:inherit}[hidden]{display:none !important}  :root{--fw:min(92vw,1120px,calc((100vh - 120px) * 1.5));--fh:calc(var(--fw) / 1.5);--ftop:calc(50% - var(--fh) / 2 - 10px)}@media (max-aspect-ratio:1/1){:root{--fw:calc(100vw - 20px);--fh:calc(var(--fw) / 1.33);--ftop:calc(38% - var(--fh) / 2)}}body{background:radial-gradient(ellipse 80% 70% at 50% 45%,#170d09,#050304 75%)}.film{position:fixed;top:var(--ftop);left:calc(50% - var(--fw) / 2);width:var(--fw);height:var(--fh);overflow:hidden;background:#050304;border-radius:2px;box-shadow:0 0 0 1px rgba(201,162,90,.55),0 0 0 5px #0b0705,0 0 0 6px rgba(201,162,90,.28),0 18px 60px rgba(0,0,0,.85),0 0 90px rgba(255,140,60,.07)}.film::after{content:"";position:absolute;inset:7px;z-index:4;pointer-events:none;border:1px solid rgba(240,214,150,.16)}.shot{position:absolute;inset:0;overflow:hidden}.shot .pic{position:absolute;inset:-2%;background:center / cover no-repeat;will-change:transform} .shot .color{filter:saturate(.92) contrast(1.04) brightness(.95)}@keyframes bloom{to{opacity:1}}.shot.first{opacity:0;animation:fadeIn 2.2s ease forwards}.burn{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}@keyframes fadeOut{to{opacity:0}}.shot.on .pic,.shot.out .pic{animation:kb var(--dur,10s) linear forwards}@keyframes kb{from{transform:translate(var(--x0,0),var(--y0,0)) scale(var(--s0,1.04))}to{transform:translate(var(--x1,0),var(--y1,0)) scale(var(--s1,1.16))}}.grain{position:absolute;inset:-50%;pointer-events:none;opacity:.13;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='220' height='220' filter='url(%23n)'/></svg>");animation:grain .9s steps(4) infinite}@keyframes grain{25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-2%,-1%)}}.vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 75% 70% at 50% 45%,transparent 35%,rgba(5,3,4,.55) 70%,rgba(5,3,4,.95) 100%),linear-gradient(180deg,rgba(5,3,4,.35),transparent 22%,transparent 55%,rgba(5,3,4,.92))}#embers{position:fixed;inset:0;z-index:3;pointer-events:none} .shade{position:absolute;left:0;right:0;bottom:0;height:52%;z-index:2;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(5,3,4,.45) 38%,rgba(5,3,4,.82) 78%,rgba(5,3,4,.9));transition:opacity 1s}body.title .shade{opacity:0}.say{position:absolute;left:50%;bottom:6%;z-index:5;width:min(92vw,980px);transform:translateX(-50%);text-align:center}.say.big{bottom:42vh}.say.big p{font:700 clamp(28px,4.2vw,54px)/1.25 "Cormorant SC",Georgia,serif;font-style:normal;letter-spacing:.08em;color:#e8c98a;text-shadow:0 0 30px rgba(255,140,60,.5),0 2px 14px #000}.say p{margin:.25em 0;font:italic 500 clamp(19px,2.4vw,30px)/1.35 "Cormorant Garamond",Georgia,serif;color:#f3e8cf;text-shadow:0 2px 14px #000,0 0 30px rgba(0,0,0,.9);text-wrap:balance}.say .w{display:inline-block;opacity:0;filter:blur(6px);transform:translateY(6px);animation:word .9s ease forwards;animation-delay:var(--d)}@keyframes word{to{opacity:1;filter:blur(0);transform:none}}.say.gone p{animation:sayOut 1s ease forwards}@keyframes sayOut{to{opacity:0;filter:blur(4px)}} .titlecard{position:fixed;inset:0;z-index:6;display:grid;place-items:center;text-align:center;pointer-events:none}.titlecard h1{margin:0;font:700 clamp(44px,9vw,120px)/1 "Cormorant SC",Georgia,serif;letter-spacing:.12em;color:var(--gold-hi);text-shadow:0 0 40px rgba(255,170,80,.45),0 4px 30px #000;opacity:0;filter:blur(14px);transform:scale(1.06);animation:title 3.4s ease forwards}.titlecard p{margin:14px 0 0;font:italic 500 clamp(18px,2.2vw,26px)/1.3 "Cormorant Garamond",serif;color:#d8c6a0;opacity:0;animation:fadeIn 2s 2s ease forwards}.titlecard .rule{width:min(420px,70vw);height:12px;margin:20px auto 0;opacity:0;animation:fadeIn 2s 1.6s ease forwards;background:radial-gradient(circle,var(--gold) 2.5px,transparent 3px) center / 12px 12px no-repeat,linear-gradient(var(--gold),var(--gold)) left center / calc(50% - 14px) 1px no-repeat,linear-gradient(var(--gold),var(--gold)) right center / calc(50% - 14px) 1px no-repeat}.titlecard .go{pointer-events:auto;margin-top:34px;opacity:0;animation:fadeIn 1.6s 3.2s ease forwards}@keyframes title{to{opacity:1;filter:blur(0);transform:none}}@keyframes fadeIn{to{opacity:1}} .finbg{position:absolute;inset:-8%;z-index:1;background:center 40% / cover no-repeat;filter:grayscale(.6) sepia(.35) blur(7px) brightness(.55) contrast(1.15);opacity:0;transform:scale(1.04);transition:opacity 1.6s ease,transform 14s linear}body.title .finbg{opacity:1;transform:scale(1)} .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 26px;border:1px solid var(--gold-hi);border-radius:3px;background:linear-gradient(180deg,#f1d79a,#c99a4e);color:#2a1a0c;font:700 19px/1 "Cormorant SC",Georgia,serif;letter-spacing:.08em;cursor:pointer}.btn.ghost{background:rgba(10,6,4,.55);color:var(--gold-hi);border-color:rgba(201,162,90,.6)}.hud{position:fixed;top:12px;right:12px;z-index:8;display:flex;gap:8px;opacity:.45;transition:opacity .3s}.hud:hover,.hud:focus-within{opacity:1}.hud button{padding:7px 12px;border:1px solid rgba(201,162,90,.55);border-radius:3px;background:rgba(10,6,4,.6);color:var(--gold-hi);font:700 13px/1 "Cormorant SC",Georgia,serif;letter-spacing:.08em;cursor:pointer}.hud button[aria-pressed="false"]{color:#8a7a62;text-decoration:line-through}.dots{position:fixed;left:50%;top:calc(var(--ftop) + var(--fh) + 16px);z-index:8;transform:translateX(-50%);display:flex;gap:6px}.dots i{width:6px;height:6px;border-radius:50%;background:rgba(240,214,150,.25);transition:background .4s,transform .4s}.dots i.on{background:var(--gold-hi);transform:scale(1.3)} .start{position:fixed;inset:0;z-index:10;display:grid;place-items:center;text-align:center;background:radial-gradient(ellipse at 50% 60%,#1a0e0a,#050304 70%)}.start .in{padding:20px}.start small{display:block;font:700 14px "Cormorant SC",serif;letter-spacing:.3em;color:var(--gold)}.start h2{margin:10px 0 26px;font:700 clamp(34px,6vw,64px)/1.05 "Cormorant SC",serif;color:var(--gold-hi);letter-spacing:.06em}.start p{margin:0 0 26px;font-style:italic;color:#b9a582}.start .row{display:flex;flex-direction:column;align-items:center;gap:12px;width:min(340px,86vw);margin:0 auto}.start .btn.wide{width:100%;justify-content:center;padding:15px 26px;font-size:21px}.start .btn.sub{padding:9px 22px;font-size:16px;opacity:.85}.mix{width:min(340px,86vw);margin:0 auto 24px;padding:14px 18px 6px;border:1px solid rgba(201,162,90,.35);border-radius:4px;background:rgba(10,6,4,.45);text-align:left}.mix b{display:block;margin-bottom:8px;font:700 13px "Cormorant SC",serif;letter-spacing:.2em;color:var(--gold);text-align:center}.mix label{display:grid;grid-template-columns:82px 1fr 34px;align-items:center;gap:10px;margin-bottom:10px;font-size:17px;color:#d8c6a0}.mix output{font-size:14px;color:#9c8a6c;text-align:right}.mix input[type=range]{width:100%;height:22px;margin:0;background:transparent;-webkit-appearance:none;appearance:none;cursor:pointer}.mix input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:linear-gradient(90deg,var(--gold) var(--p,70%),rgba(201,162,90,.25) var(--p,70%))}.mix input[type=range]::-moz-range-track{height:3px;border-radius:2px;background:rgba(201,162,90,.25)}.mix input[type=range]::-moz-range-progress{height:3px;background:var(--gold)}.mix input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;margin-top:-6.5px;border-radius:50%;border:1px solid var(--gold-hi);background:#2a1a0c;box-shadow:0 0 8px rgba(240,214,150,.4)}.mix input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;border:1px solid var(--gold-hi);background:#2a1a0c}.start .hint{margin-top:22px;font-size:15px;color:#7d6d58}@media (max-aspect-ratio:1/1){.say{width:calc(100% - 20px);bottom:5%}.say p{font-size:16.5px}.dots{top:auto;bottom:calc(22px + env(safe-area-inset-bottom,0px))} .hud{top:auto;right:auto;left:50%;bottom:calc(46px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);gap:12px;opacity:.9}.hud button{min-height:44px;padding:12px 22px;font-size:16px;white-space:nowrap}}@media (prefers-reduced-motion:reduce){.shot .pic{animation:none !important}.grain{animation:none}}</style>
+<style>:root{--gold:#c9a25a;--gold-hi:#f0d696;--ink:#efe3c8}*{box-sizing:border-box}html,body{margin:0;height:100%;background:#050304;color:var(--ink);overflow:hidden;font:500 20px/1.4 "Cormorant Garamond",Georgia,serif;-webkit-user-select:none;user-select:none}button{font:inherit;color:inherit}[hidden]{display:none !important}  :root{--fw:min(92vw,1120px,calc((100vh - 120px) * 1.5));--fh:calc(var(--fw) / 1.5);--ftop:calc(50% - var(--fh) / 2 - 10px)}@media (max-aspect-ratio:1/1){:root{--fw:calc(100vw - 20px);--fh:calc(var(--fw) / 1.33);--ftop:calc(38% - var(--fh) / 2)}}body{background:radial-gradient(ellipse 80% 70% at 50% 45%,#170d09,#050304 75%)}.film{position:fixed;top:var(--ftop);left:calc(50% - var(--fw) / 2);width:var(--fw);height:var(--fh);overflow:hidden;background:#050304;border-radius:2px;box-shadow:0 0 0 1px rgba(201,162,90,.55),0 0 0 5px #0b0705,0 0 0 6px rgba(201,162,90,.28),0 18px 60px rgba(0,0,0,.85),0 0 90px rgba(255,140,60,.07)}.film::after{content:"";position:absolute;inset:7px;z-index:4;pointer-events:none;border:1px solid rgba(240,214,150,.16)}.shot{position:absolute;inset:0;overflow:hidden}.shot .pic{position:absolute;inset:-1%;background:center / cover no-repeat;will-change:transform;transform-origin:var(--fo,50% 50%)} .shot .color{filter:saturate(.92) contrast(1.04) brightness(.95)}@keyframes bloom{to{opacity:1}}.shot.first{opacity:0;animation:fadeIn 2.2s ease forwards}.burn{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}@keyframes fadeOut{to{opacity:0}}.shot.on .pic,.shot.out .pic{animation:kb var(--dur,10s) linear forwards}@keyframes kb{from{transform:scale(var(--s0,1))}to{transform:scale(var(--s1,1.06))}}.fx{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}#fxL{mix-blend-mode:screen}body.paused *,body.paused *::before,body.paused *::after{animation-play-state:paused !important}.grain{position:absolute;inset:-50%;pointer-events:none;opacity:.13;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='220' height='220' filter='url(%23n)'/></svg>");animation:grain .9s steps(4) infinite}@keyframes grain{25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-2%,-1%)}}.vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 75% 70% at 50% 45%,transparent 35%,rgba(5,3,4,.55) 70%,rgba(5,3,4,.95) 100%),linear-gradient(180deg,rgba(5,3,4,.35),transparent 22%,transparent 55%,rgba(5,3,4,.92))}#embers{position:fixed;inset:0;z-index:0;pointer-events:none} .shade{position:absolute;left:0;right:0;bottom:0;height:52%;z-index:2;pointer-events:none;background:linear-gradient(180deg,transparent,rgba(5,3,4,.45) 38%,rgba(5,3,4,.82) 78%,rgba(5,3,4,.9));transition:opacity 1s}body.title .shade{opacity:0}.say{position:absolute;left:50%;bottom:6%;z-index:5;width:calc(100% - 56px);transform:translateX(-50%);text-align:center}.say.big{bottom:42vh}.say.big p{font:700 clamp(28px,4.2vw,54px)/1.25 "Cormorant SC",Georgia,serif;font-style:normal;letter-spacing:.08em;color:#e8c98a;text-shadow:0 0 30px rgba(255,140,60,.5),0 2px 14px #000}.say p{margin:.25em 0;font:italic 500 clamp(21px,calc(var(--fw) * .032),36px)/1.35 "Cormorant Garamond",Georgia,serif;color:#f3e8cf;text-shadow:0 2px 14px #000,0 0 30px rgba(0,0,0,.9);text-wrap:balance}.say .w{display:inline-block;opacity:0;filter:blur(6px);transform:translateY(6px);animation:word .9s ease forwards;animation-delay:var(--d)}@keyframes word{to{opacity:1;filter:blur(0);transform:none}}.say.gone p{animation:sayOut 1s ease forwards}@keyframes sayOut{to{opacity:0;filter:blur(4px)}} .say .firewrap{filter:drop-shadow(0 0 5px rgba(255,140,40,.75)) drop-shadow(0 0 14px rgba(255,90,20,.4))}.say .w.fire{color:#ffc65a;text-shadow:none}@keyframes flame{from{background-position:0 0}to{background-position:0 100%}} .slam{position:absolute;inset:0 0 18% 0;z-index:5;display:grid;place-items:center;pointer-events:none}.slam b{font:700 clamp(38px,8vw,100px)/1 "Cormorant SC",Georgia,serif;letter-spacing:.16em;padding-left:.16em;color:#f6e2b4;text-shadow:0 0 26px rgba(200,30,18,.8),0 0 80px rgba(150,16,8,.6),0 4px 18px #000;opacity:0;transform:scale(1.45);filter:blur(12px);animation:slam .5s cubic-bezier(.15,.9,.3,1.15) forwards}@keyframes slam{55%{opacity:1;filter:blur(0)}to{opacity:1;transform:none;filter:blur(0)}}.slam.gone b{animation:sayOut 1s ease forwards;opacity:1;transform:none;filter:none} .film.shake>.shot,.film.shake>.fx,.film.shake>.slam{animation:shake .55s ease}@keyframes shake{12%{transform:translate(-6px,3px)}26%{transform:translate(5px,-4px)}42%{transform:translate(-3px,2px)}60%{transform:translate(2px,-1px)}80%{transform:translate(-1px,1px)}} .intro{position:absolute;inset:0;z-index:6;display:grid;place-items:center;background:radial-gradient(ellipse 45% 50% at 50% 50%,#130b07,#050304 70%);transition:opacity 1.3s ease}.intro.out{opacity:0}.intro svg{width:min(30%,200px);overflow:visible;stroke:var(--gold-hi);fill:none;stroke-width:1.1;filter:drop-shadow(0 0 6px rgba(240,200,130,.55)) drop-shadow(0 0 22px rgba(255,160,70,.25))}.intro .ln{stroke-dasharray:100;stroke-dashoffset:100;animation:draw 1.6s .2s cubic-bezier(.5,0,.3,1) forwards}.intro .l2{animation-delay:.6s}.intro .l3{animation-delay:1s}.intro .dash{opacity:0;transform-origin:32px 32px;animation:fadeIn 1s 1.1s ease forwards,spin 30s linear infinite;stroke:var(--gold)}.intro .star{fill:rgba(240,200,120,.0);stroke:none;animation:starFill 1.4s 1.5s ease forwards}@keyframes draw{to{stroke-dashoffset:0}}@keyframes spin{to{transform:rotate(360deg)}}@keyframes starFill{to{fill:rgba(240,200,120,.32)}} .titlecard{position:fixed;inset:0;z-index:6;display:grid;place-items:center;text-align:center;pointer-events:none}.titlecard h1{margin:0;font:700 clamp(44px,9vw,120px)/1 "Cormorant SC",Georgia,serif;letter-spacing:.12em;color:var(--gold-hi);text-shadow:0 0 40px rgba(255,170,80,.45),0 4px 30px #000;opacity:0;filter:blur(14px);transform:scale(1.06);animation:title 3.4s ease forwards}.titlecard p{margin:14px 0 0;font:italic 500 clamp(18px,2.2vw,26px)/1.3 "Cormorant Garamond",serif;color:#d8c6a0;opacity:0;animation:fadeIn 2s 2s ease forwards}.titlecard .rule{width:min(420px,70vw);height:12px;margin:20px auto 0;opacity:0;animation:fadeIn 2s 1.6s ease forwards;background:radial-gradient(circle,var(--gold) 2.5px,transparent 3px) center / 12px 12px no-repeat,linear-gradient(var(--gold),var(--gold)) left center / calc(50% - 14px) 1px no-repeat,linear-gradient(var(--gold),var(--gold)) right center / calc(50% - 14px) 1px no-repeat}.titlecard .go{pointer-events:auto;margin-top:34px;opacity:0;animation:fadeIn 1.6s 3.2s ease forwards}@keyframes title{to{opacity:1;filter:blur(0);transform:none}}@keyframes fadeIn{to{opacity:1}} .finbg{position:absolute;inset:-8%;z-index:1;background:center 40% / cover no-repeat;filter:grayscale(.6) sepia(.35) blur(7px) brightness(.42) contrast(1.15);opacity:0;transform:scale(1.04);transition:opacity 3.4s ease,transform 16s linear}body.title .finbg{opacity:1;transform:scale(1)}.film::before{content:"";position:absolute;inset:0;z-index:4;background:#030202;opacity:0;pointer-events:none;transition:opacity 2.8s ease}.film.blackout::before{opacity:1} .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 26px;border:1px solid var(--gold-hi);border-radius:3px;background:linear-gradient(180deg,#f1d79a,#c99a4e);color:#2a1a0c;font:700 19px/1 "Cormorant SC",Georgia,serif;letter-spacing:.08em;cursor:pointer}.btn.ghost{background:rgba(10,6,4,.55);color:var(--gold-hi);border-color:rgba(201,162,90,.6)}.hud{position:fixed;top:12px;right:12px;z-index:8;display:flex;gap:8px;opacity:.45;transition:opacity .3s}.hud:hover,.hud:focus-within{opacity:1}.hud button{padding:7px 12px;border:1px solid rgba(201,162,90,.55);border-radius:3px;background:rgba(10,6,4,.6);color:var(--gold-hi);font:700 13px/1 "Cormorant SC",Georgia,serif;letter-spacing:.08em;cursor:pointer}.hud button[aria-pressed="false"]{color:#8a7a62;text-decoration:line-through}.dots{position:fixed;left:50%;top:calc(var(--ftop) + var(--fh) + 16px);z-index:8;transform:translateX(-50%);display:flex;gap:6px}.dots i{width:6px;height:6px;border-radius:50%;background:rgba(240,214,150,.25);transition:background .4s,transform .4s}.dots i.on{background:var(--gold-hi);transform:scale(1.3)} .start{position:fixed;inset:0;z-index:10;display:grid;place-items:center;text-align:center;background:radial-gradient(ellipse at 50% 60%,#1a0e0a,#050304 70%)}.start .in{padding:20px}.start small{display:block;font:700 14px "Cormorant SC",serif;letter-spacing:.3em;color:var(--gold)}.start h2{margin:10px 0 26px;font:700 clamp(34px,6vw,64px)/1.05 "Cormorant SC",serif;color:var(--gold-hi);letter-spacing:.06em}.start p{margin:0 0 26px;font-style:italic;color:#b9a582}.start .row{display:flex;flex-direction:column;align-items:center;gap:12px;width:min(340px,86vw);margin:0 auto}.start .btn.wide{width:100%;justify-content:center;padding:15px 26px;font-size:21px}.start .btn.sub{padding:9px 22px;font-size:16px;opacity:.85}.mix{width:min(340px,86vw);margin:0 auto 24px;padding:14px 18px 6px;border:1px solid rgba(201,162,90,.35);border-radius:4px;background:rgba(10,6,4,.45);text-align:left}.mix b{display:block;margin-bottom:8px;font:700 13px "Cormorant SC",serif;letter-spacing:.2em;color:var(--gold);text-align:center}.mix label{display:grid;grid-template-columns:82px 1fr 34px;align-items:center;gap:10px;margin-bottom:10px;font-size:17px;color:#d8c6a0}.mix output{font-size:14px;color:#9c8a6c;text-align:right}.mix input[type=range]{width:100%;height:22px;margin:0;background:transparent;-webkit-appearance:none;appearance:none;cursor:pointer}.mix input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:linear-gradient(90deg,var(--gold) var(--p,70%),rgba(201,162,90,.25) var(--p,70%))}.mix input[type=range]::-moz-range-track{height:3px;border-radius:2px;background:rgba(201,162,90,.25)}.mix input[type=range]::-moz-range-progress{height:3px;background:var(--gold)}.mix input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;margin-top:-6.5px;border-radius:50%;border:1px solid var(--gold-hi);background:#2a1a0c;box-shadow:0 0 8px rgba(240,214,150,.4)}.mix input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;border:1px solid var(--gold-hi);background:#2a1a0c}.start .hint{margin-top:22px;font-size:15px;color:#7d6d58}@media (max-aspect-ratio:1/1){ .say{position:fixed;top:calc(var(--ftop) + var(--fh) + 22px);bottom:auto;width:calc(100vw - 28px)}.say p{font-size:22px;line-height:1.4}.shade{display:none}.dots{top:auto;bottom:calc(22px + env(safe-area-inset-bottom,0px))} .hud{top:auto;right:auto;left:50%;bottom:calc(46px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);gap:12px;opacity:.9}.hud button{min-height:44px;padding:12px 22px;font-size:16px;white-space:nowrap}}@media (prefers-reduced-motion:reduce){.shot .pic{animation:none !important}.grain{animation:none}}</style>
 </head>
 <body>
+<canvas id="embers"></canvas>
 <div class="film" id="film">
-  <canvas id="embers"></canvas>
   <div class="vig" style="z-index:2"></div>
   <div class="grain" style="z-index:3"></div>
   <div class="finbg" id="finbg"></div>
@@ -42,19 +42,19 @@
    x0/y0/s0 → x1/y1/s1 — откуда и куда плывёт камера; mx/my — где проступают чернила.
    ===================================================================== */
 const SCENES = [
-  { img: "prolog/preacher.webp", s0: 1.02, s1: 1.12, x0: "1%", x1: "-1%",
+  { img: "prolog/preacher.webp", fo: "50% 24%", fx: "cathedral",
     say: ["Империю терзают распри.", "Смутное время, как вороньё, клюёт её бока."] },
-  { img: "prolog/ghoul.webp", s0: 1.1, s1: 1.02,
+  { img: "prolog/ghoul.webp", fo: "46% 22%",
     say: ["Скверна превращает людей в голодных тварей.", "Твоя кровь — их единственное желание."] },
-  { img: "prolog/leshy.webp", s0: 1.02, s1: 1.1, y0: "1%", y1: "-1%",
-    say: ["Но есть враг страшнее монстров…", "Инквизиция."] },
-  { img: "prolog/burning.webp", s0: 1.1, s1: 1.02, x0: "-1%", x1: "1%",
+  { img: "prolog/leshy.webp", fo: "62% 28%", fx: "fog",
+    say: ["Но есть враг страшнее монстров…", { slam: "Инквизиция" }] },
+  { img: "prolog/burning.webp", fo: "73% 34%", fx: "blaze", nofx: true,
     say: ["Ордену Пылающего Сердца плевать на монстров.", "Они видят ересь в каждом, кто пережил укус или поклоняется магии."] },
-  { img: "prolog/bonfire.webp", torch: true, s0: 1.02, s1: 1.1, y0: "1%", y1: "-1%",
-    say: ["Их кодекс прост: «Огонь очищает».", "И они готовы сжечь полмира, чтобы доказать свою правоту."] },
-  { img: "prolog/helgrad.webp", s0: 1.1, s1: 1.02, x0: "1%", x1: "-1%",
+  { img: "prolog/bonfire.webp", fo: "53% 52%", fx: "bonfire", nofx: true, torch: true,
+    say: ["Их кодекс прост: *«Огонь очищает»*.", "И они готовы сжечь полмира, чтобы доказать свою правоту."] },
+  { img: "prolog/helgrad.webp", fo: "31% 32%", fx: "mist",
     say: ["Веларис — умирающий зверь.", "Он хрипит, истекает кровью на алтарях инквизиции и корчится в агонии от скверны."] },
-  { img: "prolog/statue.webp", s0: 1.02, s1: 1.1, x0: "-1%", x1: "1%",
+  { img: "prolog/statue.webp", fo: "45% 28%", fx: "snow",
     say: ["Ты здесь — никто. И в то же время — всё.", "Присоединяйся, чтобы повернуть колесо судьбы Велариса."] }
 ];
 const FIN_BG = "prolog/king.webp";
@@ -100,17 +100,18 @@ vkSend("VKWebAppStorageGet", { keys: ["prolog_audio"] }).then(r => {
 const IMG = {}; SCENES.filter(s => s.img).map(s => s.img).concat(FIN_BG).forEach(src => { const i = new Image(); i.src = src; IMG[src] = i; });
 
 const MUSIC = new Audio("prolog/music.mp3"); MUSIC.loop = true; MUSIC.volume = 0; MUSIC.ok = false; MUSIC.addEventListener("canplaythrough", () => MUSIC.ok = true, { once: true });
-function sceneDur(s) { return Math.max(7000, s.say.join(" ").length * 70 + 3200); }
+const sayText = x => typeof x === "string" ? x.replace(/\*/g, "") : x.slam;
+function sceneDur(s) { return Math.max(7000, s.say.map(sayText).join(" ").length * 70 + 3200) + (s.say.some(x => x.slam) ? 3600 : 0); }
 function show(i) {
   clearTimeout(timer);
   if (i >= SCENES.length) return finale();
   idx = i; const s = SCENES[i], film = $("#film");
+  film.querySelectorAll(".intro").forEach(x => { x.classList.add("out"); setTimeout(() => x.remove(), 1400); });
   const old = film.querySelector(".shot.on");
   if (old) burnAway(old);
   const d = sceneDur(s), el = document.createElement("div");
   el.className = "shot" + (old ? "" : " first"); el.dataset.src = s.img;
-  const soft = z => 1 + ((z || 1.04) - 1) * .42, half = p => p ? (parseFloat(p) / 2) + "%" : "0";
-  const v = { "--dur": (d + 3200) + "ms", "--x0": half(s.x0), "--y0": half(s.y0), "--x1": half(s.x1), "--y1": half(s.y1), "--s0": soft(s.s0), "--s1": soft(s.s1) };
+  const v = { "--dur": (d + 3200) + "ms", "--fo": s.fo || "50% 50%", "--s0": 1, "--s1": 1.065 };
   Object.entries(v).forEach(([k, x]) => el.style.setProperty(k, x));
   el.innerHTML = s.img ? `<div class="pic color" style="background-image:url('${s.img}')"></div>` : "";
   film.insertBefore(el, film.firstChild);
@@ -119,30 +120,57 @@ function show(i) {
   $("#say").classList.toggle("big", !s.img);
   sayLines(s.say);
   if (old) boom();
-  torch(!!s.torch);
+  torch(!!s.torch); FX.set(s.nofx ? null : s.fx); AMB.set(s.fx);
   [...document.querySelectorAll(".dots i")].forEach((d2, k) => d2.classList.toggle("on", k === i));
-  timer = setTimeout(() => show(i + 1), d);
+  later(() => show(i + 1), d);
 }
 function sayLines(lines) {
-  const box = $("#say");
+  const box = $("#say"), film = $("#film");
   box.classList.add("gone");
+  film.querySelectorAll(".slam").forEach(x => { x.classList.add("gone"); setTimeout(() => x.remove(), 1000); });
   const my = idx;
   setTimeout(() => {
     if (idx !== my || idx >= SCENES.length) return; /* кадр уже сменили — старые слова не показываем */
     box.classList.remove("gone");
-    let t = 900;
-    box.innerHTML = lines.map(line => `<p>${line.split(" ").map(w => { const h = `<span class="w" style="--d:${t}ms">${w}</span>`; t += 90 + w.length * 18; return h; }).join(" ")}</p>`).join("");
+    let t = 900, slam = null, slamAt = 0, fireAt = -1;
+    const html = lines.map(line => {
+      if (typeof line !== "string") { slam = line.slam; slamAt = t + 900 + 2000; /* пауза в две секунды перед «Инквизицией» */ return ""; }
+      const tok = []; let sp = false;
+      line.split("*").forEach((seg, k) => seg.split(/(\s+)/).forEach(w => { if (!w) return; if (/^\s+$/.test(w)) { sp = true; return; } tok.push({ w, fire: k % 2 === 1, sp }); sp = false; }));
+      let out = "", inFire = false;
+      tok.forEach((o, n) => {
+        if (o.fire && !inFire) { out += (o.sp && n ? " " : "") + '<span class="firewrap">'; inFire = true; if (fireAt < 0) fireAt = t; }
+        else if (!o.fire && inFire) { out += "</span>"; inFire = false; if (o.sp) out += " "; }
+        else if (o.sp && n) out += " ";
+        out += `<span class="w${o.fire ? " fire" : ""}" style="--d:${t}ms">${o.w}</span>`;
+        t += 90 + o.w.length * 18 + (o.fire ? 120 : 0);
+      });
+      if (inFire) out += "</span>";
+      return `<p>${out}</p>`;
+    }).join("");
+    box.innerHTML = html;
+    if (fireAt >= 0) setTimeout(() => { if (idx === my && !PAUSED) sfxIgnite(); }, fireAt);
+    if (slam) setTimeout(() => {
+      if (idx !== my) return;
+      const el = document.createElement("div"); el.className = "slam"; el.innerHTML = `<b>${slam}</b>`; film.appendChild(el);
+      setTimeout(() => { if (idx !== my) return; sfxSlam(); film.classList.remove("shake"); void film.offsetWidth; film.classList.add("shake"); }, 160);
+    }, slamAt);
   }, idx === 0 ? 1200 : 700);
 }
 function finale() {
   clearTimeout(timer); idx = SCENES.length;
   $("#say").classList.add("gone");
-  document.body.classList.add("title");
-  torch(false);
-  $("#finbg").style.backgroundImage = `url('${FIN_BG}')`;
-  const old = $("#film").querySelector(".shot.on"); if (old) { burnAway(old, 3000); boom(true); }
-  $("#title").hidden = false; $("#dots").hidden = true;
+  torch(false); AMB.set("mist"); $("#dots").hidden = true;
+  const film = $("#film"); film.querySelectorAll(".slam, .intro").forEach(x => x.remove());
+  burns.forEach(b => b.kill());
   store(SEEN_KEY, "1");
+  film.classList.add("blackout");
+  later(() => {
+    FX.set(null); film.querySelectorAll(".shot").forEach(x => x.remove());
+    $("#finbg").style.backgroundImage = `url('${FIN_BG}')`;
+    document.body.classList.add("title"); film.classList.remove("blackout");
+    later(() => { $("#title").hidden = false; }, 1600);
+  }, 3000);
 }
 function leave() {
   store(SEEN_KEY, "1");
@@ -163,6 +191,7 @@ function snap(shot) {
     x.save(); x.globalAlpha = +cs.opacity; if ("filter" in x) x.filter = cs.filter || "none";
     x.drawImage(img, r.left - fr.left + (r.width - w) / 2, r.top - fr.top + (r.height - h) / 2, w, h); x.restore();
   });
+  try { x.drawImage(FX.A, 0, 0, W, H); x.globalCompositeOperation = "screen"; x.drawImage(FX.L, 0, 0, W, H); x.globalCompositeOperation = "source-over"; } catch (_) {}
   return c;
 }
 function burnField(W, H) {
@@ -195,11 +224,12 @@ function burnAway(shot, dur = 3000) {
   const ctx = cv.getContext("2d"), LW = 260, LH = Math.max(60, Math.round(LW * cv.height / cv.width));
   const F = burnField(LW, LH), mk = n => { const c = document.createElement("canvas"); c.width = LW; c.height = LH; const x = c.getContext("2d"); return [c, x, x.createImageData(LW, LH)]; };
   const [mC, mX, mD] = mk(), [gC, gX, gD] = mk(), [cC, cX, cD] = mk();
-  const sx = cv.width / LW, sy = cv.height / LH, DPR = cv.width / $("#film").clientWidth, sparks = [], t0 = performance.now();
+  const sx = cv.width / LW, sy = cv.height / LH, DPR = cv.width / $("#film").clientWidth, sparks = [], t0 = clock();
   let dead = false; const b = { kill() { dead = true; } }; burns.push(b);
   const ease = p => p < .5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2;
-  (function frame(now) {
-    const p = Math.min(1, (now - t0) / dur), T = -.06 + ease(p) * 1.14, md = mD.data, gd = gD.data, cd = cD.data;
+  (function frame() {
+    if (PAUSED && !dead) { requestAnimationFrame(frame); return; }
+    const now = clock(), p = Math.min(1, (now - t0) / dur), T = -.06 + ease(p) * 1.14, md = mD.data, gd = gD.data, cd = cD.data;
     const hot = [];
     for (let i = 0, j = 0; i < F.length; i++, j += 4) {
       const d = F[i] - T;
@@ -224,7 +254,7 @@ function burnAway(shot, dur = 3000) {
     ctx.globalAlpha = 1;
     if (!dead && (p < 1 || sparks.some(k => k.l > 0))) requestAnimationFrame(frame);
     else { cv.remove(); burns = burns.filter(x => x !== b); }
-  })(t0);
+  })();
 }
 
 (() => {
@@ -262,12 +292,9 @@ function audioStart() {
   master = AC.createGain(); master.gain.value = 0; master.connect(lim);
   master.gain.setValueAtTime(0, AC.currentTime); master.gain.linearRampToValueAtTime(1, AC.currentTime + 3);
   busM = AC.createGain(); busE = AC.createGain(); busM.connect(master); busE.connect(master); applyVol(true);
-  const lp = AC.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 900; lp.Q.value = .2; lp.connect(busM);
-  [[73.4, 0, .22, 0], [146.8, -4, .2, 1], [220, 3, .13, 2], [293.7, -3, .08, 3], [349.2, 4, .05, 4]].forEach(([f, det, gv, k]) => {
-    const o = AC.createOscillator(), g = AC.createGain(); o.type = k ? "triangle" : "sine"; o.frequency.value = f; o.detune.value = det;
-    g.gain.value = gv; o.connect(g); g.connect(lp); o.start();
-    const l = AC.createOscillator(), lg = AC.createGain(); l.frequency.value = .045 + k * .017; lg.gain.value = gv * .45; l.connect(lg); lg.connect(g.gain); l.start();
-  });
+  AC.verbE = makeVerb(3.2, 3); const ve = AC.createGain(); ve.gain.value = .35; AC.verbE.connect(ve); ve.connect(busE);
+  AC.ambBus = AC.createGain(); AC.ambBus.gain.value = .8; AC.ambBus.connect(busE);
+  if (!MUSIC.ok) AC.stopScore = startScore();
   const n = AC.createBuffer(1, AC.sampleRate * 2, AC.sampleRate), d = n.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
   AC.noise = n;
   torchG = AC.createGain(); torchG.gain.value = 0; torchG.connect(busE);
@@ -311,8 +338,395 @@ function torch(on) {
   torchG.gain.cancelScheduledValues(t); torchG.gain.setTargetAtTime(on ? 1 : 0, t, on ? .8 : .5);
   clearTimeout(crackT); if (on) crackle();
 }
-function fadeAudio() { torch(false); if (AC && master) { master.gain.cancelScheduledValues(AC.currentTime); master.gain.setTargetAtTime(0, AC.currentTime, .3); } MUSIC.pause(); }
+function fadeAudio() { torch(false); try { AMB.set(null); } catch (_) {} if (AC && master) { master.gain.cancelScheduledValues(AC.currentTime); master.gain.setTargetAtTime(0, AC.currentTime, .3); } MUSIC.pause(); }
 
+let PAUSED = false, pausedAt = 0, pausedTotal = 0, sceneEnd = 0, sceneNext = null;
+const clock = () => (PAUSED ? pausedAt : performance.now()) - pausedTotal;
+function later(fn, ms) { sceneNext = fn; sceneEnd = clock() + ms; clearTimeout(timer); timer = setTimeout(() => { sceneNext = null; fn(); }, ms); }
+function pauseAll() {
+  if (PAUSED || !playing) return; PAUSED = true; pausedAt = performance.now(); clearTimeout(timer);
+  document.body.classList.add("paused");
+  if (AC && AC.state === "running") AC.suspend().catch(() => {});
+  if (MUSIC.ok) MUSIC.pause();
+}
+function resumeAll() {
+  if (!PAUSED) return; pausedTotal += performance.now() - pausedAt; PAUSED = false;
+  document.body.classList.remove("paused");
+  if (AC) AC.resume().catch(() => {});
+  if (MUSIC.ok && SOUND) MUSIC.play().catch(() => {});
+  if (sceneNext) { const fn = sceneNext, left = Math.max(400, sceneEnd - clock()); timer = setTimeout(() => { sceneNext = null; fn(); }, left); }
+}
+document.addEventListener("visibilitychange", () => document.hidden ? pauseAll() : resumeAll());
+addEventListener("pagehide", pauseAll);
+function every(fn, a, b) { let id = 0, alive = true; const tick = () => { if (!alive) return; if (!PAUSED) fn(); id = setTimeout(tick, a + Math.random() * (b - a)); }; id = setTimeout(tick, Math.random() * a); return () => { alive = false; clearTimeout(id); }; }
+
+const FX = (() => {
+  const film = $("#film"), A = document.createElement("canvas"), L = document.createElement("canvas");
+  A.className = "fx"; L.className = "fx"; L.id = "fxL";
+  film.insertBefore(L, film.querySelector(".vig")); film.insertBefore(A, L);
+  const a = A.getContext("2d"), l = L.getContext("2d"), R = Math.random;
+  let W = 0, H = 0, D = 1, kind = null, st = null, last = 0;
+  function fit() { const r = film.getBoundingClientRect(); D = Math.min(1.5, devicePixelRatio || 1); W = A.width = L.width = Math.max(2, Math.round(r.width * D)); H = A.height = L.height = Math.max(2, Math.round(r.height * D)); if (kind) st = MAKE[kind](); }
+  addEventListener("resize", fit);
+  const fl = (t, s) => .55 + .22 * Math.sin(t * 7.3 + s) + .13 * Math.sin(t * 13.7 + s * 2.1) + .1 * Math.sin(t * 23.1 + s * 3.7); /* мерцание пламени */
+  function glow(c, x, y, r, rgb, al) { if (al <= 0) return; const g = c.createRadialGradient(x, y, 0, x, y, r); g.addColorStop(0, `rgba(${rgb},${al})`); g.addColorStop(1, `rgba(${rgb},0)`); c.fillStyle = g; c.fillRect(x - r, y - r, r * 2, r * 2); }
+  let fogT = null;
+  function fogTex() {
+    if (fogT) return fogT;
+    const w = 256, h = 128, c = document.createElement("canvas"); c.width = w; c.height = h;
+    const x = c.getContext("2d"), im = x.createImageData(w, h), sm = t => t * t * (3 - 2 * t);
+    const oct = [[4, 2, .5], [8, 4, .27], [16, 8, .15], [32, 16, .08]].map(([nx, ny, amp]) => { const g = new Float32Array(nx * (ny + 1)); for (let i = 0; i < g.length; i++) g[i] = R(); return [nx, ny, amp, g]; });
+    for (let y = 0; y < h; y++) for (let X = 0; X < w; X++) {
+      let v = 0;
+      for (const [nx, ny, amp, g] of oct) {
+        const u = X / w * nx, q = y / h * ny, x0 = u | 0, y0 = q | 0, fx = sm(u - x0), fy = sm(q - y0), x1 = (x0 + 1) % nx;
+        const A0 = g[y0 * nx + x0] * (1 - fx) + g[y0 * nx + x1] * fx, B0 = g[(y0 + 1) * nx + x0] * (1 - fx) + g[(y0 + 1) * nx + x1] * fx;
+        v += amp * (A0 * (1 - fy) + B0 * fy);
+      }
+      const edge = Math.sin(Math.PI * y / h); /* мягко сходит на нет сверху и снизу */
+      const al = Math.max(0, Math.min(1, (v - .32) / .5)) * edge;
+      const j = (y * w + X) * 4; im.data[j] = im.data[j + 1] = im.data[j + 2] = 255; im.data[j + 3] = al * 255;
+    }
+    x.putImageData(im, 0, 0); return fogT = c;
+  }
+  function tinted(rgb) { const t = fogTex(), c = document.createElement("canvas"); c.width = t.width; c.height = t.height; const x = c.getContext("2d"); x.drawImage(t, 0, 0); x.globalCompositeOperation = "source-in"; x.fillStyle = `rgb(${rgb})`; x.fillRect(0, 0, c.width, c.height); return c; }
+  function fogLayer(c, tex, off, y, h, sc, al) {
+    const w = W * sc; let x = -((off % w) + w) % w; c.globalAlpha = al;
+    for (; x < W; x += w) c.drawImage(tex, x, y, w + 1, h);
+    c.globalAlpha = 1;
+  }
+  const sprite = (() => { const c = document.createElement("canvas"); c.width = c.height = 32; const x = c.getContext("2d"), g = x.createRadialGradient(16, 16, 0, 16, 16, 16); g.addColorStop(0, "rgba(255,255,255,1)"); g.addColorStop(.35, "rgba(255,255,255,.75)"); g.addColorStop(1, "rgba(255,255,255,0)"); x.fillStyle = g; x.fillRect(0, 0, 32, 32); return c; })();
+  function sparks(n, src) { return Array.from({ length: n }, () => Object.assign(src(), { age: R() * 3 })); }
+  function drawSparks(P, dt, t, src, rgbHot) {
+    l.globalCompositeOperation = "lighter";
+    for (const p of P) {
+      p.age += dt; if (p.age > p.life) Object.assign(p, src(), { age: 0 });
+      const k = p.age / p.life; p.vx += Math.sin(t * 2.3 + p.s) * 14 * D * dt; p.x += p.vx * dt; p.y += p.vy * dt;
+      const al = Math.sin(Math.PI * Math.min(1, k)) * p.a, r = p.r * (1 - k * .5);
+      l.globalAlpha = al; l.drawImage(sprite, p.x - r * 2, p.y - r * 2, r * 4, r * 4);
+      l.fillStyle = k < .4 ? rgbHot : k < .75 ? "#ff9a3c" : "#e0521c"; l.beginPath(); l.arc(p.x, p.y, r * .7, 0, 6.3); l.fill();
+    }
+    l.globalAlpha = 1; l.globalCompositeOperation = "source-over";
+  }
+  const MAKE = {
+    cathedral() {
+      const ray = document.createElement("canvas"); ray.width = W; ray.height = H; const r = ray.getContext("2d");
+      if ("filter" in r) r.filter = `blur(${Math.round(18 * D)}px)`;
+      const g = r.createLinearGradient(0, 0, 0, H); g.addColorStop(0, "rgba(190,205,255,.55)"); g.addColorStop(.7, "rgba(170,185,240,.12)"); g.addColorStop(1, "rgba(170,185,240,0)");
+      r.fillStyle = g; r.beginPath(); r.moveTo(W * .41, 0); r.lineTo(W * .59, 0); r.lineTo(W * .82, H * .95); r.lineTo(W * .18, H * .95); r.closePath(); r.fill();
+      const motes = Array.from({ length: 90 }, () => ({ x: W * (.3 + R() * .4), y: H * R() * .85, vx: (R() - .5) * 6 * D, vy: (R() - .3) * 4 * D, r: (.5 + R() * 1.1) * D, s: R() * 9 }));
+      return { ray, motes, next: 2.5 + R() * 2, flash: -9 };
+    },
+    rain() {
+      const drops = Array.from({ length: 420 }, () => { const z = .25 + R() * .75; return { x: R() * W * 1.2, y: R() * H, z, len: (9 + 20 * z) * D, v: (800 + 900 * z) * D }; });
+      return { drops, splash: [], next: 5 + R() * 4, flash: -9 };
+    },
+    fog() {
+      const leaves = Array.from({ length: 9 }, () => ({ x: R() * W, y: R() * H, vy: (14 + R() * 18) * D, rot: R() * 6, vr: (R() - .5) * 2.4, s: (3 + R() * 3) * D, ph: R() * 6 }));
+      return { tex: fogTex(), leaves, off: [0, 0, 0] };
+    },
+    blaze() {
+      const src = () => ({ x: W * (.42 + R() * .58), y: H * (.5 + R() * .5), vx: (R() - .5) * 20 * D, vy: -(40 + R() * 90) * D, r: (.7 + R() * 1.4) * D, life: 1.5 + R() * 2.5, a: .6 + R() * .4, s: R() * 9 });
+      return { src, P: sparks(150, src), smoke: tinted("26,16,12"), off: 0 };
+    },
+    bonfire() {
+      const src = () => ({ x: W * (.53 + (R() - .5) * .07), y: H * (.6 + R() * .08), vx: (R() - .5) * 16 * D, vy: -(50 + R() * 80) * D, r: (.6 + R() * 1.2) * D, life: 1 + R() * 2, a: .6 + R() * .4, s: R() * 9 });
+      return { src, P: sparks(70, src) };
+    },
+    mist() {
+      const bird = () => { const dir = R() < .5 ? 1 : -1; return { dir, x: dir > 0 ? -40 * D : W + 40 * D, y: H * (.08 + R() * .3), v: (22 + R() * 22) * D, s: (5 + R() * 5) * D, ph: R() * 6, wait: R() * 6 }; };
+      return { warm: tinted("140,72,52"), off: [0, 0], birds: Array.from({ length: 4 }, bird), bird };
+    },
+    snow() {
+      const flakes = Array.from({ length: 320 }, () => { const z = .15 + R() * .85; return { x: R() * W, y: R() * H, z, r: (.5 + 2.6 * z * z) * D, v: (22 + 70 * z) * D, ph: R() * 6, sw: (6 + 16 * z) * D, fq: .4 + R() * .8 }; });
+      const candles = [.255, .3, .345, .385, .455, .545, .615, .66, .705, .745].map((x, i) => [x, .8 + (i % 3) * .008, R() * 9]);
+      return { flakes, candles, gust: 0, gustT: 0 };
+    }
+  };
+  const STEP = {
+    cathedral(s, dt, t) {
+      l.globalAlpha = .55 + .25 * Math.sin(t * .55); l.drawImage(s.ray, 0, 0); l.globalAlpha = 1;
+      for (const m of s.motes) {
+        m.x += (m.vx + Math.sin(t * .7 + m.s) * 3 * D) * dt; m.y += m.vy * dt;
+        if (m.y < 0) m.y = H * .85; if (m.y > H * .9) m.y = 0; if (m.x < W * .2) m.x = W * .8; if (m.x > W * .8) m.x = W * .2;
+        const inCone = Math.max(0, 1 - Math.abs(m.x / W - .5) / (.12 + .25 * m.y / H));
+        l.globalAlpha = inCone * (.35 + .35 * Math.sin(t * 2 + m.s)); l.drawImage(sprite, m.x - m.r * 2, m.y - m.r * 2, m.r * 4, m.r * 4);
+      }
+      l.globalAlpha = 1;
+      if (t > s.next) { s.flash = t; s.next = t + 4.5 + R() * 5; AMB.thunder(.6 + R() * 1.2, .55); }
+      const k = t - s.flash, f = k < .05 ? .55 : k < .11 ? .06 : k < .19 ? .38 : k < .7 ? .38 * (1 - (k - .19) / .51) : 0;
+      if (f > 0) { glow(l, W * .5, H * .05, W * .75, "175,195,255", f); }
+    },
+    rain(s, dt, t) {
+      const wind = .2 + .05 * Math.sin(t * .4);
+      for (const [lo, hi, al, lw] of [[.25, .5, .1, .6], [.5, .8, .16, .9], [.8, 1.01, .24, 1.3]]) {
+        a.strokeStyle = `rgba(200,210,226,${al})`; a.lineWidth = lw * D; a.beginPath();
+        for (const d of s.drops) {
+          if (d.z < lo || d.z >= hi) continue;
+          d.y += d.v * dt; d.x += d.v * wind * dt;
+          if (d.y > H) { if (d.z > .7 && R() < .5) s.splash.push([d.x, H * (.86 + R() * .12), 0]); d.y = -d.len; d.x = R() * W * 1.2 - W * .2; }
+          a.moveTo(d.x, d.y); a.lineTo(d.x - d.len * wind, d.y - d.len);
+        }
+        a.stroke();
+      }
+      a.strokeStyle = "rgba(210,220,235,.35)"; a.lineWidth = .8 * D;
+      s.splash = s.splash.filter(p => (p[2] += dt) < .28);
+      for (const [x, y, k] of s.splash) { a.globalAlpha = 1 - k / .28; a.beginPath(); a.ellipse(x, y, (2 + k * 26) * D, (.6 + k * 6) * D, 0, Math.PI, 0); a.stroke(); }
+      a.globalAlpha = 1;
+      if (t > s.next) { s.flash = t; s.next = t + 6 + R() * 6; AMB.thunder(1.2 + R() * 1.5, .4); }
+      const k = t - s.flash, f = k < .08 ? .3 : k < .16 ? .04 : k < .26 ? .22 : k < .8 ? .22 * (1 - (k - .26) / .54) : 0;
+      if (f > 0) glow(l, W * .6, H * .12, W * .6, "255,200,190", f);
+    },
+    fog(s, dt, t) {
+      const lay = [[.36, .55, 1.9, .5, 8], [.52, .5, 1.45, .42, 15], [.66, .42, 1.15, .34, 25]];
+      lay.forEach(([y, h, sc, al, sp], i) => { s.off[i] += sp * D * dt; fogLayer(a, s.tex, s.off[i], H * y, H * h, sc, al * (.85 + .15 * Math.sin(t * .3 + i))); });
+      a.fillStyle = "rgba(48,40,30,.85)";
+      for (const f of s.leaves) {
+        f.y += f.vy * dt; f.rot += f.vr * dt; f.x += Math.sin(t * 1.3 + f.ph) * 22 * D * dt + 6 * D * dt;
+        if (f.y > H + 10) { f.y = -10; f.x = R() * W; }
+        a.save(); a.translate(f.x, f.y); a.rotate(f.rot); a.scale(Math.cos(t * 3 + f.ph), 1); a.beginPath(); a.ellipse(0, 0, f.s, f.s * .45, 0, 0, 6.3); a.fill(); a.restore();
+      }
+    },
+    blaze(s, dt, t) {
+      s.off += 10 * D * dt; fogLayer(a, s.smoke, s.off, -H * .05, H * .5, 1.6, .55);
+      const f = fl(t, 1);
+      glow(l, W * .73, H * .42, W * .75, "255,118,40", .1 + .15 * f);
+      glow(l, W * .62, H * .55, W * .4, "255,170,80", .05 + .09 * fl(t, 4));
+      drawSparks(s.P, dt, t, s.src, "#fff0b0");
+    },
+    bonfire(s, dt, t) {
+      glow(l, W * .53, H * .58, W * .48, "255,128,48", .1 + .16 * fl(t, 2));
+      glow(l, W * .53, H * .62, W * .14, "255,205,130", .12 + .14 * fl(t, 5));
+      drawSparks(s.P, dt, t, s.src, "#fff3c4");
+    },
+    mist(s, dt, t) {
+      s.off[0] += 7 * D * dt; s.off[1] += 13 * D * dt;
+      fogLayer(a, s.warm, s.off[0], H * .52, H * .42, 1.7, .4); fogLayer(a, s.warm, s.off[1], H * .64, H * .36, 1.25, .3);
+      glow(l, W * .31, H * .32, W * .28, "255,110,60", .07 + .03 * Math.sin(t * .5));
+      a.strokeStyle = "rgba(14,8,6,.85)"; a.lineCap = "round";
+      for (const b of s.birds) {
+        if (b.wait > 0) { b.wait -= dt; continue; }
+        b.x += b.v * b.dir * dt; b.y += Math.sin(t * .8 + b.ph) * 4 * D * dt;
+        if (b.x < -60 * D || b.x > W + 60 * D) { Object.assign(b, s.bird(), { wait: 2 + R() * 6 }); continue; }
+        const w = Math.sin(t * 7 + b.ph), sz = b.s; a.lineWidth = 1.3 * D; a.beginPath();
+        a.moveTo(b.x - sz, b.y - sz * .5 * w); a.quadraticCurveTo(b.x - sz * .45, b.y - sz * .2 * w - sz * .25, b.x, b.y);
+        a.quadraticCurveTo(b.x + sz * .45, b.y - sz * .2 * w - sz * .25, b.x + sz, b.y - sz * .5 * w); a.stroke();
+      }
+    },
+    snow(s, dt, t) {
+      for (const f of s.flakes) {
+        f.y += f.v * .55 * dt; f.x += (4 * D * f.z + Math.sin(t * f.fq * .6 + f.ph) * f.sw * .35) * dt;
+        if (f.y > H + 6) { f.y = -6; f.x = R() * W; } if (f.x > W + 10) f.x = -10;
+        a.globalAlpha = .35 + .55 * f.z; const r = f.r * (f.z > .8 ? 2.6 : 2); a.drawImage(sprite, f.x - r, f.y - r, r * 2, r * 2);
+      }
+      a.globalAlpha = 1;
+      for (const [x, y, sd] of s.candles) { glow(l, W * x, H * y, W * .035, "255,175,90", .28 + .22 * fl(t * 1.4, sd)); }
+      glow(l, W * .5, H * .82, W * .3, "255,150,70", .04 + .03 * fl(t, 3));
+    }
+  };
+  (function loop(now) {
+    requestAnimationFrame(loop);
+    if (PAUSED || !kind || !st) { last = now; return; }
+    const dt = Math.min(.05, (now - last) / 1000 || .016); last = now;
+    a.clearRect(0, 0, W, H); l.clearRect(0, 0, W, H);
+    STEP[kind](st, dt, clock() / 1000);
+  })(0);
+  return {
+    A, L,
+    set(k) {
+      kind = MAKE[k] ? k : null; a.clearRect(0, 0, W, H); l.clearRect(0, 0, W, H);
+      if (!W) fit(); st = kind ? MAKE[kind]() : null;
+      [A, L].forEach(c => { c.style.transition = "none"; c.style.opacity = 0; void c.offsetWidth; c.style.transition = "opacity 1.6s ease"; c.style.opacity = 1; });
+      document.body.classList.toggle("fx-cold", /cathedral|rain|fog|snow/.test(k || ""));
+    }
+  };
+})();
+
+const AMB = (() => {
+  let cur = null, live = [];
+  const R = Math.random;
+  function noiseBuf(kind, sec = 4) {
+    const key = "_" + kind; if (AC[key]) return AC[key];
+    const n = AC.sampleRate * sec, b = AC.createBuffer(2, n, AC.sampleRate);
+    for (let ch = 0; ch < 2; ch++) {
+      const d = b.getChannelData(ch); let last = 0, b0 = 0, b1 = 0, b2 = 0;
+      for (let i = 0; i < n; i++) {
+        const w = R() * 2 - 1;
+        if (kind === "brown") { last = (last + .02 * w) / 1.02; d[i] = last * 3.5; }
+        else if (kind === "pink") { b0 = .99765 * b0 + w * .099; b1 = .963 * b1 + w * .2965; b2 = .57 * b2 + w * 1.0526; d[i] = (b0 + b1 + b2 + w * .1848) * .2; }
+        else d[i] = w;
+      }
+    }
+    return AC[key] = b;
+  }
+  function loopSrc(kind) { const s = AC.createBufferSource(); s.buffer = noiseBuf(kind); s.loop = true; s.start(0, R() * 3); live.push(s); return s; }
+  function filt(type, f, q) { const x = AC.createBiquadFilter(); x.type = type; x.frequency.value = f; if (q != null) x.Q.value = q; return x; }
+  function gain(v) { const g = AC.createGain(); g.gain.value = v; return g; }
+  function chain(...n) { for (let i = 0; i < n.length - 1; i++) n[i].connect(n[i + 1]); return n[n.length - 1]; }
+  function walk(param, lo, hi, a, b, tau) { return every(() => param.setTargetAtTime(lo + R() * (hi - lo), AC.currentTime, tau), a, b); }
+  function click(out, f, amp, len) { const t = AC.currentTime, s = AC.createBufferSource(), bp = filt("bandpass", f, 2.5), g = gain(0); s.buffer = noiseBuf("white"); g.gain.setValueAtTime(amp, t); g.gain.exponentialRampToValueAtTime(.0005, t + len); chain(s, bp, g, out); s.start(t, R() * 3, len + .03); }
+  const verb = () => AC.verbE;
+  const K = {
+    rain(out) {
+      const st = [];
+      chain(loopSrc("pink"), filt("highpass", 450), filt("lowpass", 7500), gain(.55), out);
+      chain(loopSrc("brown"), filt("lowpass", 320), gain(.5), out);
+      st.push(every(() => click(out, 2200 + R() * 5000, .05 + R() * .12, .004 + R() * .006), 25, 70));
+      return st;
+    },
+    snow(out) {
+      const st = [];
+      const b1 = filt("bandpass", 420, 10), g1 = gain(.0); chain(loopSrc("white"), b1, g1, out); g1.gain.value = .22;
+      const b2 = filt("bandpass", 900, 16), g2 = gain(.08); chain(loopSrc("white"), b2, g2, out);
+      const g3 = gain(.12); chain(loopSrc("brown"), filt("lowpass", 700), g3, out);
+      st.push(walk(b1.frequency, 280, 640, 1200, 2600, .9), walk(b2.frequency, 700, 1250, 1500, 3000, 1.1));
+      st.push(walk(g1.gain, .06, .3, 1400, 3200, 1), walk(g3.gain, .05, .18, 2000, 4000, 1.4));
+      return st;
+    },
+    fog(out) {
+      const st = [];
+      const gw = gain(.12); chain(loopSrc("brown"), filt("lowpass", 900), gw, out); st.push(walk(gw.gain, .07, .16, 2500, 5000, 1.5));
+      const bp = filt("bandpass", 210, 2.2), gb = gain(0); chain(loopSrc("pink"), bp, gb, out); gb.connect(verb());
+      st.push(every(() => { const t = AC.currentTime; gb.gain.cancelScheduledValues(t); gb.gain.setValueAtTime(0, t); gb.gain.linearRampToValueAtTime(.5, t + 1.3); gb.gain.linearRampToValueAtTime(.08, t + 1.6); gb.gain.linearRampToValueAtTime(.35, t + 2.1); gb.gain.linearRampToValueAtTime(0, t + 3.8); }, 4800, 7000));
+      st.push(every(() => { for (let i = 0; i < 2 + (R() * 3 | 0); i++) setTimeout(() => click(out, 900 + R() * 1500, .25 + R() * .25, .01 + R() * .02), i * (40 + R() * 90)); }, 3000, 7000));
+      return st;
+    },
+    cathedral(out) {
+      const st = [], crowd = gain(.9), lp = filt("lowpass", 2400); chain(crowd, lp, out); lp.connect(verb());
+      for (let i = 0; i < 6; i++) { const bp = filt("bandpass", 320 + R() * 700, 4), g = gain(0); chain(loopSrc("white"), bp, g, crowd); st.push(every(() => g.gain.setTargetAtTime(R() < .3 ? 0 : R() * .09, AC.currentTime, .05), 110, 320)); }
+      const choir = gain(0), f1 = filt("bandpass", 800, 6), f2 = filt("bandpass", 1150, 7), f3 = filt("bandpass", 2900, 8), fg2 = gain(.55), fg3 = gain(.22);
+      [[146.83, 0], [220, 4], [293.66, -5], [349.23, 6]].forEach(([f, det]) => [-7, 7].forEach(dd => { const o = AC.createOscillator(), v = AC.createOscillator(), vg = gain(6); o.type = "sawtooth"; o.frequency.value = f; o.detune.value = det + dd; v.frequency.value = 4.6 + R(); chain(v, vg, o.detune); o.connect(f1); o.connect(f2); o.connect(f3); o.start(); v.start(); st.push(() => { try { o.stop(AC.currentTime + 3); v.stop(AC.currentTime + 3); } catch (_) {} }); }));
+      f1.connect(choir); chain(f2, fg2, choir); chain(f3, fg3, choir);
+      const cg = gain(.05); chain(choir, cg, out); cg.connect(verb()); cg.connect(verb());
+      choir.gain.setTargetAtTime(1, AC.currentTime + .5, 1.6);
+      return st;
+    },
+    blaze(out) {
+      const st = [], g = gain(.7); chain(loopSrc("brown"), filt("lowpass", 650), g, out); st.push(walk(g.gain, .5, .95, 300, 900, .25));
+      chain(loopSrc("pink"), filt("bandpass", 1300, .7), gain(.06), out);
+      st.push(every(() => click(out, 1200 + R() * 4000, .2 + R() * .5, .005 + R() * .02), 25, 110));
+      return st;
+    },
+    bonfire(out) {
+      const st = [], crowd = gain(.5), lp = filt("lowpass", 2000); chain(crowd, lp, out); lp.connect(verb());
+      for (let i = 0; i < 5; i++) { const bp = filt("bandpass", 300 + R() * 600, 4), g = gain(0); chain(loopSrc("white"), bp, g, crowd); st.push(every(() => g.gain.setTargetAtTime(R() < .35 ? 0 : R() * .08, AC.currentTime, .05), 120, 340)); }
+      return st;
+    },
+    mist(out) {
+      const st = [], gw = gain(.1); chain(loopSrc("brown"), filt("lowpass", 520), gw, out); st.push(walk(gw.gain, .05, .14, 2500, 5000, 1.5));
+      const bell = () => { const t = AC.currentTime, base = 152 + R() * 4, bg = gain(.06); bg.connect(out); bg.connect(verb()); bg.connect(verb());
+        [[1, 1, 6], [2, .55, 4.5], [2.4, .45, 3.8], [3, .3, 3], [4.2, .2, 2.2], [5.4, .12, 1.6]].forEach(([m, am, dec]) => { const o = AC.createOscillator(), g = gain(0); o.frequency.value = base * m; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(am, t + .01); g.gain.exponentialRampToValueAtTime(.0008, t + dec); chain(o, g, bg); o.start(t); o.stop(t + dec + .1); }); };
+      st.push(every(bell, 5500, 8500));
+      return st;
+    }
+  };
+  return {
+    set(k) {
+      if (!AC) return;
+      if (cur) { const c = cur; c.out.gain.setTargetAtTime(0, AC.currentTime, .7); c.stops.forEach(f => f()); setTimeout(() => { c.live.forEach(x => { try { x.stop(); } catch (_) {} }); try { c.out.disconnect(); } catch (_) {} }, 4000); cur = null; }
+      if (!K[k]) return;
+      const out = gain(0); out.connect(AC.ambBus); out.gain.setTargetAtTime(1, AC.currentTime + .3, 1);
+      live = []; const stops = K[k](out); cur = { out, stops, live };
+    },
+    thunder(delay, amp) {
+      if (!AC) return;
+      const t = AC.currentTime + delay, s = AC.createBufferSource(), lp = filt("lowpass", 160), g = gain(0);
+      s.buffer = noiseBuf("brown"); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(amp, t + .25); g.gain.setTargetAtTime(amp * .5, t + .6, .5); g.gain.exponentialRampToValueAtTime(.0008, t + 4.5);
+      lp.frequency.setValueAtTime(220, t); lp.frequency.exponentialRampToValueAtTime(70, t + 4);
+      chain(s, lp, g, AC.ambBus); g.connect(verb()); s.start(t, R() * 2, 5);
+    },
+    noise: noiseBuf
+  };
+})();
+
+function makeVerb(sec, decay) {
+  const sr = AC.sampleRate, n = sr * sec, b = AC.createBuffer(2, n, sr);
+  for (let ch = 0; ch < 2; ch++) { const d = b.getChannelData(ch); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / n, decay); }
+  const c = AC.createConvolver(); c.buffer = b; return c;
+}
+function startScore() {
+  const out = AC.createGain(); out.gain.value = 1; out.connect(busM);
+  const vin = AC.createGain(); vin.gain.value = .5; const vb = makeVerb(4.5, 2.6); chain2(vin, vb, out);
+  function chain2(...n) { for (let i = 0; i < n.length - 1; i++) n[i].connect(n[i + 1]); }
+  const N = { G1: 49, A1: 55, Bb1: 58.27, D2: 73.42, G2: 98, A2: 110, Bb2: 116.54, Cs3: 138.59, D3: 146.83, E3: 164.81, F3: 174.61, G3: 196, A3: 220, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392, A4: 440, Bb4: 466.16, Cs5: 554.37, D5: 587.33, F5: 698.46 };
+  const BARS = [
+    { root: N.D2, pad: [N.D3, N.F3, N.A3], mel: [N.A4, N.F4, N.E4, N.D4] },
+    { root: N.Bb1 * 2, pad: [N.Bb2, N.D3, N.F3], mel: [N.D5, N.Bb4, N.A4, N.F4] },
+    { root: N.G2, pad: [N.G2, N.Bb2, N.D3], mel: [N.G4, N.Bb4, N.A4, N.G4] },
+    { root: N.A2, pad: [N.A2, N.Cs3, N.E3], mel: [N.E4, N.Cs5, N.A4, 0] }
+  ];
+  const BAR = 6, R = Math.random;
+  function pad(f, t, len, peak) {
+    const lp = AC.createBiquadFilter(), g = AC.createGain(); lp.type = "lowpass"; lp.frequency.value = 760; lp.Q.value = .6;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(peak, t + 2.2); g.gain.setValueAtTime(peak, t + len - 1); g.gain.linearRampToValueAtTime(0, t + len + 2.4);
+    [-7, 7].forEach(d => { const o = AC.createOscillator(); o.type = "sawtooth"; o.frequency.value = f; o.detune.value = d; o.connect(lp); o.start(t); o.stop(t + len + 2.6); });
+    lp.connect(g); g.connect(out); g.connect(vin);
+  }
+  function cello(f, t, len) {
+    const o = AC.createOscillator(), v = AC.createOscillator(), vg = AC.createGain(), lp = AC.createBiquadFilter(), g = AC.createGain();
+    o.type = "sawtooth"; o.frequency.value = f; v.frequency.value = 4.4; vg.gain.value = 7; v.connect(vg); vg.connect(o.detune);
+    lp.type = "lowpass"; lp.frequency.value = 520; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.075, t + 1.6); g.gain.setValueAtTime(.075, t + len - .8); g.gain.linearRampToValueAtTime(0, t + len + 1.6);
+    o.connect(lp); lp.connect(g); g.connect(out); g.connect(vin); o.start(t); v.start(t); o.stop(t + len + 1.8); v.stop(t + len + 1.8);
+  }
+  function harp(f, t, amp) {
+    const g = AC.createGain(), lp = AC.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 2800;
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(amp, t + .008); g.gain.exponentialRampToValueAtTime(.0006, t + 3.2);
+    [[1, 1], [2, .28], [3, .1], [4.01, .05]].forEach(([m, a2]) => { const o = AC.createOscillator(), og = AC.createGain(); o.frequency.value = f * m; og.gain.value = a2; o.connect(og); og.connect(lp); o.start(t); o.stop(t + 3.3); });
+    lp.connect(g); g.connect(out); g.connect(vin); g.connect(vin);
+  }
+  let bar = 0, next = AC.currentTime + .4;
+  const id = setInterval(() => {
+    if (!AC || AC.state !== "running") return;
+    while (next < AC.currentTime + 1.2) {
+      const B = BARS[bar % 4], lap = bar / 4 | 0;
+      B.pad.forEach(f => pad(f, next, BAR, .03));
+      cello(B.root, next, BAR);
+      if (lap > 0 || bar > 1) [.4, 1.9, 3.3, 4.7].forEach((o, k) => { const f = B.mel[k]; if (!f || (lap > 0 && R() < .18)) return; harp(lap > 1 && R() < .3 ? f * 2 : f, next + o + (R() - .5) * .12, .09 * (k === 0 ? 1.15 : 1)); });
+      next += BAR; bar++;
+    }
+  }, 250);
+  return () => clearInterval(id);
+}
+
+function sfxSlam() {
+  if (!AC) return; const t = AC.currentTime, o = AC.createOscillator(), g = AC.createGain();
+  o.frequency.setValueAtTime(58, t); o.frequency.exponentialRampToValueAtTime(30, t + 2.4);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.9, t + .02); g.gain.exponentialRampToValueAtTime(.001, t + 2.8);
+  o.connect(g); g.connect(busE); g.connect(AC.verbE); o.start(t); o.stop(t + 3);
+  const s = AC.createBufferSource(), lp = AC.createBiquadFilter(), ng = AC.createGain(); s.buffer = AMB.noise("brown"); lp.type = "lowpass"; lp.frequency.value = 500;
+  ng.gain.setValueAtTime(.9, t); ng.gain.exponentialRampToValueAtTime(.001, t + .9); s.connect(lp); lp.connect(ng); ng.connect(busE); ng.connect(AC.verbE); s.start(t, 0, 1);
+}
+function sfxIgnite() {
+  if (!AC) return; const t = AC.currentTime, s = AC.createBufferSource(), bp = AC.createBiquadFilter(), g = AC.createGain();
+  s.buffer = AMB.noise("pink"); bp.type = "bandpass"; bp.Q.value = .8; bp.frequency.setValueAtTime(280, t); bp.frequency.exponentialRampToValueAtTime(2400, t + .55); bp.frequency.exponentialRampToValueAtTime(900, t + 1.4);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(.9, t + .2); g.gain.exponentialRampToValueAtTime(.001, t + 1.6);
+  s.connect(bp); bp.connect(g); g.connect(busE); g.connect(AC.verbE); s.start(t, Math.random() * 2, 1.8);
+}
+function sfxBeat(at, amp) {
+  if (!AC) return; const t = AC.currentTime + at, o = AC.createOscillator(), g = AC.createGain();
+  o.frequency.setValueAtTime(64, t); o.frequency.exponentialRampToValueAtTime(38, t + .25);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(amp, t + .015); g.gain.exponentialRampToValueAtTime(.001, t + .45);
+  o.connect(g); g.connect(busE); g.connect(AC.verbE); o.start(t); o.stop(t + .5);
+}
+
+function sfxGong(at) {
+  if (!AC) return; const t = AC.currentTime + at, out = AC.createGain(); out.gain.value = .22; out.connect(busE); out.connect(AC.verbE); out.connect(AC.verbE);
+  [[1, 1, 7], [2.01, .5, 5], [2.76, .38, 4], [3.98, .22, 3], [5.4, .12, 2]].forEach(([m, am, dec]) => { const o = AC.createOscillator(), g = AC.createGain(); o.frequency.value = 73.4 * m; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(am, t + .03); g.gain.exponentialRampToValueAtTime(.0008, t + dec); o.connect(g); g.connect(out); o.start(t); o.stop(t + dec + .1); });
+}
+function intro(next) {
+  const el = document.createElement("div"); el.className = "intro";
+  el.innerHTML = `<svg viewBox="0 0 64 64" aria-hidden="true">
+    <circle class="ln" pathLength="100" cx="32" cy="32" r="29"/>
+    <circle class="dash" cx="32" cy="32" r="24" stroke-dasharray="2 4"/>
+    <path class="ln l2" pathLength="100" d="M32 8v48M8 32h48"/>
+    <path class="star" d="M32 14l5 18-5 18-5-18z"/>
+    <path class="ln l3" pathLength="100" d="M32 14l5 18-5 18-5-18z"/>
+    <path class="ln l3" pathLength="100" d="M14 32l18-4 18 4-18 4z"/>
+  </svg>`;
+  $("#film").appendChild(el);
+  sfxGong(.9);
+  later(() => { el.classList.add("out"); setTimeout(() => el.remove(), 1400); next(); }, 3400);
+}
 function syncMix() {
   [["volM", "m"], ["volE", "e"]].forEach(([id, k]) => { const el = $("#" + id); el.value = AUD[k]; el.style.setProperty("--p", AUD[k] + "%"); $("#" + id + "o").textContent = AUD[k]; });
   $("#snd").setAttribute("aria-pressed", String(SOUND));
@@ -328,7 +742,7 @@ syncMix();
 function start() {
   $("#start").hidden = true; $("#hud").hidden = false;
   $("#dots").hidden = false; $("#dots").innerHTML = SCENES.map(() => "<i></i>").join("");
-  playing = true; audioStart(); show(0);
+  playing = true; audioStart(); intro(() => show(0));
 }
 $("#play").onclick = start;
 $("#nope").onclick = leave;
