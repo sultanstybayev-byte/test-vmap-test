@@ -1,0 +1,184 @@
+{
+ "cards": [
+  {
+   "id": "inventor",
+   "g": "azure",
+   "n": "Изобретатель",
+   "img": "fate/inventor.webp",
+   "buff": "",
+   "debuff": "",
+   "act": ""
+  },
+  {
+   "id": "expressivity",
+   "g": "azure",
+   "n": "Выразительность",
+   "img": "fate/expressivity.webp",
+   "buff": "",
+   "debuff": "",
+   "act": ""
+  },
+  {
+   "id": "jinx",
+   "g": "azure",
+   "n": "Сглаз",
+   "img": "fate/jinx.webp",
+   "buff": "",
+   "debuff": "",
+   "act": ""
+  },
+  {
+   "id": "cycle",
+   "g": "azure",
+   "n": "Разрыв круга",
+   "img": "fate/cycle.webp",
+   "buff": "",
+   "debuff": "",
+   "act": ""
+  },
+  {
+   "id": "performer",
+   "g": "azure",
+   "n": "Лицедей",
+   "img": "fate/performer.webp",
+   "buff": "",
+   "debuff": "",
+   "act": ""
+  },
+  {
+   "id": "care",
+   "g": "amethyst",
+   "n": "Забота",
+   "img": "fate/care.webp",
+   "buff": "",
+   "debuff": "",
+   "act": ""
+  },
+  {
+   "id": "echo",
+   "g": "amethyst",
+   "n": "Эхо глубин",
+   "img": "fate/echo.webp",
+   "buff": "",
+   "debuff": "",
+   "act": ""
+  },
+  {
+   "id": "fear",
+   "g": "amethyst",
+   "n": "Страх",
+   "img": "fate/fear.webp",
+   "buff": "",
+   "debuff": "",
+   "act": ""
+  },
+  {
+   "id": "madness",
+   "g": "amethyst",
+   "n": "Безумие",
+   "img": "fate/madness.webp",
+   "buff": "",
+   "debuff": "",
+   "act": ""
+  },
+  {
+   "id": "blame",
+   "g": "amethyst",
+   "n": "Вина",
+   "img": "fate/blame.webp",
+   "buff": "",
+   "debuff": "",
+   "act": ""
+  },
+  {
+   "id": "stubborn",
+   "g": "crimson",
+   "n": "Упрямство",
+   "img": "fate/stubborn.webp",
+   "buff": "",
+   "debuff": "",
+   "act": ""
+  },
+  {
+   "id": "monster",
+   "g": "crimson",
+   "n": "Чудовище",
+   "img": "fate/monster.webp",
+   "buff": "",
+   "debuff": "",
+   "act": ""
+  },
+  {
+   "id": "revolution",
+   "g": "crimson",
+   "n": "Дитя восстания",
+   "img": "fate/revolution.webp",
+   "buff": "",
+   "debuff": "",
+   "act": ""
+  },
+  {
+   "id": "splendor",
+   "g": "crimson",
+   "n": "Мерцающее великолепие",
+   "img": "fate/splendor.webp",
+   "buff": "",
+   "debuff": "",
+   "act": ""
+  },
+  {
+   "id": "revenge",
+   "g": "crimson",
+   "n": "Месть",
+   "img": "fate/revenge.webp",
+   "buff": "Не отступничество перед врагом",
+   "debuff": "Слепое рвение",
+   "act": "Можно заставить своего обидчика испытать самый страшный его кошмар\n[2 психическое касание]"
+  },
+  {
+   "id": "flex",
+   "g": "gold",
+   "n": "Гибкость",
+   "img": "fate/flex.webp",
+   "buff": "",
+   "debuff": "",
+   "act": ""
+  },
+  {
+   "id": "bullseye",
+   "g": "gold",
+   "n": "В яблочко",
+   "img": "fate/bullseye.webp",
+   "buff": "",
+   "debuff": "",
+   "act": ""
+  },
+  {
+   "id": "instinct",
+   "g": "gold",
+   "n": "Чутьё",
+   "img": "fate/instinct.webp",
+   "buff": "",
+   "debuff": "",
+   "act": ""
+  },
+  {
+   "id": "stealth",
+   "g": "gold",
+   "n": "Скрытность",
+   "img": "fate/stealth.webp",
+   "buff": "",
+   "debuff": "",
+   "act": ""
+  },
+  {
+   "id": "momentum",
+   "g": "gold",
+   "n": "Натиск",
+   "img": "fate/momentum.webp",
+   "buff": "",
+   "debuff": "",
+   "act": ""
+  }
+ ]
+}
