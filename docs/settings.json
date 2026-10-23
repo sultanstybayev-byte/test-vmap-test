@@ -1,6 +1,6 @@
 {
  "tarotHidden": false,
- "invHidden": true,
+ "invHidden": false,
  "facStyle": {
   "bastards": {
    "color": "#2c2622",
