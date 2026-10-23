@@ -265,12 +265,15 @@ const toast = m => { const t = $("#toast"); t.textContent = m; t.classList.add("
    ===================================================================== */
 const GH_KEY = "velaris-gh-v1";
 const DOC_KINDS = { pismo: "Письмо", kniga: "Книга", stopka: "Бумаги" };
-const ghDefaults = () => {
+/* репозиторий берётся из адреса сайта: …github.io/vmap/ → vmap, …github.io/vmaptest/ → vmaptest.
+   Так тестовая копия пишет только в свой репозиторий, даже если ключ сохранён в том же браузере. */
+const GH_PAGES = (() => {
   const m = location.hostname.match(/^([^.]+)\.github\.io$/i), seg = location.pathname.split("/").filter(Boolean);
-  return { owner: m ? m[1] : "sultanstybayev-byte", repo: m && seg.length > 1 ? seg[0] : "vmap" };
-};
-const ghCfg = () => { let c = {}; try { c = JSON.parse(localStorage.getItem(GH_KEY)) || {}; } catch (_) {} return Object.assign(ghDefaults(), c); };
-const ghSaveCfg = c => { try { localStorage.setItem(GH_KEY, JSON.stringify(c)); } catch (_) {} };
+  return m && seg.length && !/\.html?$/i.test(seg[0]) ? { owner: m[1], repo: seg[0] } : null;
+})();
+const ghDefaults = () => GH_PAGES ? Object.assign({}, GH_PAGES) : { owner: "sultanstybayev-byte", repo: "vmap" };
+const ghCfg = () => { let c = {}; try { c = JSON.parse(localStorage.getItem(GH_KEY)) || {}; } catch (_) {} return Object.assign(ghDefaults(), c, GH_PAGES || {}); };
+const ghSaveCfg = c => { const o = Object.assign({}, c); if (GH_PAGES) { delete o.owner; delete o.repo; } try { localStorage.setItem(GH_KEY, JSON.stringify(o)); } catch (_) {} };
 
 const VK_P = new URLSearchParams(location.search);
 const VK_ROLE = VK_P.get("vk_viewer_group_role") || "";
