@@ -548,16 +548,18 @@ async function wnUpdate(mutate, message) {
   throw new Error("Розыск менялся одновременно с вами. Попробуйте ещё раз.");
 }
 const Q_NEW_DAYS = 14;
+const Q_NEW_SEED = { "Верхний Хельград (Похищение)": "2026-10-23", "Пьяный Ульвар": "2026-10-23", "Наказать непрошенных": "2026-10-23", "Трофей для Ульвара": "2026-10-23" };
+const qSeed = names => { const o = Object.assign({}, names || {}); for (const k in Q_NEW_SEED) if (!o[k] || o[k] < Q_NEW_SEED[k]) o[k] = Q_NEW_SEED[k]; return o; };
 const isoDay = (d = new Date()) => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
 async function qAddedLoad() {
-  try { const r = await fetch("docs/qadded.json?t=" + Date.now(), { cache: "no-store" }); if (r.ok) return (await r.json()).names || {}; } catch (_) {}
-  return null;
+  try { const r = await fetch("docs/qadded.json?t=" + Date.now(), { cache: "no-store" }); if (r.ok) return qSeed((await r.json()).names); } catch (_) {}
+  return qSeed({});
 }
 async function qAddedSync(quests) {
   const c = ghCfg(); if (!c.token) return null;
   const { data, sha } = await ghRead(c, "docs/qadded.json");
   const names = (data && data.names) || {}, first = !data, today = isoDay(); let changed = false;
-  quests.forEach(q => { if (!names[q.n]) { names[q.n] = first ? "2000-01-01" : today; changed = true; } });
+  quests.forEach(q => { const sd = Q_NEW_SEED[q.n]; if (!names[q.n] || (sd && names[q.n] < sd)) { names[q.n] = sd || (first ? "2000-01-01" : today); changed = true; } });
   if (changed) { try { await ghWrite(c, "docs/qadded.json", { names }, sha, first ? "Квесты: даты появления" : "Квесты: новые"); } catch (_) {} }
   return names;
 }

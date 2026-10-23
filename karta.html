@@ -1103,8 +1103,10 @@ function questsHTML() {
   ]);
 }
 let QFP_OPEN = false;
-let Q_ADDED = {};
-fetch("docs/qadded.json?t=" + Date.now(), { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(j => { Q_ADDED = (j && j.names) || {}; if (view === "quests") { const fp = $("#qfp"); if (fp) fp.innerHTML = qfpHTML(); } }).catch(() => {});
+const Q_NEW_SEED = { "Верхний Хельград (Похищение)": "2026-10-23", "Пьяный Ульвар": "2026-10-23", "Наказать непрошенных": "2026-10-23", "Трофей для Ульвара": "2026-10-23" };
+const qSeed = names => { const o = Object.assign({}, names || {}); for (const k in Q_NEW_SEED) if (!o[k] || o[k] < Q_NEW_SEED[k]) o[k] = Q_NEW_SEED[k]; return o; };
+let Q_ADDED = qSeed({});
+fetch("docs/qadded.json?t=" + Date.now(), { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(j => { Q_ADDED = qSeed(j && j.names); if (view === "quests") { const fp = $("#qfp"); if (fp) fp.innerHTML = qfpHTML(); } }).catch(() => {});
 const qNew = q => { const d = Q_ADDED[q.n]; return !!d && (Date.now() - new Date(d + "T00:00:00").getTime()) / 864e5 < 14; };
 const qIn = (q, f) => f === "all-groups" ? true : f === "new" ? qNew(q) : f === "nofac" ? (q.g === "all" || q.g === "temp" || !Q_FAC[q.g]) : q.g === f;
 function qfpHTML() {
