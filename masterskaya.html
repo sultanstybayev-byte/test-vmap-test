@@ -677,7 +677,12 @@ const HERO_FRAMES = {
     <path d="M14 200c-10 0-10 20 0 20M286 200c10 0 10 20 0 20M14 260c-10 0-10 20 0 20M286 260c10 0 10 20 0 20" stroke-width="1.4"/></g>
     <g fill="#120c07" stroke="currentColor" stroke-width="1.8"><path d="M136 2h28l-4 26h-20z"/></g><g fill="currentColor"><path d="M150 8l5 7-5 7-5-7z"/><circle cx="14" cy="366" r="4"/><circle cx="286" cy="366" r="4"/></g>`]
 };
-const heroFrameHTML = (img, frame, name) => `<span class="hframe f-${frame || "deco"}"><span class="hf-pic">${img ? `<img src="${fateEsc(img)}" alt="" loading="lazy">` : `<span class="hf-ph">${fateEsc(String(name || "?").trim().charAt(0).toUpperCase())}</span>`}</span><svg class="hf-svg" viewBox="0 0 300 380" aria-hidden="true">${(HERO_FRAMES[frame] || HERO_FRAMES.deco)[1]}</svg></span>`;
+function heroImgFallback(im) {
+  const src = im.getAttribute("src") || "";
+  if (!im.dataset.raw && !/^(https?:|data:|blob:)/.test(src)) { const c = ghCfg(); im.dataset.raw = "1"; im.src = `https://raw.githubusercontent.com/${c.owner}/${c.repo}/main/${src.replace(/^\.?\//, "")}?t=${Date.now()}`; return; }
+  const ph = document.createElement("span"); ph.className = "hf-ph"; ph.textContent = "?"; im.replaceWith(ph);
+}
+const heroFrameHTML = (img, frame, name) => `<span class="hframe f-${frame || "deco"}"><span class="hf-pic">${img ? `<img src="${fateEsc(img)}" alt="" loading="lazy" onerror="heroImgFallback(this)">` : `<span class="hf-ph">${fateEsc(String(name || "?").trim().charAt(0).toUpperCase())}</span>`}</span><svg class="hf-svg" viewBox="0 0 300 380" aria-hidden="true">${(HERO_FRAMES[frame] || HERO_FRAMES.deco)[1]}</svg></span>`;
 
 
 /* =====================================================================
