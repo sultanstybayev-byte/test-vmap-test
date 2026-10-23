@@ -1091,7 +1091,10 @@
    "photo": "https://sun1-89.vkuserphoto.ru/s/v1/ig2/tDeFC_qO8cOPF834kBnYEqnjZML2hTyktGmw52gN4P10mtlz5sKLjpGKzhXK6TKtuA47ocMGD2T8RcNKDUgSfFOv.jpg?quality=95&crop=181,496,505,505&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360,480x480&ava=1&cs=100x100",
    "role": "member",
    "left": false
-  },
+  }
+ ],
+ "updated": "24 октября 2026 г.",
+ "removed": [
   {
    "id": 164782591,
    "name": "Аркадий Фраерман",
@@ -1100,8 +1103,8 @@
    "play": false,
    "manual": true,
    "chars": [],
-   "char": ""
+   "char": "",
+   "removedAt": "24 октября 2026 г."
   }
- ],
- "updated": "24 октября 2026 г."
+ ]
 }
