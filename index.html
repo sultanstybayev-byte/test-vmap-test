@@ -1095,15 +1095,25 @@ function questsHTML() {
 }
 
 let vIssue = D.vestnik.length - 1;
+(async () => {
+  let data = null; const c = ghCfg();
+  try { if (c.token) data = (await ghRead(c, "docs/vestnik.json")).data; else { const r = await fetch("docs/vestnik.json?t=" + Date.now(), { cache: "no-store" }); if (r.ok) data = await r.json(); } } catch (_) {}
+  if (!data || !Array.isArray(data.issues) || !data.issues.length) return;
+  const wasLast = vIssue === D.vestnik.length - 1;
+  D.vestnik = data.issues; if (wasLast || vIssue >= D.vestnik.length) vIssue = D.vestnik.length - 1;
+  const tile = document.querySelector("[data-fresh]"); if (tile) tile.dataset.fresh = "Выпуск от " + D.vestnik[D.vestnik.length - 1].d;
+  if (route === "vestnik" && $("#sheet")) $("#sheet").innerHTML = vestnikHTML();
+})();
 const firstBold = t => { const m = t.match(/^(.+?[.!?])(\s|$)(.*)$/); return m ? `<b class="fb">${esc(m[1])}</b> ${esc(m[3])}` : esc(t); };
 function vSplit(p) { const m = p.match(/^([^:.!?]{2,42}):\s+(.+)$/); return m ? [m[1], m[2][0].toUpperCase() + m[2].slice(1)] : [null, p]; }
 function vestnikHTML() {
   const v = D.vestnik[vIssue], no = vIssue + 1;
-  const parts = v.p.map(vSplit);
-  const main = parts[0], weather = parts.find(x => x[0] && /^Погода/i.test(x[0]));
-  const rest = parts.slice(1).filter(x => x !== weather);
+  const parts = Array.isArray(v.s) ? [[null, v.p[0]]] : v.p.map(vSplit);
+  const main = parts[0];
+  const weather = Array.isArray(v.s) ? (v.w ? ["Погода по регионам", v.w] : null) : parts.find(x => x[0] && /^Погода/i.test(x[0]));
+  const rest = Array.isArray(v.s) ? v.s.map(x => [x.h || null, x.t]) : parts.slice(1).filter(x => x !== weather);
   const ads = [];
-  (Array.isArray(v.ads) ? [] : v.ads.replace(/\.$/, "").split(/,\s+/)).forEach(x => {
+  (Array.isArray(v.ads) || !v.ads ? [] : String(v.ads).replace(/\.$/, "").split(/,\s+/)).forEach(x => {
     const prev = ads[ads.length - 1];
     if (prev && (/^[А-ЯЁ]/.test(x) || (prev.split("(").length > prev.split(")").length))) ads[ads.length - 1] = prev + ", " + x; else ads.push(x);
   });
@@ -1117,7 +1127,7 @@ function vestnikHTML() {
     <article class="lead-story"><h3 class="headline">${esc(v.head)}</h3>${v.img ? `<figure class="lead-pic"><img src="${v.img}" alt="" loading="lazy">${v.cap ? `<figcaption>${esc(v.cap)}</figcaption>` : ""}</figure>` : ""}${main[0] ? `<p class="kicker">${esc(main[0])}</p>` : ""}<p class="dropcap"><span class="illum">${esc(main[1][0])}</span>${esc(main[1].slice(1))}</p><i class="vine"></i></article>
     <div class="cols">${rest.map(([h, t]) => `<section class="story">${h ? `<h4>${esc(h)}</h4><p>${esc(t)}</p>` : `<p>${firstBold(t)}</p>`}</section>`).join("")}
       ${weather ? `<aside class="story weather"><h4>${esc(weather[0])}</h4><p>${esc(weather[1])}</p></aside>` : ""}</div>
-    <section class="classifieds"><h4><i class="fl-s"></i>Объявления<i class="fl-s r"></i></h4><div class="ads">${ads.map(a => `<p>${esc(a[0].toUpperCase() + a.slice(1))}.</p>`).join("")}</div></section>
+    ${ads.length ? "" : "<!--"}<section class="classifieds"><h4><i class="fl-s"></i>Объявления<i class="fl-s r"></i></h4><div class="ads">${ads.map(a => `<p>${esc(a[0].toUpperCase() + a.slice(1))}${/[.!?…»)]$/.test(a) ? "" : "."}</p>`).join("")}</div></section>${ads.length ? "" : "-->"}
     <footer class="paper-foot">${v.url ? `<a href="${v.url}" target="_blank" rel="noopener">Полный выпуск — в статье ВКонтакте</a>` : "Полный текст выпуска — в группе ВКонтакте"}
       <span>${vIssue > 0 ? `<button type="button" data-vi="${vIssue - 1}">← Предыдущий</button>` : ""}${vIssue < D.vestnik.length - 1 ? `<button type="button" data-vi="${vIssue + 1}">Следующий →</button>` : ""}</span></footer>
   </div>`;
