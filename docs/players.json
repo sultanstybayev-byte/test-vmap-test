@@ -150,7 +150,11 @@
      "id": "c320274126x1",
      "name": "Лилия Этерис",
      "post": 74,
-     "fac": "council"
+     "fac": "council",
+     "facs": [
+      "council",
+      "order"
+     ]
     },
     {
      "id": "c320274126x2",
