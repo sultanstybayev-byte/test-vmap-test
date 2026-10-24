@@ -49,5 +49,47 @@
    "frame": "deco"
   }
  ],
- "hide": false
+ "hide": false,
+ "tpls": [
+  {
+   "id": "t-bordo",
+   "n": "Бордо с золотом",
+   "leather": "#5a1622",
+   "metal": "gold",
+   "cover": "regal",
+   "spine": 6
+  },
+  {
+   "id": "t-krov",
+   "n": "Багрянец и завитки",
+   "leather": "#4a1810",
+   "metal": "gold",
+   "cover": "flourish",
+   "spine": 4
+  },
+  {
+   "id": "t-noch",
+   "n": "Чёрный с серебром",
+   "leather": "#151316",
+   "metal": "silver",
+   "cover": "flourish",
+   "spine": 0
+  },
+  {
+   "id": "t-les",
+   "n": "Изумруд и бронза",
+   "leather": "#16301f",
+   "metal": "bronze",
+   "cover": "deco",
+   "spine": 2
+  },
+  {
+   "id": "tmvm62b1v",
+   "n": "Тайный Фиолетовый",
+   "leather": "#440949",
+   "metal": "silver",
+   "cover": "deco",
+   "spine": 6
+  }
+ ]
 }
