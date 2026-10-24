@@ -1,20 +1,4 @@
 {
- "list": [
-  {
-   "id": "amvmhmjh3",
-   "n": "Убийство Вожака-оборотня",
-   "d": "",
-   "ic": "",
-   "tone": "silver",
-   "group": true,
-   "secret": false
-  }
- ],
- "awards": [
-  {
-   "a": "amvmhmjh3",
-   "pid": 749276044,
-   "date": "24.10.2026"
-  }
- ]
+ "list": [],
+ "awards": []
 }
