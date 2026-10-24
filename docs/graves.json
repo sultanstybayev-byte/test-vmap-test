@@ -1,29 +1,5 @@
 {
- "list": [
-  {
-   "id": "gmvmizunt",
-   "kind": "pc",
-   "n": "Абиссия Мирал",
-   "pid": 316981455,
-   "cid": "cmvifte30b0b",
-   "player": "Шейли Элесмора",
-   "fac": "council",
-   "char": {
-    "id": "cmvifte30b0b",
-    "name": "Абиссия Мирал",
-    "fac": "council"
-   },
-   "cause": "Пала от удушья кринжом",
-   "date": "24 октября",
-   "ep": "",
-   "killers": [
-    1107296832,
-    749276044,
-    1120771500
-   ],
-   "pts": 3
-  }
- ],
+ "list": [],
  "hide": {
   "pc": false,
   "npc": true
