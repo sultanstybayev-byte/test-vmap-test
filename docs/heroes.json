@@ -49,7 +49,7 @@
    "player": ""
   }
  ],
- "hide": false,
+ "hide": true,
  "tpls": [
   {
    "id": "t-bordo",
