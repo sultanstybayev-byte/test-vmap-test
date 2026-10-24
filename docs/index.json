@@ -11,6 +11,17 @@
   {
    "no": 3,
    "deleted": true
+  },
+  {
+   "no": 4,
+   "kind": "stopka",
+   "title": "Найденные бумаги",
+   "note": "",
+   "vis": "hidden",
+   "public": false,
+   "to": [],
+   "created": "24 октября 2026 г.",
+   "updated": "24 октября 2026 г."
   }
  ],
  "folders": [
