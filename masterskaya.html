@@ -3529,7 +3529,7 @@ async function htClick(t) {
 let AA = { list: [], awards: [], players: [], sel: null, form: null, busy: false, give: [], note: "", gcat: 0 };
 const aaBlank = () => ({ id: "a" + Date.now().toString(36), n: "", d: "", ic: "", tone: "gold", group: false, secret: false });
 function achAdminHTML() {
-  return `<div class="va aa wide"><p class="lw-lead">Знаки отличия: значок вручается игроку один раз и навсегда лежит у него в сумке. Общие достижения выдаются сразу всем участникам совместного квеста. Рейтинги убийств и потерь считаются сами — по полю «Кто убил» на Кладбище.</p><div id="aa-box"><p class="note">Открываю Зал славы…</p></div></div>`;
+  return `<div class="va aa wide"><p class="lw-lead">Достижения — личные знаки отличия: значок вручается игроку один раз и лежит только у него в сумке, другие игроки его не видят. Общие достижения выдаются сразу всем участникам совместного квеста. Рейтинги в Зале славы считаются сами — по полю «Кто убил» на Кладбище.</p><div id="aa-box"><p class="note">Открываю Зал славы…</p></div></div>`;
 }
 async function achAdminInit() {
   if (!document.getElementById("ach-css")) document.head.insertAdjacentHTML("afterbegin", `<style id="ach-css">${ACH_CSS}</style>`);
@@ -3554,8 +3554,7 @@ function aaForm() {
   return `<div class="va-form"><h3>${edit ? "Правка знака" : "Новый знак"}</h3>
     <div class="aa-top"><div class="aa-pv">${achBadgeSVG(f)}</div><div class="aa-topr">${fld("n", "Название", "Первая кровь")}${fld("d", "За что", "Убить первого босса квеста", true)}</div></div>
     <span class="ha-l">Металл и лента</span><div class="ht-opts">${Object.entries(ACH_TONES).map(([k, v]) => `<button type="button" data-aatone="${k}" aria-pressed="${f.tone === k}"><i class="aa-sw" style="background:${v[1]};box-shadow:inset 0 -6px 0 ${v[2]}"></i>${esc(v[0])}</button>`).join("")}</div>
-    <div class="aa-flags"><label><input type="checkbox" data-aaflag="group"${f.group ? " checked" : ""}> Общее достижение <small>— вручается сразу нескольким за совместный квест, с лавровым венком</small></label>
-      <label><input type="checkbox" data-aaflag="secret"${f.secret ? " checked" : ""}> Тайное <small>— пока игрок его не получил, в Зале славы вместо него «?»</small></label></div>
+    <div class="aa-flags"><label><input type="checkbox" data-aaflag="group"${f.group ? " checked" : ""}> Общее достижение <small>— вручается сразу нескольким за совместный квест, с лавровым венком</small></label></div>
     <span class="ha-l">Знак в центре медали</span><div class="aa-gl"><select data-aacat>${FS_GLYPHS.map((g, i) => `<option value="${i}"${i === AA.gcat ? " selected" : ""}>${esc(g[1])}</option>`).join("")}</select>
       <div class="aa-glyphs"><button type="button" data-aaic="" aria-pressed="${!f.ic}" title="Звезда"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z" fill="currentColor"/></svg></button>${cat[2].map(([n, d], i) => `<button type="button" data-aaic="${AA.gcat}:${i}" aria-pressed="${f.ic === d}" title="${esc(n)}"><svg viewBox="0 0 24 24">${fsGlyph(d)}</svg></button>`).join("")}</div></div>
     <div class="actions va-save"><button type="button" class="btn" data-aasave ${AA.busy ? "disabled" : ""}>${AA.busy ? "Сохраняю…" : "Сохранить знак"}</button><button type="button" class="btn ghost" data-aacancel>Отмена</button>${edit ? `<button type="button" class="btn ghost" data-aadel>${AA.delAsk ? "Точно удалить? Он пропадёт у всех" : "Удалить знак"}</button>` : ""}</div>
@@ -3588,7 +3587,7 @@ document.addEventListener("click", async e => {
   if (!ghCfg().token && t.closest("[data-aasave],[data-aadel],[data-aagivebtn],[data-aatake]")) return toast("Сначала подключите ключ GitHub.");
   if (t.closest("[data-aasave]")) {
     const f = AA.form; if (!String(f.n || "").trim()) return toast("Впишите название знака.");
-    const item = { id: f.id, n: String(f.n).trim(), d: String(f.d || "").trim(), ic: f.ic || "", tone: f.tone || "gold", group: !!f.group, secret: !!f.secret };
+    const item = { id: f.id, n: String(f.n).trim(), d: String(f.d || "").trim(), ic: f.ic || "", tone: f.tone || "gold", group: !!f.group, secret: false };
     AA.busy = true; aaRedraw();
     try { const A = await achUpdate(A => { const i = A.list.findIndex(x => x.id === item.id); if (i >= 0) A.list[i] = item; else A.list.push(item); }, `Зал славы: ${item.n}`); AA.list = A.list; AA.awards = A.awards; AA.form = JSON.parse(JSON.stringify(item)); toast("Знак сохранён. Теперь его можно вручить."); } catch (err) { toast("Не получилось: " + err.message); }
     AA.busy = false; return aaDraw();
@@ -3629,7 +3628,7 @@ const TOOLS = [
   ["kladbishche", "Кладбище", graveAdminHTML, graveAdminInit],
   ["sudba", "Карты Судьбы", fateAdminHTML, fateAdminInit],
   ["geroi", "Колода сердец", heroAdminHTML, heroAdminInit],
-  ["dostizheniya", "Зал славы", achAdminHTML, achAdminInit]
+  ["dostizheniya", "Достижения", achAdminHTML, achAdminInit]
 ];
 const RAIL_IC = {
   docs: '<path d="M7 3h8l4 4v14H7z"/><path d="M15 3v4h4M10 11h6M10 15h6"/><path d="M4 6v15h11"/>',
@@ -3652,7 +3651,7 @@ const WS_MENU = [
     ["igroki", "Игроки", "Персонажи, сумки и кладбище", ["igroki", "kladbishche"]],
     ["geroi", "Колода сердец", "Карты персонажей игроков", ["geroi"]],
     ["sudba", "Карты Судьбы", "Описания карт и выдача игрокам", ["sudba"]],
-    ["slava", "Зал славы", "Достижения и знаки отличия", ["dostizheniya"]]
+    ["slava", "Достижения", "Личные знаки отличия игроков", ["dostizheniya"]]
   ]]
 ];
 const WS_TAB = { kvesty: "Квесты", rozysk: "Розыск", frakcii: "Фракции", znaki: "Знаки фракций", igroki: "Игроки", kladbishche: "Кладбище" };
