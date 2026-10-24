@@ -1,0 +1,38 @@
+{
+ "v": 2,
+ "kind": "stopka",
+ "title": "Найденные бумаги",
+ "note": "",
+ "data": {
+  "title": "Найденные бумаги",
+  "sheets": [
+   {
+    "sigHand": "",
+    "size": 1,
+    "title": "",
+    "sub": "",
+    "initial": "",
+    "wobble": true,
+    "backdrop": true,
+    "seed": 7149,
+    "kind": "letter",
+    "paper": "parch",
+    "ink": "sepia",
+    "hand": "marck",
+    "place": "",
+    "greet": "",
+    "body": "",
+    "close": "",
+    "sign": "",
+    "ps": "",
+    "seal": "none",
+    "wax": "red",
+    "dropcap": true,
+    "corners": false,
+    "folds": true,
+    "blots": true,
+    "design": 1
+   }
+  ]
+ }
+}
