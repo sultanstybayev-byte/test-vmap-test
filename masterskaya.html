@@ -681,7 +681,7 @@ const SC_ORN = `<svg class="sc-orn" viewBox="0 0 200 300" aria-hidden="true"><g 
 const scBack = () => `<span class="sc-b">${SC_ORN}</span>`;
 function scFace(h) {
   const n = graveShort(h.n || "Без имени", 18), ini = String(h.n || "?").trim().charAt(0).toUpperCase() || "?";
-  return `<span class="sc-f${n.length > 12 ? " long" : ""}"><span class="sc-pic">${h.img ? `<img src="${fateEsc(h.img)}" alt="" loading="lazy" onerror="heroImgFallback(this)">` : `<span class="sc-ph">${fateEsc(ini)}</span>`}</span><span class="sc-med">${fateEsc(ini)}</span><span class="sc-bn"><b>${fateEsc(n)}</b>${h.title ? `<small>${fateEsc(h.title)}</small>` : ""}</span></span>`;
+  return `<span class="sc-f${n.length > 12 ? " long" : ""}"><span class="sc-pic">${h.img ? `<img src="${fateEsc(h.img)}" alt="" loading="lazy" onerror="heroImgFallback(this)">` : `<span class="sc-ph">${fateEsc(ini)}</span>`}</span><span class="sc-bn"><b>${fateEsc(n)}</b>${h.title ? `<small>${fateEsc(h.title)}</small>` : ""}</span></span>`;
 }
 const SC_CSS = `.sc { --m: #e2bf68; --m1: #f6e2a8; --m2: #7c6430; --m3: #43361a; --lea: #3b2412; --lea2: #1a1008; --lea1: #5a3c24; position: relative; display: block; width: 176px; aspect-ratio: 2 / 3; padding: 0; border: 0; border-radius: 12px; background: none; cursor: pointer; transform-style: preserve-3d; transition: transform .35s cubic-bezier(.2,.7,.2,1), filter .35s; font: inherit; color: inherit; }
 .sc-f, .sc-b { position: absolute; inset: 0; display: block; border-radius: 12px; padding: 7px; backface-visibility: hidden; -webkit-backface-visibility: hidden; background: linear-gradient(135deg, var(--m1), var(--m2) 28%, var(--m) 50%, var(--m3) 74%, var(--m1)); box-shadow: 0 0 0 1px rgba(0,0,0,.55), 0 12px 24px rgba(0,0,0,.6); }
