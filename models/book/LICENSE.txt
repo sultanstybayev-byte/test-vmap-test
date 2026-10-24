@@ -1,0 +1,11 @@
+Model Information:
+* title:	Book
+* source:	https://sketchfab.com/3d-models/book-28e028e981604aacb25766852aa279ed
+* author:	James.Moore (https://sketchfab.com/James.Moore)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Book" (https://sketchfab.com/3d-models/book-28e028e981604aacb25766852aa279ed) by James.Moore (https://sketchfab.com/James.Moore) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
