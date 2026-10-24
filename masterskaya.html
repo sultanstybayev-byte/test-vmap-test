@@ -492,6 +492,7 @@ function charsOf(p) {
 }
 const fateOfChar = c => Array.isArray(c && c.fate) ? c.fate : [];
 function fateAllOf(p) { const s = new Set(p && Array.isArray(p.fate) ? p.fate : []); charsOf(p).forEach(c => fateOfChar(c).forEach(id => s.add(id))); return [...s]; }
+const plays = p => !!(p && !p.left && p.play);
 function setChars(p, list) { p.chars = list.filter(c => String(c.name || "").trim()); p.char = p.chars.map(c => c.name).join(", "); }
 const plName = p => p ? (charsOf(p).length ? `${charsOf(p).map(c => c.name).join(", ")} (${p.name})` : p.name) : "";
 function whoParse(w) { if (typeof w === "number") return { pid: w, cid: "" }; const [a, b] = String(w).split(":"); return { pid: +a, cid: b || "" }; }
@@ -1869,7 +1870,7 @@ function toPickHTML(h) {
 }
 function toResults(box, q) {
   const h = PUB[box.dataset.pub]().holder, to = new Set(h.to || []); q = q.trim().toLowerCase();
-  const list = WPLAYERS.filter(p => !p.left && !to.has(p.id) && (!q || (p.name + " " + (p.char || "")).toLowerCase().includes(q)))
+  const list = WPLAYERS.filter(p => plays(p) && !to.has(p.id) && (!q || (p.name + " " + (p.char || "")).toLowerCase().includes(q)))
     .sort((a, b) => (b.play ? 1 : 0) - (a.play ? 1 : 0) || a.name.localeCompare(b.name, "ru")).slice(0, 8);
   box.querySelector(".to-res").innerHTML = list.map(p => `<button type="button" data-toadd="${p.id}">${p.photo ? `<img src="${esc(p.photo)}" alt="">` : ""}<span>${esc(plName(p))}</span>${p.play ? `<i>играет</i>` : ""}</button>`).join("") || (q ? `<p>Никого не нашлось</p>` : "");
 }
@@ -2201,7 +2202,7 @@ function qaBusyChar(pid, cid, except) { for (const [n, st] of Object.entries(QST
 function qaResults(box, val) {
   const name = qaPick, who = new Set((((QST[name] || {}).who) || []).map(String)), v = (val || "").trim().toLowerCase();
   const rows = [];
-  QPL.filter(p => !p.left).forEach(p => {
+  QPL.filter(plays).forEach(p => {
     const cs = charsOf(p);
     if (cs.length) cs.forEach(c => { const key = p.id + ":" + c.id; if (!who.has(key)) rows.push({ key, p, c, hay: (c.name + " " + p.name).toLowerCase(), busy: qaBusyChar(p.id, c.id, name) }); });
     else if (!who.has(String(p.id))) rows.push({ key: String(p.id), p, c: null, hay: p.name.toLowerCase(), busy: "" });
@@ -2497,7 +2498,7 @@ function faDraw() {
 }
 function faResults(box, val) {
   const v = (val || "").trim(), lv = v.toLowerCase(), rows = [];
-  (FPL.list || []).filter(p => !p.left).forEach(p => charsOf(p).forEach(c => { if (!facsOf(c).includes(fPick)) rows.push({ key: p.id + ":" + c.id, c, p, hay: (c.name + " " + p.name).toLowerCase() }); }));
+  (FPL.list || []).filter(plays).forEach(p => charsOf(p).forEach(c => { if (!facsOf(c).includes(fPick)) rows.push({ key: p.id + ":" + c.id, c, p, hay: (c.name + " " + p.name).toLowerCase() }); }));
   (FPL.npcs || []).forEach(n => { if (!facsOf(n).includes(fPick)) rows.push({ key: "npc:" + n.id, c: n, p: null, hay: n.name.toLowerCase() }); });
   const list = rows.filter(r => !lv || r.hay.includes(lv)).sort((a, b) => (facsOf(a.c).length ? 1 : 0) - (facsOf(b.c).length ? 1 : 0) || a.c.name.localeCompare(b.c.name, "ru"));
   box.querySelector(".qa-res").innerHTML = list.map(r => `<button type="button" data-fapick="${esc(r.key)}">${r.p && r.p.photo ? `<img src="${esc(r.p.photo)}" alt="">` : ""}<span><b>${esc(r.c.name)}</b> · ${r.p ? esc(r.p.name) : "NPC мастера"}</span>${facsOf(r.c).length ? `<i class="busy">${facsOf(r.c).includes("none") ? "Странник — переедет" : "также в: " + esc(facNames(r.c))}</i>` : `<i>без фракции</i>`}</button>`).join("") +
@@ -3196,7 +3197,7 @@ function gaDraw() {
     <h3>NPC · ${npc.length}</h3>${npc.length ? `<div class="va-list">${npc.map(([g, i]) => gaRow(g, i)).join("")}</div>` : `<p class="note">Пока никто не пал.</p>`}`;
 }
 function gaLiving() {
-  const out = []; GA.players.filter(p => !p.left).forEach(p => charsOf(p).forEach(c => out.push({ v: p.id + ":" + c.id, t: `${c.name} — ${p.name}` })));
+  const out = []; GA.players.filter(plays).forEach(p => charsOf(p).forEach(c => out.push({ v: p.id + ":" + c.id, t: `${c.name} — ${p.name}` })));
   return out.sort((a, b) => a.t.localeCompare(b.t, "ru"));
 }
 function gaDrawForm() {
@@ -3209,7 +3210,7 @@ function gaDrawForm() {
       : `<label class="va-f"><span>NPC мастера</span><select data-gaf="npc"><option value="">— другой NPC (вписать имя ниже) —</option>${NPC_LIST.filter(c => !dead.has(c.key)).map(c => `<option value="${c.key}"${f.npc === c.key ? " selected" : ""}>${esc(c.name)}${c.role ? " — " + esc(c.role) : ""}</option>`).join("")}</select></label>${f.npc ? "" : fld("n", "Имя NPC", "Например: Старый Хэмиш")}`}`}
     ${fld("cause", "Причина смерти", "Пал от рук обескровленных у стен Эпиры…", true)}
     <div class="va-grid wa-grid">${fld("date", "Когда", "23 октября или «Осень, год Перелома»")}${fld("ep", "Надпись на кресте (необязательно)", "Свет ему путь")}</div>
-    <div class="ga-kill"><span class="ga-kl">Кто убил — для рейтинга в Зале славы</span><div class="ga-kchips">${GA.players.filter(p => !p.left).sort((a, b) => String(a.name).localeCompare(String(b.name), "ru")).map(p => `<button type="button" data-gakill="${p.id}" aria-pressed="${(f.killers || []).includes(p.id)}">${esc(p.name)}</button>`).join("")}</div>
+    <div class="ga-kill"><span class="ga-kl">Кто убил — для рейтинга в Зале славы</span><div class="ga-kchips">${GA.players.filter(p => plays(p) || (f.killers || []).includes(p.id)).sort((a, b) => String(a.name).localeCompare(String(b.name), "ru")).map(p => `<button type="button" data-gakill="${p.id}" aria-pressed="${(f.killers || []).includes(p.id)}">${esc(p.name)}</button>`).join("")}</div>
       <small class="note">Отметьте игроков, чьи персонажи нанесли смертельный удар. Никого — если погиб не от рук игроков.</small>
       <label class="va-f ga-pts"><span>Очки за убийство</span><input type="number" min="1" max="50" step="1" data-gaf="pts" value="${+f.pts || 1}"><small>${f.kind === "pc" ? "обычно 1" : "босс квеста — больше, например 3–5"}</small></label></div>
     <p class="note">${f.kind === "pc" && !edit ? "Персонаж исчезнет у игрока и из квестов. Вернуть можно кнопкой «Вернуть к игроку»." : "На кресте длинное имя сократится до имени и инициалов."}</p>
@@ -3293,7 +3294,7 @@ function faDraw() {
     <div class="fa-ed" id="fa-ed">${sel ? faEditor(sel) : `<p class="note">Выберите карту в колоде слева.</p>`}</div></div>`;
 }
 function faEditor(c) {
-  const f = FA.form || (FA.form = Object.assign({}, c)), hold = faHolders(c.id), pls = FA.players.filter(p => charsOf(p).length).sort((a, b) => String(a.name).localeCompare(String(b.name), "ru")), gp = pls.find(p => String(p.id) === String(FA.giveP)), allC = gp ? charsOf(gp) : [], freeC = allC.filter(x => !fateOfChar(x).length);
+  const f = FA.form || (FA.form = Object.assign({}, c)), hold = faHolders(c.id), pls = FA.players.filter(p => plays(p) && charsOf(p).length).sort((a, b) => String(a.name).localeCompare(String(b.name), "ru")), gp = pls.find(p => String(p.id) === String(FA.giveP)), allC = gp ? charsOf(gp) : [], freeC = allC.filter(x => !fateOfChar(x).length);
   const fld = (k, l, ph, area) => `<label class="va-f"><span>${l}</span>${area ? `<textarea data-faf="${k}" rows="4" placeholder="${esc(ph)}">${esc(f[k] || "")}</textarea>` : `<input type="text" data-faf="${k}" value="${esc(f[k] || "")}" placeholder="${esc(ph)}">`}</label>`;
   return `<div class="fa-top">${fateCardHTML(f, "", 150)}<div class="fa-topr">${fld("n", "Название карты", "Например: Месть")}
       <label class="va-f"><span>Группа (цвет свечения)</span><select data-faf="g">${FATE_GROUPS.map(([g, n]) => `<option value="${g}"${f.g === g ? " selected" : ""}>${esc(n)}</option>`).join("")}</select></label>
@@ -3388,7 +3389,7 @@ const haPlayer = h => { const p = HA.players.find(x => +x.id === +h.pid); return
 function haDraw() {
   const box = document.getElementById("ha-box"); if (!box) return;
   const linked = new Set(HA.list.map(h => h.pid + ":" + h.cid)), todo = [];
-  HA.players.forEach(p => charsOf(p).forEach(c => { if (!linked.has(p.id + ":" + c.id)) todo.push({ p, c }); }));
+  HA.players.filter(plays).forEach(p => charsOf(p).forEach(c => { if (!linked.has(p.id + ":" + c.id)) todo.push({ p, c }); }));
   const q = HA.q.trim().toLowerCase(), T = todo.filter(x => !q || (x.c.name + " " + x.p.name).toLowerCase().includes(q)).sort((a, b) => a.c.name.localeCompare(b.c.name, "ru")), L = HA.list.slice().sort((a, b) => String(a.n).localeCompare(String(b.n), "ru")).filter(h => !q || (h.n + " " + haPlayer(h)).toLowerCase().includes(q));
   const tabs = `<div class="ha-tabs"><button type="button" data-hatab="chars" aria-pressed="${HA.tab === "chars"}">Персонажи</button><button type="button" data-hatab="tpls" aria-pressed="${HA.tab === "tpls"}">Образцы карт</button></div>`;
   if (HA.tab === "tpls") { box.innerHTML = tabs + htHTML(); return; }
@@ -3402,7 +3403,7 @@ function haDraw() {
 function haForm() {
   const f = HA.form, edit = HA.list.some(h => h.id === f.id), T = HA.tpls.length ? HA.tpls : CARD_TPL_SEED;
   const fld = (k, l, ph, rows) => `<label class="va-f"><span>${l}</span>${rows ? `<textarea data-haf="${k}" rows="${rows}" placeholder="${esc(ph)}">${esc(f[k] || "")}</textarea>` : `<input type="text" data-haf="${k}" value="${esc(f[k] || "")}" placeholder="${esc(ph)}">`}</label>`;
-  const chars = []; HA.players.forEach(p => charsOf(p).forEach(c => chars.push({ v: p.id + ":" + c.id, t: `${c.name} — ${p.name}` })));
+  const chars = []; HA.players.filter(p => plays(p) || +p.id === +f.pid).forEach(p => charsOf(p).forEach(c => chars.push({ v: p.id + ":" + c.id, t: `${c.name} — ${p.name}` })));
   const cur = f.pid + ":" + f.cid;
   return `<div class="va-form"><h3>${edit ? "Правка карты" : "Новая карта"}</h3>
     <div class="ha-top"><div class="ha-pv">${haCard(f, "ha-big")}<label class="btn ghost va-up">${f.img ? "Заменить портрет" : "Добавить портрет"}<input type="file" accept="image/*" data-haimg hidden></label></div>
@@ -3550,7 +3551,7 @@ function aaForm() {
   const f = AA.form, edit = AA.list.some(a => a.id === f.id), hold = edit ? aaHolders(f.id) : [];
   const fld = (k, l, ph, area) => `<label class="va-f"><span>${l}</span>${area ? `<textarea data-aaf="${k}" rows="3" placeholder="${esc(ph)}">${esc(f[k] || "")}</textarea>` : `<input type="text" data-aaf="${k}" value="${esc(f[k] || "")}" placeholder="${esc(ph)}">`}</label>`;
   const cat = FS_GLYPHS[AA.gcat] || FS_GLYPHS[0];
-  const has = new Set(hold.map(w => +w.pid)), free = AA.players.slice().sort((a, b) => String(a.name).localeCompare(String(b.name), "ru"));
+  const has = new Set(hold.map(w => +w.pid)), free = AA.players.filter(plays).sort((a, b) => String(a.name).localeCompare(String(b.name), "ru"));
   return `<div class="va-form"><h3>${edit ? "Правка знака" : "Новый знак"}</h3>
     <div class="aa-top"><div class="aa-pv">${achBadgeSVG(f)}</div><div class="aa-topr">${fld("n", "Название", "Первая кровь")}${fld("d", "За что", "Убить первого босса квеста", true)}</div></div>
     <span class="ha-l">Металл и лента</span><div class="ht-opts">${Object.entries(ACH_TONES).map(([k, v]) => `<button type="button" data-aatone="${k}" aria-pressed="${f.tone === k}"><i class="aa-sw" style="background:${v[1]};box-shadow:inset 0 -6px 0 ${v[2]}"></i>${esc(v[0])}</button>`).join("")}</div>

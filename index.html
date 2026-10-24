@@ -711,6 +711,7 @@ function charsOf(p) {
 }
 const fateOfChar = c => Array.isArray(c && c.fate) ? c.fate : [];
 function fateAllOf(p) { const s = new Set(p && Array.isArray(p.fate) ? p.fate : []); charsOf(p).forEach(c => fateOfChar(c).forEach(id => s.add(id))); return [...s]; }
+const plays = p => !!(p && !p.left && p.play);
 function setChars(p, list) { p.chars = list.filter(c => String(c.name || "").trim()); p.char = p.chars.map(c => c.name).join(", "); }
 const plName = p => p ? (charsOf(p).length ? `${charsOf(p).map(c => c.name).join(", ")} (${p.name})` : p.name) : "";
 function whoParse(w) { if (typeof w === "number") return { pid: w, cid: "" }; const [a, b] = String(w).split(":"); return { pid: +a, cid: b || "" }; }
@@ -1466,14 +1467,14 @@ function heroBlocks(h) {
 
 let ACH = null;
 document.head.insertAdjacentHTML("afterbegin", `<style>${ACH_CSS}</style>`);
-const famePl = () => (typeof SC_PL !== "undefined" && SC_PL) || BAG_DATA || QPLAYERS || [];
-const fameName = pid => { const p = famePl().find(x => +x.id === +pid); return p ? p.name : "Игрок"; };
+const famePlAll = () => (typeof SC_PL !== "undefined" && SC_PL) || BAG_DATA || QPLAYERS || [];
+const famePl = () => famePlAll().filter(plays);
+const fameName = pid => { const p = famePlAll().find(x => +x.id === +pid); return p ? p.name : "Игрок"; };
 function fameTableHTML(title, sub, map, unit, cls) {
   const rows = famePl().map(p => ({ pid: p.id, name: p.name || "Игрок", n: (map[p.id] || {}).n || 0 }));
-  Object.values(map).forEach(r => { if (!rows.some(x => +x.pid === +r.pid)) rows.push({ pid: r.pid, name: fameName(r.pid), n: r.n }); });
   rows.sort((a, b) => b.n - a.n || String(a.name).localeCompare(String(b.name), "ru"));
   let rank = 0, prev = null;
-  return `<section class="fb ${cls}"><h3>${title}</h3><p class="fb-sub">${sub}</p>${rows.length ? `<table class="ft"><thead><tr><th>№</th><th>Игрок</th><th>${unit}</th></tr></thead><tbody>${rows.map((r, i) => { if (r.n !== prev) { rank = i + 1; prev = r.n; } return `<tr class="${r.n && rank <= 3 ? "t" + rank : ""}${VK_ME && +r.pid === VK_ME ? " me" : ""}${r.n ? "" : " zero"}"><td>${rank}</td><td>${esc(r.name)}</td><td>${r.n}</td></tr>`; }).join("")}</tbody></table>` : `<p class="fb-empty">Список игроков ещё загружается…</p>`}</section>`;
+  return `<section class="fb ${cls}"><h3>${title}</h3><p class="fb-sub">${sub}</p>${rows.length ? `<table class="ft"><thead><tr><th>№</th><th>Игрок</th><th>${unit}</th></tr></thead><tbody>${rows.map((r, i) => { if (r.n !== prev) { rank = i + 1; prev = r.n; } return `<tr class="${r.n && rank <= 3 ? "t" + rank : ""}${VK_ME && +r.pid === VK_ME ? " me" : ""}${r.n ? "" : " zero"}"><td>${rank}</td><td>${esc(r.name)}</td><td>${r.n}</td></tr>`; }).join("")}</tbody></table>` : `<p class="fb-empty">${famePlAll().length ? "Пока нет игроков с отметкой «Играет»." : "Список игроков ещё загружается…"}</p>`}</section>`;
 }
 function fameRatingHTML() {
   if (!GR) return `<p class="lead">Перебираю летописи…</p>`;
@@ -1855,7 +1856,7 @@ function bagDraw() {
 }
 { const _bagDraw = bagDraw; bagDraw = function () { _bagDraw(); fateDraw(); achBagDraw(); }; }
 let PP_Q = "";
-const ppSorted = list => list.filter(p => charsOf(p).length).sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "ru", { sensitivity: "base" }));
+const ppSorted = list => list.filter(p => plays(p) && charsOf(p).length).sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "ru", { sensitivity: "base" }));
 const ppAva = p => p.photo ? `<img src="${esc(p.photo)}" alt="" loading="lazy">` : `<span class="pp-ava0">${esc(String(p.name || "?").trim().charAt(0).toUpperCase())}</span>`;
 function ppRow(p, me) {
   const ch = charsOf(p), b = bagOf(p);
