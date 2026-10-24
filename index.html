@@ -1414,7 +1414,13 @@ const curseHTML = h => { const g = curseG(h); return g ? `<span class="sc-fx fx-
 const curseVar = h => { const c = heroFate(h)[0]; return c ? `--gc:${fateGroup(c.g)[2]};` : ""; };
 const heroSorted = () => (HERO ? HERO.list : []).filter(h => +h.pid && (ADMIN || (VK_ME && +h.pid === VK_ME))).slice().sort((a, b) => String(a.n).localeCompare(String(b.n), "ru"));
 let SOULS_VIEW = "deck";
-function heroBookHTML() { SOULS_VIEW = "deck"; setTimeout(soulsDraw, 0); return `<div class="souls wide" id="souls"><p class="note">Достаю колоду…</p></div>`; }
+function soulsRefresh() {
+  const fresh = ADMIN && !!ghCfg().token;
+  heroLoad(fresh).then(H => { HERO = H; soulsDraw(); }).catch(() => {});
+  plLoad(fresh).then(P => { SC_PL = (P.list || []).filter(p => !p.left); soulsDraw(); }).catch(() => {});
+  fateLoad(fresh).then(F => { FATE = F; soulsDraw(); }).catch(() => {});
+}
+function heroBookHTML() { SOULS_VIEW = "deck"; setTimeout(soulsDraw, 0); soulsRefresh(); return `<div class="souls wide" id="souls"><p class="note">Достаю колоду…</p></div>`; }
 const scVars = h => scVarsT(cardTpl(h, HERO && HERO.tpls));
 function soulsDraw() {
   const box = $("#souls"); if (!box || !HERO) return;
